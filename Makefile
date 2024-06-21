@@ -29,10 +29,11 @@ $(BUILD_DIR)/bootloader.bin: always
 # Kernel
 #
 kernel: $(BUILD_DIR)/kernel.bin
-
+#first line is for assembly test kernel, next two is to do after switching to 32 bit
 $(BUILD_DIR)/kernel.bin: always
 	$(ASM) $(SRC_DIR)/kernel/main.asm -f bin -o $(BUILD_DIR)/kernel.bin
-
+#	/usr/local/i386elfgcc/bin/i386-elf-gcc -c $(SRC_DIR)/kernel/kernel.c
+#	/usr/local/i386elfgcc/bin/i386-elf-objcopy -O binary -j .text kernel.o $(BUILD_DIR)/kernel.bin
 
 always:
 	mkdir -p $(BUILD_DIR)

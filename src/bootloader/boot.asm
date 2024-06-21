@@ -132,19 +132,19 @@ start:
         and ax, 0x0FFF
     .nextCluster:
         cmp ax, 0x0FF8
-        jae finish_reading
+        jae .finish_reading
         mov [kernel_cluster], ax
         jmp .load_kernel_to_memory
 
-finish_reading:
-    mov dl, [ebr_drive_number]
-    mov ax, kernel_load_segment
-    mov ds, ax
-    mov es, ax
-    jmp kernel_load_segment:kernel_load_offset
-    
-    cli
-    hlt
+    .finish_reading:
+        mov dl, [ebr_drive_number]
+        mov ax, kernel_load_segment
+        mov ds, ax
+        mov es, ax
+        jmp kernel_load_segment:kernel_load_offset
+        
+        cli
+        hlt
 
 halt:
     cli
