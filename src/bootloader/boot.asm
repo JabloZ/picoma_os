@@ -1,6 +1,8 @@
-org 0x7c00
-
+org 0x7C00
 bits 16
+%define ENDL 0x0D, 0x0A
+
+
 
 jmp short start
 nop
@@ -27,149 +29,114 @@ ebr_volume_id:              db 12h, 34h, 56h, 78h   ; serial number, value doesn
 ebr_volume_label:           db 'PICOMA OS  '        
 ebr_system_id:              db 'FAT12   '
 
-
-print_str:
-    mov ah, 0x0e
-print_str_loop:
-    lodsb               ; loads next character in al
-    or al, al
-    je done
-    int 0x10
-    jmp print_str_loop
-done:
-    ret
-
 start:
     ;data segments
+    
     mov ax, 0   
     mov ds, ax
     mov es, ax
-    
-    ;set stack
     mov ss, ax
     mov sp, 0x7C00
-    push es
-    push word .after_start
-    retf
-.after_start:
-    mov [ebr_drive_number], dl
     
-    push es
-    mov ah, 08h
-    int 13h
-    jc floppy_error
-    pop es
+    .after_start:
+        
+        mov ax, [bdb_sectors_per_fat]
+        mov bl, [bdb_fat_count]
+        xor bh, bh
+        mul bx
+        add ax, [bdb_reserved_sectors] ; root lba
 
-    xor ch, ch
-    mov [bdb_sectors_per_track], cx     ; sector count
+        push ax
+        mov ax, [bdb_dir_entries_count]
+        shl ax,5 ; mul by 32 (shift left 5 times)
+        xor dx, dx
+        
+        div word [bdb_bytes_per_sector]
 
-    inc dh
-    mov [bdb_heads], dh     
+        test dx, dx
+        jz .afterRoot
+        inc ax
+        
+    .afterRoot:
+        mov cl, al
+        pop ax
+        mov dl, [ebr_drive_number]
+        mov bx, buffer
+        
+        call disk_read
+        
+        xor bx, bx
+        mov di, buffer
+       
+    .find_kernel:
+        
+        mov si, kernel_file
+        mov cx, 11
+        push di
+        repe cmpsb
+        pop di
+        je .kernel_found
 
-    mov ax, [bdb_sectors_per_fat]
-    mov bl, [bdb_fat_count]
-    xor bh, bh
-    mul bx
-    add ax, [bdb_reserved_sectors] ; root lba
+        add di, 32
+        inc bx
+        cmp bx, [bdb_dir_entries_count]; how much files in root, if not less then kernel not found
+        jl .find_kernel
 
-    push ax
-    mov ax, [bdb_dir_entries_count]
-    shl ax,5 ; mul by 32 (shift left 5 times)
-    xor dx, dx
-    
-    div word [bdb_bytes_per_sector]
+        jmp .kernel_not_found
 
-    test dx, dx
-    jz .afterRoot
-    mov ah, 0x0e
-    mov al, 'B'
-    int 10h
-    inc ax
-    
-.afterRoot:
-    mov cl, al
-    pop ax
-    mov dl, [ebr_drive_number]
-    mov bx, buffer
-    
-    call disk_read
+    .kernel_not_found:
+        mov si, diskErrorStr
+        call print_str
+        hlt
+        jmp wait_key_and_reboot
 
-    xor bx, bx
-    mov di, buffer
+    .kernel_found:
+        mov ax, [di+26]
+        mov [kernel_cluster], ax
 
-.find_kernel:
-    mov si, kernel_file
-    mov cx, 11
-    push di
-    repe cmpsb
-    pop di
-    je .kernel_found
+        mov ax, [bdb_reserved_sectors]
+        mov bx, buffer
+        mov cl, [bdb_sectors_per_fat]
+        mov dl, [ebr_drive_number]
+        call disk_read
 
-    add di, 32
-    inc bx
-    cmp bx, [bdb_dir_entries_count]; how much files in root, if not less then kernel not found
-    jl .find_kernel
+        mov bx, kernel_load_segment
+        mov es, bx
+        mov bx, kernel_load_offset
 
-    jmp .kernel_not_found
+    .load_kernel_to_memory:
+        
+        mov ax, [kernel_cluster]
+        add ax, 31
+        mov cl, 1
+        mov dl, [ebr_drive_number]
+        call disk_read
+        
+        add bx, [bdb_bytes_per_sector]
+        mov ax, [kernel_cluster]
+        mov cx, 3
+        mul cx
+        mov cx, 2
+        div cx
 
-.kernel_not_found:
-    mov si, diskErrorStr
-    call print_str
-    hlt
-    jmp halt
+        mov si, buffer
+        add si, ax
+        mov ax, [ds:si]
 
-.kernel_found:
-    mov si, disk_success
-    call print_str
-
-    mov ax, [di+26]
-    mov [kernel_cluster], ax
-
-    mov ax, [bdb_reserved_sectors]
-    mov bx, buffer
-    mov cl, [bdb_sectors_per_fat]
-    mov dl, [ebr_drive_number]
-    call disk_read
-
-    mov bx, kernel_load_segment
-    mov es, bx
-    mov bx, kernel_load_offset
-
-.load_kernel_to_memory:
-    mov ax, [kernel_cluster]
-    add ax, 31
-    mov cl, 1
-    mov dl, [ebr_drive_number]
-    call disk_read
-    
-    add bx, [bdb_bytes_per_sector]
-    mov ax, [kernel_cluster]
-    mov cx, 3
-    mul cx
-    mov cx, 2
-    div cx
-
-    mov si, buffer
-    add si, ax
-    mov ax, [ds:si]
-
-    or dx, dx
-    jz .even
-.odd:
-    shr ax, 4
-    jmp .nextCluster
-.even:
-    and ax, 0x0FFF
-.nextCluster:
-    cmp ax, 0x0ff8
-    jae finish_reading
-    mov [kernel_cluster], ax
-    jmp .load_kernel_to_memory
+        or dx, dx
+        jz .even
+    .odd:
+        shr ax, 4
+        jmp .nextCluster
+    .even:
+        and ax, 0x0FFF
+    .nextCluster:
+        cmp ax, 0x0FF8
+        jae finish_reading
+        mov [kernel_cluster], ax
+        jmp .load_kernel_to_memory
 
 finish_reading:
-    mov si, disk_success
-    call print_str
-
     mov dl, [ebr_drive_number]
     mov ax, kernel_load_segment
     mov ds, ax
@@ -184,20 +151,27 @@ halt:
     hlt
 
 floppy_error:
+
     mov si, diskErrorStr
     call print_str
     hlt
-
+wait_key_and_reboot:
+    mov ah, 0
+    int 16h                     ; wait for keypress
+    jmp 0FFFFh:0
 ;lba to chs formula:
 ;C = LBA ÷ (HPC x SPT)
 ;H = (LBA ÷ SPT) mod HPC
 ;S = (LBA mod SPT) + 1
-lba_to_chs:
 
+lba_to_chs:
+    
     push ax
     push dx
+
     xor dx, dx
     
+
     div word [bdb_sectors_per_track]
     
     inc dx
@@ -208,10 +182,9 @@ lba_to_chs:
     
     mov dh, dl ; dh=head
     mov ch, al ; ch=cylinder
-
     shl ah, 6
     or cl, ah
-
+    
     pop ax
     mov dl, al
     pop ax
@@ -225,28 +198,37 @@ disk_read:
     push dx
     push di
     
+    push cx
     call lba_to_chs
-    
     pop ax
 
+    
     mov ah, 02h
     mov di, 3
-retry:
+.retry:
+    
+    pusha
     stc
     int 13h
-    jnc done_reading
-    call disk_reset
-    inc di
-    test di, di
-    jnz retry
-fail:
-    mov si, diskErrorStr
-    call print_str
-    hlt
-    jmp halt
-done_reading:
+    jnc .done_reading
+    
     popa
-                 
+    call disk_reset
+    
+    dec di
+    test di, di
+    jnz .retry
+    
+.fail:
+    
+    jmp floppy_error
+.done_reading:
+    popa
+    pop di
+    pop dx
+    pop cx
+    pop bx
+    pop ax
     ret
 
 disk_reset:
@@ -258,15 +240,33 @@ disk_reset:
     popa
     ret
 
-diskErrorStr: db "Couldnt read disk", 0x0D, 0x0A, 0
-disk_success: db "hello from bios", 0x0D, 0x0A, 0
-kernel_file: db 'KERNEL  BIN'
-kernel_cluster dw 0
+print_str:
+    push si
+    push ax
+    push bx
+    .print_str_loop:
+        lodsb               ; loads next character in al
+        or al, al
+        jz done
+        
+        MOV ah, 0x0E
+        MOV bh, 0
+        INT 0x10
+        jmp .print_str_loop
+done:
+    pop bx
+    pop ax
+    pop si
+    ret
 
 kernel_load_segment equ 0x2000
-kernel_load_offset equ 0
+kernel_load_offset equ 0x0
+kernel_cluster: dw 0
+diskErrorStr:   db 'failed!', ENDL, 0
+disk_success:   db 'bios', ENDL, 0
+kernel_file:    db 'KERNEL  BIN'
 
 times 510-($-$$) db 0
-dw 0xaa55
+dw 0xAA55
 
 buffer:
