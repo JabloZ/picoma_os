@@ -2,8 +2,6 @@
 bits 16
 %define ENDL 0x0D, 0x0A
 
-mov [BOOT_DISK], dl
-
 start:
     mov si, hello_world_str
     call print_str
@@ -24,4 +22,4 @@ print_str:
         ret
 
 BOOT_DISK: db 0
-hello_world_str: db "Hello, world(kernel)!", ENDL, 0
+hello_world_str: db "Hello(keeeernel)!", ENDL, 0
