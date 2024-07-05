@@ -39,7 +39,18 @@ start:
     mov sp, 0x7C00
     
     .after_start:
-        
+        push es
+        mov ah, 08h
+        int 13h
+        jc floppy_error
+        pop es
+
+        and cl, 0x3F                        ; remove top 2 bits
+        xor ch, ch
+        mov [bdb_sectors_per_track], cx     ; sector count
+
+        inc dh
+        mov [bdb_heads], dh  
         mov ax, [bdb_sectors_per_fat]
         mov bl, [bdb_fat_count]
         xor bh, bh
@@ -68,31 +79,31 @@ start:
         xor bx, bx
         mov di, buffer
        
-    .find_kernel:
+    .find_stage2:
         
-        mov si, kernel_file
+        mov si, stage2_file
         mov cx, 11
         push di
         repe cmpsb
         pop di
-        je .kernel_found
+        je .stage2_found
 
         add di, 32
         inc bx
-        cmp bx, [bdb_dir_entries_count]; how much files in root, if not less then kernel not found
-        jl .find_kernel
+        cmp bx, [bdb_dir_entries_count]; how much files in root, if not less then stage2 not found
+        jl .find_stage2
 
-        jmp .kernel_not_found
+        jmp .stage2_not_found
 
-    .kernel_not_found:
+    .stage2_not_found:
         mov si, diskErrorStr
         call print_str
         hlt
         jmp wait_key_and_reboot
 
-    .kernel_found:
+    .stage2_found:
         mov ax, [di+26]
-        mov [kernel_cluster], ax
+        mov [stage2_cluster], ax
 
         mov ax, [bdb_reserved_sectors]
         mov bx, buffer
@@ -100,20 +111,20 @@ start:
         mov dl, [ebr_drive_number]
         call disk_read
 
-        mov bx, kernel_load_segment
+        mov bx, stage2_load_segment
         mov es, bx
-        mov bx, kernel_load_offset
+        mov bx, stage2_load_offset
 
-    .load_kernel_to_memory:
+    .load_stage2_to_memory:
         
-        mov ax, [kernel_cluster]
+        mov ax, [stage2_cluster]
         add ax, 31
         mov cl, 1
         mov dl, [ebr_drive_number]
         call disk_read
         
         add bx, [bdb_bytes_per_sector]
-        mov ax, [kernel_cluster]
+        mov ax, [stage2_cluster]
         mov cx, 3
         mul cx
         mov cx, 2
@@ -133,15 +144,15 @@ start:
     .nextCluster:
         cmp ax, 0x0FF8
         jae .finish_reading
-        mov [kernel_cluster], ax
-        jmp .load_kernel_to_memory
+        mov [stage2_cluster], ax
+        jmp .load_stage2_to_memory
 
     .finish_reading:
         mov dl, [ebr_drive_number]
-        mov ax, kernel_load_segment
+        mov ax, stage2_load_segment
         mov ds, ax
         mov es, ax
-        jmp kernel_load_segment:kernel_load_offset
+        jmp stage2_load_segment:stage2_load_offset
         
         cli
         hlt
@@ -154,7 +165,7 @@ floppy_error:
 
     mov si, diskErrorStr
     call print_str
-    hlt
+    jmp wait_key_and_reboot
 wait_key_and_reboot:
     mov ah, 0
     int 16h                     ; wait for keypress
@@ -254,17 +265,21 @@ print_str:
         INT 0x10
         jmp .print_str_loop
 done:
+     popa
+
+    pop di
+    pop dx
+    pop cx
     pop bx
-    pop ax
-    pop si
+    pop ax                             ; restore registers modified
     ret
 
-kernel_load_segment equ 0x500
-kernel_load_offset equ 0x0
-kernel_cluster: dw 0
+stage2_load_segment equ 0
+stage2_load_offset equ 0x500
+stage2_cluster: dw 0
 diskErrorStr:   db 'failed!', ENDL, 0
 disk_success:   db 'bios', ENDL, 0
-kernel_file:    db 'KERNEL  BIN'
+stage2_file:    db 'STAGE2  BIN'
 
 times 510-($-$$) db 0
 dw 0xAA55

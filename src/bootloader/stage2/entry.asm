@@ -1,73 +1,60 @@
 
-%define ENDL 0x0D, 0x0A
-mov ah, 0x0e
-    mov al, 'A'
-    int 10h
 bits 16
-section .entry
 
+section .text
 extern _start
-
-extern __bss_start
-extern __end
-
 global entry
 entry:
     mov ah, 0x0e
-    mov al, 'A'
+    mov al, 'a'
     int 10h
+
     mov ax, 0
     mov ss, ax
     mov ds, ax
     mov es, ax
     mov fs, ax
-    mov gs, ax
-
+    mov ss, ax
     ; setup stack at 0xFFF0
-    mov esp, 0xFFF0
-    mov ebp, esp
-    sti
-
+    mov sp, 0xFFFF
+    mov bp, sp
     ; expect boot drive in dl, send it as argument to cstart function
     mov [bootDrive], dl
     
-
-    cli 
-    call enable_a20
-    call GDT_load
+    cli
+    ;call enable_a20
+    cli
+    lgdt [GDT_descriptor]
     mov eax, cr0
-    or al, 1
+    or eax, 1
     mov cr0, eax
-    ;jmp CODE_SEG:protected_mode
-   
-    jmp dword 08h:.protected_mode
-    ;jmp dword:protected_mode
-.protected_mode:
     
+    jmp 08h:protected_mode
+    jmp $
+
+protected_mode:
     [bits 32]
-
-    mov ax, 10h
-    mov ss, ax
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-
-    mov al, 0
-    cld
-    rep stosb
-
-
-    push dword[bootDrive]
+    mov eax, 10h
+    mov ds, eax
+    mov es, eax
+    mov fs, eax
+    mov gs, eax
+    mov ss, eax
+    mov esp, 0x9000
+    ;push [bootDrive]
     call _start
+
     
     cli
-    hlt
+    hlt  
+    jmp real_mode
 
+;protected_mode_16:
 
+;real_mode:
 
 enable_a20:
-    cli
+    [bits 16]
     
     call wait_input_a20
     mov al, kbDisableKeyboard
@@ -95,8 +82,9 @@ enable_a20:
     out kbCommandPort, al
 
     call wait_input_a20
-    sti
+    
     ret
+
 wait_input_a20:
     in al, kbCommandPort
     test al, 2
@@ -110,37 +98,51 @@ wait_output_a20:
     ret
 
 GDT_start:
-        dd 0x0
-        dd 0x0
+    
+    dd 0
+    dd 0
 
-    GDT_code:
-        dw 0xffff
-        dw 0x0
-        db 0x0
-        db 0b10011010
-        db 0b11001111
-        db 0x0
+GDT_code equ $-GDT_start:
+    dw 0xFFFF
+    dw 0
+    db 0
+    db 10011010b
+    db 11001111b
+    db 0
 
-    GDT_data:
-        dw 0xffff
-        dw 0x0
-        db 0x0
-        db 0b10010010
-        db 0b11001111
-        db 0x0
+GDT_data equ $-GDT_start:
+    dw 0xFFFF
+    dw 0
+    db 0
+    db 10010010b
+    db 11001111b
+    db 0
+GDT_code_16 equ $-GDT_start:
+    dw 0FFFFh                   
+    dw 0                        
+    db 0                       
+    db 10011010b                
+    db 00001111b                
+    db 0                        
 
+GDT_data_16 equ $-GDT_start:
+    dw 0FFFFh                  
+    dw 0                        
+    db 0                       
+    db 10010010b                
+    db 00001111b
+    db 0              
 GDT_descriptor:
+    
     dw GDT_descriptor - GDT_start - 1
     dd GDT_start
 
-GDT_load:
-    lgdt [GDT_descriptor]
-    ret
-.halt:
-    jmp .halt
+CODE_SEG equ GDT_code - GDT_start
+DATA_SEG equ GDT_data - GDT_start
 
 
-    
+
+section .data
 KbDataPort equ 60h
 kbCommandPort equ 64h
 kbDisableKeyboard equ 0xAD

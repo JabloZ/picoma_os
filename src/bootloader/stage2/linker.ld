@@ -1,9 +1,9 @@
 ENTRY(entry)
 OUTPUT_FORMAT("binary")
-phys = 0x00000500;
+
 SECTIONS
 {
-    . = phys;
+    . = 0x00000500;
     
     .entry      : { __entry_start = .;  *(.entry)   }
     .text       : { __code_start = .;   *(.text*)   }

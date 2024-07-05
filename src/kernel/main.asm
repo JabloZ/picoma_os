@@ -22,4 +22,4 @@ print_str:
         ret
 
 BOOT_DISK: db 0
-hello_world_str: db "Hello(keeeernel)!", ENDL, 0
+hello_world_str: db "Hello(kernel)!", ENDL, 0
