@@ -42,16 +42,31 @@ protected_mode:
     mov ss, eax
     mov esp, 0x9000
     ;push [bootDrive]
-    call _start
+    ;call _start
+ 
+    jmp 18h:protected_mode_16
 
-    
-    cli
-    hlt  
-    jmp real_mode
+protected_mode_16:
+    [bits 16]
+    sti
+    mov eax, cr0
+    and al, ~1
+    mov cr0, eax
 
-;protected_mode_16:
+    ; 3 - jump to real mode
+    jmp word 00h:real_mode
+real_mode:
+    [bits 16]
+    mov ax, 0
+    mov ds, ax
+    mov ss, ax
 
-;real_mode:
+    mov ah, 0x0e
+    mov al, 'B'
+    int 10h
+.halt:
+    jmp .halt
+
 
 enable_a20:
     [bits 16]
