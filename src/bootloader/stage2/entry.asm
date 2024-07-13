@@ -1,14 +1,12 @@
 
 bits 16
 
-section .text
+section .entry
 extern _start
+
 global entry
 entry:
-    mov ah, 0x0e
-    mov al, 'a'
-    int 10h
-
+    cli
     mov ax, 0
     mov ss, ax
     mov ds, ax
@@ -16,35 +14,41 @@ entry:
     mov fs, ax
     mov ss, ax
     ; setup stack at 0xFFF0
-    mov sp, 0xFFFF
-    mov bp, sp
+    mov esp, 0xFFF0
+    mov ebp, esp
     ; expect boot drive in dl, send it as argument to cstart function
+    
     mov [bootDrive], dl
     
-    cli
-    ;call enable_a20
-    cli
+    
+    call enable_a20
+    
     lgdt [GDT_descriptor]
     mov eax, cr0
     or eax, 1
     mov cr0, eax
     
     jmp 08h:protected_mode
-    jmp $
+
 
 protected_mode:
     [bits 32]
-    mov eax, 10h
-    mov ds, eax
-    mov es, eax
-    mov fs, eax
-    mov gs, eax
-    mov ss, eax
-    mov esp, 0x9000
-    ;push [bootDrive]
-    ;call _start
- 
-    jmp 18h:protected_mode_16
+    mov ax, 10h
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+   
+    mov al, 0
+    cld
+    rep stosb
+
+    push dword [bootDrive]
+    call _start
+    cli
+    hlt
+    ;jmp 18h:protected_mode_16
 
 protected_mode_16:
     [bits 16]
@@ -53,7 +57,7 @@ protected_mode_16:
     and al, ~1
     mov cr0, eax
 
-    ; 3 - jump to real mode
+    
     jmp word 00h:real_mode
 real_mode:
     [bits 16]
@@ -61,11 +65,6 @@ real_mode:
     mov ds, ax
     mov ss, ax
 
-    mov ah, 0x0e
-    mov al, 'B'
-    int 10h
-.halt:
-    jmp .halt
 
 
 enable_a20:
@@ -164,4 +163,4 @@ kbDisableKeyboard equ 0xAD
 kbEnableKeyboard equ 0xAE
 kbReadOutPort equ 0xD0
 kbWriteOutPort equ 0xD1
-bootDrive dd 0
+bootDrive: dd 0
