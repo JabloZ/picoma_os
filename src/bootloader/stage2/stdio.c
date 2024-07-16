@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "x86.h"
 
+
 const uint32_t SCREEN_WIDTH=80;
 const uint32_t SCREEN_HEIGHT=25;
 const uint8_t DEFAULT_COLOR=0x7;
@@ -84,4 +85,53 @@ void scroll(){
         put_color(x, SCREEN_HEIGHT - 1, DEFAULT_COLOR);
     }
     video_y-=1;
+}
+
+
+
+typedef char* va_list;
+#define va_start(ap, last) (ap = (va_list)&last + sizeof(last))
+#define va_arg(ap, type) (*(type*)((ap += sizeof(type)) - sizeof(type)))
+#define va_end(ap) (ap = (va_list)0)
+//short and long not supported (at least for now)
+#define P_STATE_NORMAL 0
+#define P_STATE_SPECIFY 1
+
+void printf(const char* fstr, ...){
+    va_list args;
+    va_start(args, fstr);
+    int state=P_STATE_NORMAL;
+    while (*fstr){
+        switch (state){
+            case P_STATE_NORMAL:
+                if (*fstr=='%'){
+                    state=P_STATE_SPECIFY;
+                    break;
+                }
+                else{
+                    putc(*fstr);
+                    break;
+                }
+                break;
+            case P_STATE_SPECIFY:
+               
+                switch (*fstr){
+                    case 's':  
+                        puts(va_arg(args, const char*));
+                        break;
+                    case '%':   
+                        putc('%');
+                        break;
+                }
+                break;
+
+            state=P_STATE_NORMAL;
+            break;
+        }
+        fstr++;
+         
+    }
+    va_end(args);
+    
+    
 }

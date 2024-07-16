@@ -4,7 +4,7 @@ ASMFLAGS?=-f elf32
 CC?=/usr/local/i386elfgcc/bin/i386-elf-gcc
 CFLAGS?=-ffreestanding -nostdlib -std=c99 -m32 -fno-pie
 LINK?=/usr/local/i386elfgcc/bin/i386-elf-ld
-LINKFLAGS?=-T linker.ld -nostdlib -m elf_i386
+LINKFLAGS?=-T linker.ld -nostdlib -m elf_i386 
 
 SOURCES_C=$(wildcard *.c)
 SOURCES_ASM=$(wildcard *.asm)
