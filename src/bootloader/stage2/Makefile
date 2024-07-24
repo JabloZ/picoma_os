@@ -1,11 +1,12 @@
 BUILD_DIR?=build
 ASM?=nasm
 ASMFLAGS?=-f elf32
-CC?=/usr/local/i386elfgcc/bin/i386-elf-gcc
+CC?=i386-elf-gcc
 CFLAGS?=-ffreestanding -nostdlib -std=c99 -m32 -fno-pie
-LINK?=/usr/local/i386elfgcc/bin/i386-elf-ld
-LINKFLAGS?=-T linker.ld -nostdlib -m elf_i386 
-
+#LINK?=/usr/local/i386elfgcc/bin/i386-elf-ld
+LINK?=i386-elf-ld
+LINKFLAGS?=-T linker.ld -nostdlib -m elf_i386
+LINKLIBS?=/usr/local/i386elfgcc/lib/gcc/i386-elf/12.2.0/libgcc.a
 SOURCES_C=$(wildcard *.c)
 SOURCES_ASM=$(wildcard *.asm)
 OBJECTS_C=$(patsubst %.c, $(BUILD_DIR)/stage2/c/%.o, $(SOURCES_C))
@@ -16,8 +17,7 @@ all: stage2
 stage2: $(BUILD_DIR)/stage2.bin
 
 $(BUILD_DIR)/stage2.bin: $(OBJECTS_ASM) $(OBJECTS_C)
-	$(LINK) $(LINKFLAGS) -Map=$(BUILD_DIR)/stage2.map -o $@ $^
-
+	$(LINK) $(LINKFLAGS) -Map=$(BUILD_DIR)/stage2.map -o $@ $^ $(LINKLIBS)
 $(BUILD_DIR)/stage2/c/%.o: %.c always
 	$(CC) $(CFLAGS) -c -o $@ $<
 
@@ -25,6 +25,7 @@ $(BUILD_DIR)/stage2/asm/%.o: %.asm always
 	$(ASM) $(ASMFLAGS) -o $@ $<
 
 always:
+	
 	mkdir -p $(BUILD_DIR)/stage2/asm
 	mkdir -p $(BUILD_DIR)/stage2/c
 	
@@ -32,3 +33,4 @@ always:
 
 clean:
 	rm -f $(BUILD_DIR)/stage2.bin
+

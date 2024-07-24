@@ -16,7 +16,7 @@ entry:
     ; setup stack at 0xFFF0
     mov esp, 0xFFF0
     mov ebp, esp
-    ; expect boot drive in dl, send it as argument to cstart function
+    
     
     mov [bootDrive], dl
     
@@ -48,22 +48,6 @@ protected_mode:
     call _start
     cli
     hlt
-    ;jmp 18h:protected_mode_16
-
-protected_mode_16:
-    [bits 16]
-    sti
-    mov eax, cr0
-    and al, ~1
-    mov cr0, eax
-
-    
-    jmp word 00h:real_mode
-real_mode:
-    [bits 16]
-    mov ax, 0
-    mov ds, ax
-    mov ss, ax
 
 
 

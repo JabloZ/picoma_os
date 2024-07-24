@@ -1,5 +1,8 @@
+
 export BUILD_DIR=build
 export SRC_DIR=src
+CC_DIR = /usr/local/i386elfgcc/bin
+export PATH := $(CC_DIR):$(PATH)
 CC=/usr/local/i386elfgcc/bin/i386-elf-gcc
 
 
@@ -37,10 +40,12 @@ $(BUILD_DIR)/kernel.bin: always
 	$(MAKE) -C $(SRC_DIR)/kernel BUILD_DIR=$(abspath $(BUILD_DIR))
 
 always:
+	
 	mkdir -p $(BUILD_DIR)
 
 clean:
 	rm -rf $(BUILD_DIR)/*
 
 run:
+	
 	qemu-system-i386 -fda $(BUILD_DIR)/main_floppy.img

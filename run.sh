@@ -1,1 +1,2 @@
-make && qemu-system-i386 -fda build/main_floppy.img
+
+echo 'export PATH=$PATH:/usr/local/i386elfgcc/bin'

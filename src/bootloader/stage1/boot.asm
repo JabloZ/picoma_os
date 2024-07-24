@@ -168,7 +168,7 @@ floppy_error:
     jmp wait_key_and_reboot
 wait_key_and_reboot:
     mov ah, 0
-    int 16h                     ; wait for keypress
+    int 16h ; wait for keypress
     jmp 0FFFFh:0
 ;lba to chs formula:
 ;C = LBA ÷ (HPC x SPT)

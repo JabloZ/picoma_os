@@ -97,9 +97,28 @@ typedef char* va_list;
 #define P_STATE_NORMAL 0
 #define P_STATE_SPECIFY 1
 
+const char g_HexChars[] = "0123456789abcdef";
+
+void printf_unsigned(unsigned long long number, int radix)
+{
+    char buffer[32];
+    int pos = 0;
+    do 
+    {
+        unsigned long long rem = number % radix;
+        number /= radix;
+        buffer[pos++] = g_HexChars[rem];
+    } while (number > 0);
+
+    while (--pos >= 0)
+        putc(buffer[pos]);
+}
+
 void printf(const char* fstr, ...){
     va_list args;
     va_start(args, fstr);
+    int number=0;
+    int radix=10;
     int state=P_STATE_NORMAL;
     while (*fstr){
         switch (state){
@@ -112,22 +131,41 @@ void printf(const char* fstr, ...){
                     putc(*fstr);
                     break;
                 }
-                break;
+                
             case P_STATE_SPECIFY:
                
                 switch (*fstr){
                     case 's':  
                         puts(va_arg(args, const char*));
                         break;
-                    case '%':   
-                        putc('%');
+                    case 'c':
+                        putc(va_arg(args, int));
+                        break;
+                   
+                    case 'd':
+                        number=1; 
+                        radix=10;
+                        printf_unsigned(va_arg(args, int), radix);
+                        break;
+                    case 'i':
+                        number=1; 
+                        radix=10;
+                        printf_unsigned(va_arg(args, int), radix);
+                        break;
+                    case 'p':  
+                        number = 1; 
+                        radix = 16; 
+                        printf_unsigned(va_arg(args, int), radix);
+                        break;
+                    default: 
                         break;
                 }
-                break;
-
+                
+           
             state=P_STATE_NORMAL;
             break;
         }
+
         fstr++;
          
     }
@@ -135,3 +173,7 @@ void printf(const char* fstr, ...){
     
     
 }
+/*
+
+
+*/

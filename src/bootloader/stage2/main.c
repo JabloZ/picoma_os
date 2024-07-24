@@ -8,8 +8,9 @@ uint8_t __attribute__((cdecl)) _start(uint8_t boot_drive) {
       puts("baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaccccccccccccccccccccccccccccccccccccccccccccccccccccffffffffffffffffffffffffffffffff \n");
    }
    puts("aaa \n");
+   
    char mst[]="aaan";
-  printf("Hello %s!\n", "World");
+   printf("Hello %s! MY CHAR IS: %c\n my number is %d POINTER TO MST: %p", "World", 'z', 41, &mst);
    while (1);
    return 0;
 }
