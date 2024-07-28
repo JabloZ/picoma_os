@@ -50,6 +50,10 @@ void putc(char c){
             video_x=0;
             update_cursor(video_x, video_y);
             break;
+        case '\r':
+            video_x = 0;
+            update_cursor(video_x, video_y);
+            break;
         default:
             put_char(video_x, video_y, c);
             video_x+=1;
@@ -155,6 +159,12 @@ void printf(const char* fstr, ...){
                     case 'p':  
                         number = 1; 
                         radix = 16; 
+                        printf_unsigned(va_arg(args, int), radix);
+                        break;
+                    
+                    case 'u':   
+                        number=1;
+                        radix = 10;
                         printf_unsigned(va_arg(args, int), radix);
                         break;
                     default: 

@@ -2,8 +2,10 @@
 bits 16
 
 section .entry
-extern _start
 
+extern __bss_start
+extern __end
+extern _start
 global entry
 entry:
     cli
@@ -33,22 +35,27 @@ entry:
 
 protected_mode:
     [bits 32]
-    mov ax, 10h
+
+    
+    ; 6 - setup segment registers
+    mov ax, 0x10
     mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
     mov ss, ax
    
+    mov edi, __bss_start
+    mov ecx, __end
+    sub ecx, edi
     mov al, 0
     cld
     rep stosb
 
-    push dword [bootDrive]
+    xor edx, edx
+    mov dl, [bootDrive]
+    push edx
     call _start
+
     cli
     hlt
-
 
 
 enable_a20:

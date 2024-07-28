@@ -8,4 +8,4 @@ typedef struct{
     uint16_t heads;
 } DISK;
 bool disk_initialize(DISK* disk, uint8_t drive);
-bool disk_read_sectors(DISK* disk, uint32_t lba, uint8_t sectors, void* data);
+bool disk_read_sectors(DISK* disk, uint32_t lba, uint8_t sectors, void* data_out);

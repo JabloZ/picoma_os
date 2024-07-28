@@ -1,10 +1,16 @@
 %macro enter_real_mode 0
-    
-    mov eax, cr0 
-    or al, ~1
+    [bits 32]
+    jmp word 18h:.protected_16        ; 1 - jump to 16-bit protected mode segment
+
+.protected_16:
+    [bits 16]
+    ; 2 - disable protected mode bit in cr0
+    mov eax, cr0
+    and al, ~1
     mov cr0, eax
-    jmp dword 00h:.real_mode
-real_mode:
+
+    jmp word 00h:.real_mode
+.real_mode:
     [bits 16]
     mov ax, 0
     mov ds, ax
@@ -12,6 +18,15 @@ real_mode:
     sti
 %endmacro
 
+%macro offset 4
+
+    mov %3, %1      ; linear address to eax
+    shr %3, 4
+    mov %2, %4
+    mov %3, %1      ; linear address to eax
+    and %3, 0xf
+
+%endmacro
 
 %macro enter_protected_mode 0
     cli
@@ -19,7 +34,7 @@ real_mode:
     or al, 1
     mov cr0, eax
     jmp dword 08h:.protected_mode
-protected_mode:
+.protected_mode:
     [bits 32]
     mov ax, 10h
     mov ds, ax
@@ -36,93 +51,122 @@ outb:
 
 global x86_reset_disk
 x86_reset_disk:
-    [bits 32]
     push ebp
     mov ebp, esp
-    
+    enter_real_mode
     mov dl, [bp+8] ;drive, uint8
     stc
     int 13h
 
     mov eax, 1
     sbb eax, 0; 1 on true (success) 
+
     push eax
+    enter_protected_mode
+    pop eax
+    mov esp, ebp
+    pop ebp
+    ret
 global x86_read_disk
 x86_read_disk:
-    push bp
-    mov bp, sp
-    mov dl, [bp+4]; drive
+    push ebp
+    mov ebp, esp
+    enter_real_mode
+    push ebx
+    push es
+
+    mov dl, [bp+8]; drive
     
-    mov ch, [bp+6]; cylinder
-    mov cl, [bp+7];
+    mov ch, [bp+12]; cylinder
+    mov cl, [bp+13];
     shl cl, 6
 
-    mov dh, [bp+8]; head
-
-    mov al, [bp+10]; sectors
+    mov al, [bp+16]; sector
     and al, 3Fh
     or cl, al
 
-    mov al, [bp+12]; al-count
+    mov dh, [bp+20];
 
-    mov bx, [bp+16]; ptr data out
-    mov es, bx
-    mov bx, [bp+14]
+    mov al, [bp+24]; ptr data out
     
-    mov al, 02h
+    offset [bp + 28], es, ebx, bx
+    
+    mov ah, 02h
     stc
     int 13h
-    mov ax, 1
-    sbb ax, 0 ; 1 on success
+    mov eax, 1
+    sbb eax, 0 ; 1 on success
 
     pop es
-    pop bx
+    pop ebx
 
-    mov sp, bp
-    pop bp
+    push eax
+    enter_protected_mode
+    pop eax
+
+    mov esp, ebp
+    pop ebp
     ret
-global x86_disk_parameters
-x86_disk_parameters:
-    push bp
-    mov bp, sp
 
+
+global x86_disk_parameters
+x86_disk_parameters: ; 624
+    [bits 32]
+    
+    push ebp
+    mov ebp, esp
+    
+    enter_real_mode
+    [bits 16]
     push es
     push bx
-    push si
+    push esi
     push di
-
-    mov dl, [bp+4]
+    
+    mov dl, [bp+8] ; disk
     mov ah, 08h
     mov di, 0
     mov es, di
     stc 
     int 13h
 
-    mov ax, 1
-    sbb ax, 0
+    mov eax, 1
+    sbb eax, 0
 
-    mov si, [bp+6];drive type
-    mov [si], bl
-
+    ;type
+    offset [bp+12], es, esi, si ;type
+    mov [es:si], bl
+    
+    ;cylinders
     mov bl, ch
     mov bh, cl
     shr bh, 6
-    mov si, [bp+8]; cylinders
+    inc bx
+    
+    offset [bp+16], es, esi, si; cylinders
+    mov [es:si], bx
 
-    xor ch, ch ;sectors
+    ;sectors
+    xor ch, ch 
     and cl, 3Fh
-    mov si, [bp+10]
-    mov [si], cx
+    offset [bp+20], es, esi, si ;sectors
+    mov [es:si], cx
 
-    mov cl, dh; heads
-    mov si, [bp+12]
-    mov [si], cx
+    ; heads 
+    mov cl, dh
+    inc cx
+    offset [bp+24], es, esi, si ; heads
+    mov [es:si], cx
 
     pop di
-    pop si
+    pop esi
     pop bx
     pop es
+    push eax
+    enter_protected_mode
+    [bits 32]
+    pop eax
 
-    mov sp, bp
-    pop bp
+    mov esp, ebp
+    pop ebp
     ret
