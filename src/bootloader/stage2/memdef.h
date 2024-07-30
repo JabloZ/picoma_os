@@ -3,7 +3,7 @@
 #define MEMORY_MIN 0x00000500
 #define MEMORY_MAX 0x00080000
 
-#define FAT_ADDR (0x20000)
+#define FAT_ADDR ((void*)0x20000)
 #define FAT_SIZE 0x00010000
 
 #define LOAD_KERNEL (0x30000)

@@ -1,6 +1,7 @@
 #include "x86.h"
 #include "disk.h"
 #include "stdio.h"
+#include "string.h"
 /*
     uint8_t id;
     uint16_t cylinders;
@@ -39,10 +40,10 @@ void disk_lba_to_chs(DISK* disk, uint32_t lba, uint16_t* _cylinder, uint16_t* _s
 //ERROR HERE: WRONG NUMBER OF SECTORS AND HEADS, ISSUE WITH DISKREAD X86
     *_sector=lba%disk->sectors+1;
     
+    *_cylinder=(lba/disk->sectors)/disk->heads;
+
     *_head=(lba/disk->sectors)%disk->heads;
-    
-    *_cylinder=lba/(disk->sectors*disk->heads);
-    
+    //printf("LBA: %d, Cylinder: %d, Head: %d, Sector: %d\n", lba, *_cylinder, *_head, *_sector);
 }
 
 //bool x86_read_disk(uint8_t drive, uint16_t cylinder, uint16_t sector, uint16_t head, uint8_t sectors_count, void* dataOut);
@@ -52,11 +53,11 @@ bool disk_read_sectors(DISK* disk, uint32_t lba, uint8_t sectors, void *data_out
     disk_lba_to_chs(disk, lba, &cylinder, &sector, &head);
     
     for (int i=0; i<3; i++){
-       
-        int n=1;
+       ;
         if(x86_read_disk(disk->id, cylinder, sector, head, sectors, data_out)){
             return true;
         }
+       
         x86_reset_disk(disk->id);
         
     }

@@ -91,8 +91,6 @@ void scroll(){
     video_y-=1;
 }
 
-
-
 typedef char* va_list;
 #define va_start(ap, last) (ap = (va_list)&last + sizeof(last))
 #define va_arg(ap, type) (*(type*)((ap += sizeof(type)) - sizeof(type)))
@@ -102,6 +100,8 @@ typedef char* va_list;
 #define P_STATE_SPECIFY 1
 
 const char g_HexChars[] = "0123456789abcdef";
+
+
 
 void printf_unsigned(unsigned long long number, int radix)
 {

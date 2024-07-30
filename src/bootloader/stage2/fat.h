@@ -84,6 +84,7 @@ enum fat_atr{
     FAT_DIRECTORY=0X10,
     FAT_ARCHIVE=0X20,
     FAT_LONG_FILENAME=0X0F
+    
 };
 
 typedef struct{
@@ -96,3 +97,8 @@ typedef struct{
 } data;
 
 bool fat_init(DISK* disk);
+fat_file* open_fat(DISK* disk, const char* path);
+bool find_file(DISK* disk, fat_file* cf, const char* name, directory_entry* dir_entry_out);
+uint32_t read_fat_file(DISK* disk, fat_file* file, uint32_t bytes, void* data_out);
+void close_file(fat_file* file);
+bool fat_entry(DISK* disk, fat_file* cf, directory_entry* dir_entry);

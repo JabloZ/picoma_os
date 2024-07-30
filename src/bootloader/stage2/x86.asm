@@ -51,9 +51,11 @@ outb:
 
 global x86_reset_disk
 x86_reset_disk:
+    [bits 32]
     push ebp
     mov ebp, esp
     enter_real_mode
+    mov ah, 0
     mov dl, [bp+8] ;drive, uint8
     stc
     int 13h
