@@ -156,7 +156,7 @@ fat_file* open_fat(DISK* disk, const char* path){
         printf("cf pos: %d\n",cf->pos);
         printf("cf is dir: %d\n",cf->is_directory);*/
         if (dir_entry.attrib==FAT_DIRECTORY){
-            cf->file_size=32; //FOR SOME REASON IF IT IS DIRECTORY IT CANNOT ASSIGN FILE_SIZE WELL, SO WITHOUT THIS LINE IT WILL CRASH BUT OFC ITS FOR DEBUGGING ONLY
+            //cf->file_size=32; //FOR SOME REASON IF IT IS DIRECTORY IT CANNOT ASSIGN FILE_SIZE WELL, SO WITHOUT THIS LINE IT WILL CRASH BUT OFC ITS FOR DEBUGGING ONLY
             //probably fat read issue 
             
         }
