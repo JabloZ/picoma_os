@@ -1,7 +1,6 @@
 #include "stdint.h"
 #include "x86.h"
 
-
 const uint32_t SCREEN_WIDTH=80;
 const uint32_t SCREEN_HEIGHT=25;
 const uint8_t DEFAULT_COLOR=0x7;

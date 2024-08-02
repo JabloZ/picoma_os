@@ -7,8 +7,10 @@ CFLAGS?=-ffreestanding -nostdlib -std=c99 -m32 -fno-pie
 LINK?=i386-elf-ld
 LINKFLAGS?=-T linker.ld -nostdlib -m elf_i386
 LINKLIBS?=/usr/local/i386elfgcc/lib/gcc/i386-elf/12.2.0/libgcc.a
-SOURCES_C=$(wildcard *.c)
-SOURCES_ASM=$(wildcard *.asm)
+SOURCES_C=$(shell find . -type f -name  "*.c")
+HEADERS_C=$(shell find . -type f -name  "*.h")
+SOURCES_ASM=$(shell find . -type f -name  "*.asm")
+SOURCES_ASM=$(shell find . -type f -name  "*.asm")
 OBJECTS_C=$(patsubst %.c, $(BUILD_DIR)/stage2/c/%.o, $(SOURCES_C))
 OBJECTS_ASM=$(patsubst %.asm, $(BUILD_DIR)/stage2/asm/%.o, $(SOURCES_ASM))
 
