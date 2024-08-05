@@ -12,7 +12,7 @@ typedef struct{
 
 typedef struct{
     uint16_t limit;
-    gdt_entry* gdt_ptr;
+    uint32_t gdt_ptr;
 } __attribute__((packed)) gdt_desc;
 
 typedef enum{
@@ -58,7 +58,7 @@ typedef enum{
 void __attribute__((cdecl)) load_gdt(gdt_desc* descriptor, uint16_t code_seg, uint16_t data_seg);
 
 void init_gdt(){
-    gdt_entry g_gdt_entries[]={
+    __attribute__((aligned(2048))) gdt_entry g_gdt_entries[]={
     GDT_ENTRY(0,0,0,0),
     GDT_ENTRY(0,0x000FFFFF,GDT_A_PRESENT | GDT_A_RING_0 | GDT_A_CODE_SEGMENT | GDT_A_CODE_READABLE, GDT_FLAG_32_BIT | GDT_FLAG_GRANULARITY_4KB),
     GDT_ENTRY(0,0x000FFFFF,GDT_A_PRESENT | GDT_A_RING_0 | GDT_A_DATA_SEGMENT | GDT_A_DATA_WRITEABLE, GDT_FLAG_32_BIT | GDT_FLAG_GRANULARITY_4KB),
@@ -66,7 +66,7 @@ void init_gdt(){
     };
     gdt_desc g_gdt_desc;
     g_gdt_desc.limit=sizeof(g_gdt_entries)-1;
-    g_gdt_desc.gdt_ptr=g_gdt_entries;
+    g_gdt_desc.gdt_ptr=(uint32_t)&g_gdt_entries;
 
 
     load_gdt(&g_gdt_desc, GDT_CODE_SEGMENT, GDT_DATA_SEGMENT);

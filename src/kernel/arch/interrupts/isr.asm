@@ -1,18 +1,20 @@
 [bits 32]
+extern exception_handler
 
 %macro isr_no_err 1
-isr_%+%1:
-    call isr_handle_routine
-    iret 
+global isr_%1:
+isr_%1:
+    push 0
+    push %1
+    jmp isr_handle_routine
 %endmacro
 
 %macro isr_err 1
-isr_%+%1:
-    call isr_handle_routine
-    iret
+global isr_%1:
+isr_%1:
+    push %1
+    jmp isr_handle_routine
 %endmacro
-
-extern exception_handler
 
 
 isr_no_err 0
@@ -49,13 +51,7 @@ isr_err 30
 isr_no_err 31
 
 
-global isr_table
-isr_table:
-%assign i 0 
-%rep    32 
-    dd isr_%+i ; use DQ instead if targeting 64-bit
-%assign i i+1 
-%endrep
+
 
 isr_handle_routine:
     pusha               
@@ -69,7 +65,7 @@ isr_handle_routine:
     mov fs, ax
     mov gs, ax
     
-    push esp            
+    push esp
     call exception_handler
     add esp, 4
 
@@ -82,3 +78,7 @@ isr_handle_routine:
     popa                
     add esp, 8         
     iret               
+global panic
+panic:
+    cli
+    hlt

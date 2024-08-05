@@ -11,6 +11,8 @@ void __attribute__((section(".entry"))) _start(uint16_t bootDrive)
     clear_screen();
     hal_init();
     printf("Hello kernel\n");
+    printf("after kernel");
+    //__asm__ volatile ("int $0x02");
     //int b=2/0;
 end:
     while(1);
