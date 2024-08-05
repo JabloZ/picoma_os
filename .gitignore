@@ -1,4 +1,4 @@
 build
 .bashrc
-bx_enh_dbg.ini
-setup_gcc_cp.sh
+bx_enh_dbg
+setup_gcc_cp

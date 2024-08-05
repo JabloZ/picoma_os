@@ -3,6 +3,7 @@ ASM?=nasm
 ASMFLAGS?=-f elf32
 CC?=i386-elf-gcc
 CFLAGS?=-ffreestanding -nostdlib -std=c99 -m32 -fno-pie
+CFLAGS += -I$(SRCDIR)/kernel
 #LINK?=/usr/local/i386elfgcc/bin/i386-elf-ld
 LINK?=i386-elf-ld
 LINKFLAGS?=-T linker.ld -nostdlib -m elf_i386

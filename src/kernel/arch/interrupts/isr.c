@@ -3,8 +3,8 @@
 #include "idt.h"
 #include "isr.h"
 #include "stdio.h"
-//#include "gdt/gdt.h" doesnt work idk why
-isr_handler isr_h[256];
+
+
 
 char *exceptionMessages[] = {
     "Division by Zero",
@@ -85,7 +85,24 @@ void init_isr(){
     set_gate(29, (uint32_t)&isr_29, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
     set_gate(30, (uint32_t)&isr_30, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
     set_gate(31, (uint32_t)&isr_31, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
-    
+    set_gate(32, (uint32_t)&isr_32, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(33, (uint32_t)&isr_33, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(34, (uint32_t)&isr_34, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(35, (uint32_t)&isr_35, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(36, (uint32_t)&isr_36, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(37, (uint32_t)&isr_37, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(38, (uint32_t)&isr_38, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(39, (uint32_t)&isr_39, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(40, (uint32_t)&isr_40, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(41, (uint32_t)&isr_41, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(42, (uint32_t)&isr_42, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(43, (uint32_t)&isr_43, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(44, (uint32_t)&isr_44, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(45, (uint32_t)&isr_45, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(46, (uint32_t)&isr_46, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(47, (uint32_t)&isr_47, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+    set_gate(48, (uint32_t)&isr_48, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
+
     for(uint8_t i=0; i<32; i++){
         enable_gate(i);
     }
@@ -95,7 +112,13 @@ void init_isr(){
 }
     
 void  __attribute__((cdecl)) exception_handler(registers* frame){
-    printf("interrupt: %d\n", frame->interrupt);
-    panic();
+    if (isr_h[frame->interrupt]!=NULL){
+        isr_h[frame->interrupt](frame);
+    }
+    else{
+        printf("\nunexpected interrupt: %d\n", frame->interrupt);
+        printf("ERROR MESSAGE: %s",exceptionMessages[frame->interrupt]);
+        panic();}
+
     //return;
 }

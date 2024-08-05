@@ -2,6 +2,7 @@
 #include "stdio.h"
 #include "memory.h"
 #include "arch/hal.h"
+#include "arch/interrupts/irq.h"
 extern uint8_t __bss_start;
 extern uint8_t __end;
 
@@ -14,6 +15,7 @@ void __attribute__((section(".entry"))) _start(uint16_t bootDrive)
     printf("after kernel");
     //__asm__ volatile ("int $0x02");
     //int b=2/0;
+    
 end:
     while(1);
 }

@@ -4,6 +4,7 @@ load_gdt:
     
     push ebp
     mov ebp, esp
+    
     mov eax, [ebp+8]
     lgdt [eax]
     mov eax, [ebp+12]
