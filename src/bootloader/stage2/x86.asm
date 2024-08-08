@@ -1,3 +1,5 @@
+extern linear_to_real
+
 %macro enter_real_mode 0
     [bits 32]
     jmp word 18h:.protected_16        ; 1 - jump to 16-bit protected mode segment
@@ -167,6 +169,63 @@ x86_disk_parameters: ; 624
     push eax
     enter_protected_mode
     [bits 32]
+    pop eax
+
+    mov esp, ebp
+    pop ebp
+    ret
+global x86_call_E820
+x86_call_E820:
+    push ebp
+    mov ebp, esp
+    enter_real_mode
+    
+    push es
+    push ds
+    push esi
+    push edi
+    push ebx
+    push ecx
+    push edx ;save stack
+
+    ;setup the call
+    offset [bp+8], es, edi, di ;memory region pointer
+    offset [bp+12],  ds, esi, si ;second arg pointer
+    
+    xor ebx, ebx
+    mov ebx, [ds:si]  
+    mov edx, 0x534D4150
+    mov eax, 0xE820
+    mov ecx, 24
+
+    int 0x15
+    jc .error
+    cmp eax, 0x534D4150
+    jne .error
+
+    
+    .no_error:
+    ;mov eax, ecx
+    mov [ds:si], ebx
+    
+ 
+    jmp .after
+
+    .error:
+
+    mov eax, -1
+    .after:
+    pop edx
+    pop ecx
+    pop ebx
+    pop edi
+    pop esi
+    pop ds
+    pop es
+
+    push eax
+    enter_protected_mode
+    
     pop eax
 
     mov esp, ebp

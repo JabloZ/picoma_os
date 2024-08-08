@@ -1,5 +1,11 @@
 {
     "files.associations": {
-        "x86.h": "c"
+        "x86.h": "c",
+        "stdbool.h": "c",
+        "memory_params.h": "c",
+        "stdio.h": "c",
+        "memory.h": "c",
+        "idt.h": "c",
+        "stdint.h": "c"
     }
 }

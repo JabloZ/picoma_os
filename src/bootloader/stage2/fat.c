@@ -103,12 +103,12 @@ fat_file* entry_open(DISK* disk, directory_entry* dir_entry){
     //opened_file_data->file_data.file_size=26;
     
     
-    printf("\nAfter disk read: First cluster: %u, Is directory: %d, File size: %u, Manage: %d, Position: %u\n",
+    /*("\nAfter disk read: First cluster: %u, Is directory: %d, File size: %u, Manage: %d, Position: %u\n",
            opened_file_data->first_cluster,
            opened_file_data->file_data.is_directory,
            opened_file_data->file_data.file_size,
            opened_file_data->file_data.manage,
-           opened_file_data->file_data.pos);
+           opened_file_data->file_data.pos);*/
     return &opened_file_data->file_data;
 }
 
@@ -162,11 +162,11 @@ fat_file* open_fat(DISK* disk, const char* path){
         }
 
         if (find_file(disk, cf, path_name, &dir_entry)){
-            printf("\nFOUND: dir entry: %s\n", dir_entry.filename);
+            //printf("\nFOUND: dir entry: %s\n", dir_entry.filename);
             
             close_file(cf);
             if (end_path==false && dir_entry.attrib & FAT_DIRECTORY==0){
-                printf("not dir: %s", path_name);
+                //printf("not dir: %s", path_name);
                 return NULL;
             }
            
@@ -175,12 +175,12 @@ fat_file* open_fat(DISK* disk, const char* path){
             //cf->is_directory=true;
         }
         else{
-            printf("file: %s NOT FOUND.",path_name);
+            
             close_file(cf);
             return NULL;
         }
 
-        printf("OPENED: filename: %s\n", dir_entry.filename);
+        
     }
     
     

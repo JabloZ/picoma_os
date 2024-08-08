@@ -1,6 +1,6 @@
 
 #include "irq.h"
-#include "stdio.h"
+#include "../../clibs/stdio.h"
 #define REMAP_OFFSET 0x20
 void enable_interrupts(){
     __asm__ volatile ("sti; hlt");

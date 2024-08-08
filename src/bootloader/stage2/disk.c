@@ -36,8 +36,6 @@ bool disk_initialize(DISK* disk, uint8_t drive){
 */
 void disk_lba_to_chs(DISK* disk, uint32_t lba, uint16_t* _cylinder, uint16_t* _sector, uint16_t* _head){
 
-    
-//ERROR HERE: WRONG NUMBER OF SECTORS AND HEADS, ISSUE WITH DISKREAD X86
     *_sector=lba%disk->sectors+1;
     
     *_cylinder=(lba/disk->sectors)/disk->heads;

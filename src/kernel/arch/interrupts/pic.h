@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../x86.h"
+#include "../../clibs/x86.h"
 #define PIC1		0x20		
 #define PIC2		0xA0		
 #define PIC1_COMMAND	PIC1

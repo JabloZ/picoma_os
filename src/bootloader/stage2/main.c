@@ -7,7 +7,7 @@
 #include "memdef.h"
 #include "memory.h"
 #include "string.h"
-
+#include "memory_detection.h"
 uint8_t* kernel_mem=LOAD_KERNEL_ADDR;
 uint8_t* kernel=KERNEL_LOAD_SIZE;
 typedef void (*KernelStart)();
@@ -26,6 +26,7 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
       goto end;
 
    }
+   detect_mem();
    uint32_t read=0;
    /*
    fat_file* file_read=open_fat(&disk, "/");
