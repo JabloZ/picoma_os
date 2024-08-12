@@ -78,6 +78,7 @@ fat_file* entry_open(DISK* disk, directory_entry* dir_entry){
     if (manage<0){
         return false;
     }
+    
     file_data* opened_file_data=&g_data->opened_files[manage];
     
     opened_file_data->first_cluster=dir_entry->first_cluster+((uint32_t)dir_entry->first_cluster_hi_bytes<<16);
@@ -92,15 +93,17 @@ fat_file* entry_open(DISK* disk, directory_entry* dir_entry){
     opened_file_data->current_sector=0;
     
     if (!disk_read_sectors(disk, cluster_lba(opened_file_data->current_cluster), 1, opened_file_data->mem)){
+        
         printf("\nFAILED DISK READ.");
         return false;
     };
+    
     opened_file_data->opened=true;
     
 
-
+    
     //opened_file_data->file_data.is_directory=true; //COMMENT THAT FOR NO DIRECTORY (FOR NOW ONLY DEBUGGING)
-    //opened_file_data->file_data.file_size=26;
+    //opened_file_data->file_data.file_size=512;
     
     
     /*("\nAfter disk read: First cluster: %u, Is directory: %d, File size: %u, Manage: %d, Position: %u\n",
@@ -113,6 +116,7 @@ fat_file* entry_open(DISK* disk, directory_entry* dir_entry){
 }
 
 fat_file* open_fat(DISK* disk, const char* path){
+    
     char path_name[256];
     if (path[0]=='/'){
         path++;
@@ -160,16 +164,17 @@ fat_file* open_fat(DISK* disk, const char* path){
             //probably fat read issue 
             
         }
-
+        
         if (find_file(disk, cf, path_name, &dir_entry)){
             //printf("\nFOUND: dir entry: %s\n", dir_entry.filename);
             
             close_file(cf);
             if (end_path==false && dir_entry.attrib & FAT_DIRECTORY==0){
+                
                 //printf("not dir: %s", path_name);
                 return NULL;
             }
-           
+            
             cf=entry_open(disk, &dir_entry);
             //printf("After entry_open: is_directory: %d, filesize: %d, manage: %d, pos: %d\n", cf->is_directory, cf->file_size, cf->manage, cf->pos);
             //cf->is_directory=true;

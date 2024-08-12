@@ -17,13 +17,14 @@ $(BUILD_DIR)/main_floppy.img: bootloader kernel
 	mkfs.fat -F 12 -n "PICOOS" $(BUILD_DIR)/main_floppy.img
 	dd if=$(BUILD_DIR)/stage1.bin of=$(BUILD_DIR)/main_floppy.img conv=notrunc 
 	mcopy -i $(BUILD_DIR)/main_floppy.img -mv $(BUILD_DIR)/stage2.bin "::stage2.bin"
-	mcopy -i $(BUILD_DIR)/main_floppy.img -mv $(BUILD_DIR)/kernel.bin "::kernel.bin"
+	mcopy -i $(BUILD_DIR)/main_floppy.img -mv $(BUILD_DIR)/kernel.elf "::kernel.elf"
+	mcopy -i $(BUILD_DIR)/main_floppy.img testelf "::testelf.elf"
 #	mcopy -i $(BUILD_DIR)/main_floppy.img -smv image/* "::"
 	mcopy -i $(BUILD_DIR)/main_floppy.img test.txt "::test.txt"
 	mmd -i $(BUILD_DIR)/main_floppy.img "::testd"
 	mcopy -i $(BUILD_DIR)/main_floppy.img test.txt "::testd/test.txt"
 
-
+ 
 bootloader: stage1 stage2
 
 stage1: $(BUILD_DIR)/stage1.bin
@@ -37,9 +38,9 @@ $(BUILD_DIR)/stage2.bin: always
 	$(MAKE) -C $(SRC_DIR)/bootloader/stage2 BUILD_DIR=$(abspath $(BUILD_DIR))
 
 
-kernel: $(BUILD_DIR)/kernel.bin
+kernel: $(BUILD_DIR)/kernel.elf
 
-$(BUILD_DIR)/kernel.bin: always
+$(BUILD_DIR)/kernel.elf: always
 	$(MAKE) -C $(SRC_DIR)/kernel BUILD_DIR=$(abspath $(BUILD_DIR))
 
 always:
@@ -51,4 +52,4 @@ clean:
 
 run:
 	
-	qemu-system-i386 -fda $(BUILD_DIR)/main_floppy.img -no-reboot -no-shutdown
+	qemu-system-i386 -m 512M -fda $(BUILD_DIR)/main_floppy.img -no-reboot -no-shutdown

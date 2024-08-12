@@ -35,11 +35,11 @@ bool disk_initialize(DISK* disk, uint8_t drive){
 ;S = (LBA mod SPT) + 1
 */
 void disk_lba_to_chs(DISK* disk, uint32_t lba, uint16_t* _cylinder, uint16_t* _sector, uint16_t* _head){
-
+    // printf("LBA: %d, Cylinder: %d, Head: %d, Sector: %d\n", lba, *_cylinder, *_head, *_sector);
     *_sector=lba%disk->sectors+1;
     
     *_cylinder=(lba/disk->sectors)/disk->heads;
-
+    
     *_head=(lba/disk->sectors)%disk->heads;
     //printf("LBA: %d, Cylinder: %d, Head: %d, Sector: %d\n", lba, *_cylinder, *_head, *_sector);
 }
@@ -51,7 +51,7 @@ bool disk_read_sectors(DISK* disk, uint32_t lba, uint8_t sectors, void *data_out
     disk_lba_to_chs(disk, lba, &cylinder, &sector, &head);
     
     for (int i=0; i<3; i++){
-       ;
+        
         if(x86_read_disk(disk->id, cylinder, sector, head, sectors, data_out)){
             return true;
         }
@@ -59,5 +59,6 @@ bool disk_read_sectors(DISK* disk, uint32_t lba, uint8_t sectors, void *data_out
         x86_reset_disk(disk->id);
         
     }
+    
     return false;
 };

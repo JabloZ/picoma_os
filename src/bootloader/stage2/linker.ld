@@ -6,7 +6,7 @@ SECTIONS
     . = 0x00000500;
     
     .entry      : { __entry_start = .;  *(.entry)   }
-    .text       : { __code_start = .;   *(.text*)   }
+    .text       : { __text_start = .;   *(.text)   }
     .data       : { __data_start = .;   *(.data)    }
     .rodata     : { __rodata_start = .; *(.rodata)  }
     .bss        : { __bss_start = .;    *(.bss)     }

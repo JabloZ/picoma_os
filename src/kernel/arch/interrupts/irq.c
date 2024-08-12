@@ -12,17 +12,7 @@ void disable_interrupts(){
 void handler_irq_0(){
     ;
 }
-void handler_irq_1(){
-    uint8_t scancode = inb(0x60);
-    if (scancode>0x80){
-        return;
-    }
-    else{
-        printf("\nkeyboard key pressed : %d", scancode);
-    }
-    
-    pic_send_eoi(1);
-}
+
 void init_irq(){
     g_irq_handler[0]=handler_irq_0;
     g_irq_handler[1]=handler_irq_1;

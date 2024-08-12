@@ -30,6 +30,18 @@ void update_cursor(int x, int y)
 	outb(0x3D4, 0x0E);
 	outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
 }
+void remove_char(int x, int y){
+    if (video_x==0){
+        video_y--;
+        video_buffer[2*((y-1)*SCREEN_WIDTH+x)]=' ';
+    }
+    else{
+        video_x--;
+        video_buffer[2*(y*SCREEN_WIDTH+x-1)]=' ';
+    }
+    
+    update_cursor(video_x, video_y);
+}
 void put_char(int x, int y, char c){
     video_buffer[2*(y*SCREEN_WIDTH+x)]=c;
 }
