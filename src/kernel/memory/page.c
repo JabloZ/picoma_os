@@ -34,7 +34,7 @@ void init_page(){
 
 void test_paging(){
 
-    uint32_t *test_address = (uint32_t *)0x810000;
+    uint32_t *test_address = (uint32_t *)0x1000;
     *test_address = 0x1000;
     if (*test_address==0x1000){
         printf("paging succesful \n");
