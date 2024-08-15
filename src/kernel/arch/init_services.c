@@ -4,10 +4,12 @@
 #include "interrupts/isr.h"
 #include "interrupts/irq.h"
 #include "../memory/pmm.h"
+#include "../memory/page.h"
 void services_init(){
     init_gdt();
     init_idt();
     init_isr();
     init_irq();
     init_pmm();
+    init_page();
 }

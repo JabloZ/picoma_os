@@ -3,7 +3,7 @@
 #include "../../glibs/memory_params.h"
 
 #define PAGE_SIZE 4096
-#define MAX_BLOCKS 32768
+#define MAX_BLOCKS 32768 //locked for 128mb
 
 uint32_t* pmm_blocks[MAX_BLOCKS];
 uint32_t pmm_top;
@@ -14,3 +14,5 @@ typedef struct{
 
 } pmm_mem_block;
 void init_pmm();
+void* allocate_block();
+void free_block();

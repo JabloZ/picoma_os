@@ -52,4 +52,4 @@ clean:
 
 run:
 	
-	qemu-system-i386 -m 512M -fda $(BUILD_DIR)/main_floppy.img -no-reboot -no-shutdown
+	qemu-system-i386 -m 128M -fda $(BUILD_DIR)/main_floppy.img -no-reboot -no-shutdown

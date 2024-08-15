@@ -6,6 +6,7 @@
         "stdio.h": "c",
         "memory.h": "c",
         "idt.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "page.h": "c"
     }
 }
