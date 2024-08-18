@@ -1,9 +1,140 @@
 #include "pmm.h"
+#include "page.h"
+#include "vmm.h"
+#include "../clibs/stdio.h"
+
+#define MEMORY_SIZE 2*1024*1024
+static uint8_t memory_pool[2*1024*1024];
+
+uint8_t* memory_pool_ptr;
+allocator_block* g_allocator;
+
+
+allocator_block* create_block(const allocator_block* b_parent, uint32_t mem_size, uint32_t lvl){
+    
+    allocator_block* block = (allocator_block*)memory_pool_ptr;
+    memory_pool_ptr += sizeof(allocator_block);
+
+    block->parent=b_parent;
+    block->buddy1=NULL;
+    block->buddy2=NULL;
+    block->used=0;
+    block->size=(b_parent->size)/2;
+    block->level=lvl-1;
+  
+    if (block->level>0){
+        block->buddy1=create_block(block, block->size, block->level);
+        block->buddy2=create_block(block, block->size, block->level);
+    }
+    
+    
+    return block;
+}
+void test_mem(void* ptr, uint32_t size) {
+    if (ptr == NULL) {
+        printf("error allocating memory.\n");
+        return;
+    }
+
+  
+    memset(ptr, 0xAB, size); 
+  
+
+    for (uint32_t i = 0; i < size; i++) {
+        if (((uint8_t*)ptr)[i] != 0xAB) {
+            printf("error reading memory %d\n", i);
+            return;
+        }
+    }
+    printf("memory works fine\n");
+}
 void init_vmm(){
-    uint32_t* vmm_kernel_address=allocate_block();
-    memset(vmm_kernel_address, 0, PAGE_SIZE);
+     memory_pool_ptr = memory_pool;
+    g_allocator=memory_pool_ptr;
+    memory_pool_ptr += sizeof(allocator_block);
+
+    g_allocator->used=1;
+    g_allocator->parent=NULL;
+    g_allocator->buddy1=NULL;
+    g_allocator->buddy2=NULL;
+    g_allocator->level=BS_9;
+    g_allocator->size=MEMORY_SIZE;
+
+    
+    g_allocator->buddy1=create_block(g_allocator, g_allocator->size, g_allocator->level);
+    g_allocator->buddy2=create_block(g_allocator, g_allocator->size, g_allocator->level);
+    
+    
+    //printf("g_alloc_size: %d\n",g_allocator->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->used);
+    uint32_t* mem=mem_allocate(200);
+    uint32_t* mem2=mem_allocate(20000);
+    //uint32_t* mem3=mem_allocate(20000000);
+    //test_mem(mem, 200);
+    //test_mem(mem2, 20000);
+    //printf("g_alloc_size: %d\n",g_allocator->buddy1->buddy1->buddy1->buddy1->buddy1->buddy1->buddy1->buddy1->buddy1->used);
+
+}
+void mark_lower_used_blocks(allocator_block* block, uint32_t int_used){
+        if (block->level==0){
+            block->used=int_used;
+            return;
+        }
+       
+        block->buddy1->used=int_used;
+        mark_lower_used_blocks(block->buddy1,int_used);
+        block->buddy2->used=int_used;
+        mark_lower_used_blocks(block->buddy2,int_used);
     
 }
 
+void mark_higher_used_blocks(allocator_block* block, uint32_t int_used){
+        if (block->level==9){
+            return;
+        }
+       
+        block->parent->used=int_used;
+        mark_higher_used_blocks(block->parent,int_used);
+        
+}
 
- 
+allocator_block* find_block(uint32_t size, const allocator_block* block){
+     if (block->level==0){
+        
+        if (block->size>=size){
+            
+            return block;
+        }
+    }
+    if (block->size>=size && block->buddy1->size<size && block->used==0){
+        return block;
+    }
+    if (block->level>0){
+        allocator_block* find=find_block(size, block->buddy1);
+        if (find==NULL){
+            find=find_block(size, block->buddy2);
+        }
+    }
+}
+
+
+void* mem_allocate(uint32_t size){
+    
+    if (size>MEMORY_SIZE){
+        printf("memory too big"); 
+        return NULL;
+    }
+
+    allocator_block* found_block=find_block(size, g_allocator);
+    
+    if (found_block==NULL){
+        printf("couldnt find any block to allocate\n");
+        return;
+    }
+    found_block->memory_ptr=memory_pool_ptr;
+    memory_pool_ptr+=found_block->size;
+    found_block->used=1;
+    mark_lower_used_blocks(found_block,1);
+    mark_higher_used_blocks(found_block,1);
+    return found_block->memory_ptr;
+}
+//to do - memory free block

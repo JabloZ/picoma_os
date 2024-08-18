@@ -1,7 +1,10 @@
 #include "../clibs/stdint.h"
+#include "../../glibs/memory_params.h"
+
 #define PAGE_SIZE 4096
 #define PAGE_TABLE_COUNT 1024
 #define PAGE_DIR_COUNT 1024
+
 typedef struct{
     uint32_t present: 1;
     uint32_t read_write: 1;
@@ -32,14 +35,10 @@ typedef struct{
 void enable_paging(page_directory_entry *pg);
 void init_page();
 
-typedef struct{
-    page_table_entry pages[1024] __attribute__((aligned(4096)));
-} page_table_t;
 
-typedef struct{
-    page_table_t* page_tables[1024];
-    uint32_t* first_table;
-    uint32_t cr0;
-} page_directory_t;
 
-page_directory_t g_page_dir;
+
+
+page_directory_entry page_directory[PAGE_DIR_COUNT] __attribute__((aligned(PAGE_SIZE)));
+page_table_entry first_page_table[PAGE_TABLE_COUNT] __attribute__((aligned(PAGE_SIZE)));\
+

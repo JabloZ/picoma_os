@@ -1,9 +1,5 @@
 #include "page.h"
 #include "stdio.h"
-page_directory_entry page_directory[PAGE_DIR_COUNT] __attribute__((aligned(PAGE_SIZE)));
-page_table_entry first_page_table[PAGE_TABLE_COUNT] __attribute__((aligned(PAGE_SIZE)));
-page_table_entry second_page_table[PAGE_TABLE_COUNT] __attribute__((aligned(PAGE_SIZE)));
-
 
 void enable_paging(page_directory_entry *pg){
    __asm__ volatile("mov %0, %%cr3":: "r"(pg));
@@ -25,9 +21,11 @@ void init_page(){
         first_page_table[i].user = 0;
         first_page_table[i].frame_addr = i;
     }
-  
+    uint32_t max_mem= g_memory_regs_info->memory_regions[g_memory_regs_info->region_num-1].base_low+g_memory_regs_info->memory_regions[g_memory_regs_info->region_num-1].region_low;
+    
     enable_paging((uint32_t*)&page_directory); //paging now enabled;
-    test_paging();
+    
+    //test_paging();
 
     
 }

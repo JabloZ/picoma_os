@@ -12,4 +12,5 @@ void services_init(){
     init_irq();
     init_pmm();
     init_page();
+    init_vmm();
 }
