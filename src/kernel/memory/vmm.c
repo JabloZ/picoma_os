@@ -12,7 +12,7 @@ allocator_block g_allocator;
 
 
 allocator_block* create_block(const allocator_block* b_parent, uint32_t mem_size, uint32_t lvl){
-    
+   
     allocator_block* block = (allocator_block*)memory_pool_ptr;
     memory_pool_ptr += sizeof(allocator_block);
 
@@ -53,7 +53,7 @@ void test_mem(void* ptr, uint32_t size) {
 void init_vmm(){
     
     memory_pool_ptr = memory_pool;
-    
+    memory_pool_ptr+=sizeof(allocator_block);
     g_allocator.used=1;
     g_allocator.parent=NULL;
     g_allocator.buddy1=NULL;
@@ -67,28 +67,10 @@ void init_vmm(){
     
     
     //printf("g_alloc_size: %d\n",g_allocator->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->block_nr);
-    uint32_t* mem=mem_allocate(1000000);
-    test_mem(mem, 1000000);
-    memory_free(mem);
    
     //TESTBLOCK
    
-   mem=mem_allocate(1000000);
-    test_mem(mem, 1000000);
-    memory_free(mem);
-     mem=mem_allocate(1000000);
-    test_mem(mem, 1000000);
-    memory_free(mem);
-     mem=mem_allocate(1000000);
-    test_mem(mem, 1000000);
-    memory_free(mem);
-     mem=mem_allocate(1000000);
-    test_mem(mem, 1000000);
-    memory_free(mem);
-     mem=mem_allocate(1000000);
-    test_mem(mem, 1000000);
-    memory_free(mem);
-   
+  
     
 }
 void mark_lower_used_blocks(allocator_block* block, uint32_t int_used){
@@ -115,9 +97,9 @@ void mark_higher_used_blocks(allocator_block* block, uint32_t int_used){
 }
 
 allocator_block* find_block(uint32_t size, const allocator_block* block){
-     if (block->level==0){
+    if (block->level==0){
         
-        if (block->size>=size){
+        if (block->size>=size && block->used==0){
             
             return block;
         }
@@ -153,7 +135,7 @@ void* mem_allocate(uint32_t size){
     mark_lower_used_blocks(found_block,1);
     mark_higher_used_blocks(found_block,1);
     blocks[found_block->block_nr + (1 << MAX_LEVELS)] = found_block;
-   
+    //printf("memory_ptr_allocated: %p",found_block->memory_ptr);
     //blocks[found_block->block_nr+(1<<MAX_LEVELS)]=found_block;
     
    

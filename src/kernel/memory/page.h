@@ -1,6 +1,6 @@
 #include "../clibs/stdint.h"
 #include "../../glibs/memory_params.h"
-
+#include "vmm.h"
 #define PAGE_SIZE 4096
 #define PAGE_TABLE_COUNT 1024
 #define PAGE_DIR_COUNT 1024
@@ -34,8 +34,8 @@ typedef struct{
 
 void enable_paging(page_directory_entry *pg);
 void init_page();
-
-
+page_table_entry* create_page_table();
+void map_page(void* phys_addr, void* virt_addr) ;
 
 
 
