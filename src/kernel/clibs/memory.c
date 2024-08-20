@@ -10,9 +10,9 @@ void* memcpy(void* dest,const void* src, uint16_t dest_size){
     }
     return dest;
 };
-void* memset(void* dest, int val, uint16_t dest_size){
+void* memset(void* dest, int val, uint32_t dest_size){
     uint8_t* to_set=(uint8_t*)dest;
-    for(uint16_t i=0; i<dest_size; i++){
+    for(uint32_t i=0; i<dest_size; i++){
         to_set[i]=(uint8_t)val;
     }
     return dest;
