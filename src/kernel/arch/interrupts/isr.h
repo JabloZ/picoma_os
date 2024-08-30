@@ -1,5 +1,6 @@
 #pragma once
 #include "../../clibs/stdint.h"
+#include "../../../glibs/memory_params.h"
 #include "idt.h"
 typedef struct{
       uint32_t ds;                                            

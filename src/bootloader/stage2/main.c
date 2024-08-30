@@ -11,12 +11,11 @@
 #include "elf.h"
 uint8_t* kernel_mem=(uint8_t*)MEMORY_LOAD_KERNEL;
 uint8_t* kernel=(uint8_t*)KERNEL_LOAD_ADDR;
-typedef void (*KernelStart)(void);
+typedef void (*KernelStart)();
 
 void __attribute__((cdecl)) _start(uint16_t boot_drive) {
    clear_screen();
    DISK disk;
-   printf("\nDISK INFO: %p", &disk);
    if (!disk_initialize(&disk, boot_drive)){
       printf("error initializing disk");
       goto end;
@@ -32,18 +31,35 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
    uint32_t read=0;
    
    KernelStart kernel_e;
+   /*
    if (read_elf(&disk, "/kernel.elf", (void**)&kernel_e)==false){
       printf("failed reading elf kernel");
       return;
-   }
-   
+   }*/
+
+   // load kernel
+    /*fat_file* kernel_read=open_fat(&disk, "/k_setup.bin");
+      read=0;
+      uint8_t* kernel_membuf=kernel;
+
+      while((read=read_fat_file(&disk, kernel_read, MEMORY_SIZE,kernel_mem))){ // this function is for reading file contents (reading dirs with this will cause unexpected behaviour)
+         memcpy(kernel_membuf, kernel_mem, read);
+         kernel_membuf+=read;
+      }*/
+      
+      //close_file(kernel_read);
+      if (read_elf(&disk, "/kernel.elf", (void**)&kernel_e)==false){
+         printf("failed reading elf kernel");
+      return;}
+      
+      
+      KernelStart kernels= (KernelStart)kernel_e;
+      kernels();
+    
+    
   
-    printf("Execute kernel at address: %p\n", (void*)kernel_e);
-  
-    KernelStart kernels = kernel_e;
-    kernels();
    //return;
 end:
-   printf("w end");
+   
    while(1);
 }

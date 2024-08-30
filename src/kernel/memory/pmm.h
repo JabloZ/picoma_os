@@ -1,18 +1,12 @@
+#pragma once
 #include "../clibs/stdbool.h"
 #include "../clibs/stdint.h"
 #include "../../glibs/memory_params.h"
 
 #define PAGE_SIZE 4096
-#define MAX_BLOCKS 32768 //locked for 128mb
 
-uint32_t* pmm_blocks[MAX_BLOCKS];
-uint32_t pmm_top;
-typedef struct{
-    bool free;
-    uint32_t size;
-    struct pmm_mem_block* next_block;
+#define total_pages 4096
+uint8_t physical_bitmap[4096];
 
-} pmm_mem_block;
 void init_pmm();
-void* allocate_block();
-void free_block();
+void* pmm_alloc();

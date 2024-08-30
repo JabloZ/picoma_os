@@ -205,7 +205,7 @@ x86_call_E820:
 
     
     .no_error:
-    ;mov eax, ecx
+    mov eax, ecx
     mov [ds:si], ebx
     
  

@@ -1,6 +1,12 @@
+#pragma once
 #include "../clibs/stdint.h"
+#include "../clibs/memory.h"
+#include "../clibs/stdio.h"
 #include "../../glibs/memory_params.h"
 #include "vmm.h"
+#include "pmm.h"
+#include "../../kernel/arch/gdt/gdt.h"
+#include "../../kernel/arch/interrupts/idt.h"
 #define PAGE_SIZE 4096
 #define PAGE_TABLE_COUNT 1024
 #define PAGE_DIR_COUNT 1024
@@ -32,13 +38,19 @@ typedef struct{
     uint32_t frame_addr: 20;
 } __attribute__((packed)) page_table_entry;
 
-void enable_paging(page_directory_entry *pg);
+
 void init_page();
-page_table_entry* create_page_table();
-void map_page(void* phys_addr, void* virt_addr) ;
-
-
-
+void *vmm_alloc_page_4mb(void *virtual_address);
+void vmm_map_page_4mb(uint32_t virtual_address, uint32_t physical_address);
+void vmm_map_page_4kb(uint32_t virtual_address, uint32_t physical_address);
 page_directory_entry page_directory[PAGE_DIR_COUNT] __attribute__((aligned(PAGE_SIZE)));
-page_table_entry first_page_table[PAGE_TABLE_COUNT] __attribute__((aligned(PAGE_SIZE)));\
+page_table_entry page_table[PAGE_TABLE_COUNT] __attribute__((aligned(PAGE_SIZE)));
 
+typedef struct{
+    page_directory_entry entries[1024];
+}page_directory_entry_t;
+typedef struct{
+    page_table_entry entries[1024];
+}page_table_entry_t;
+void __attribute((cdecl)) change_stack();
+void __attribute((cdecl)) reload_segments();

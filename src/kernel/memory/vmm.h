@@ -34,7 +34,7 @@ uint32_t save_numbers[BS_10];
 allocator_block* blocks[(1<<BS_10)-1];
 void* mem_allocate(uint32_t size);
 allocator_block* create_block(const allocator_block* b_parent, uint32_t mem_size, uint32_t lvl);
-
+void init_vmm();
 allocator_block* find_block(uint32_t size, const allocator_block* block);
 void mark_higher_used_blocks(allocator_block* block, uint32_t int_used);
 void mark_lower_used_blocks(allocator_block* block, uint32_t int_used);

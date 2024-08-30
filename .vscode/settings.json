@@ -7,6 +7,12 @@
         "memory.h": "c",
         "idt.h": "c",
         "stdint.h": "c",
-        "page.h": "c"
+        "page.h": "c",
+        "irq.h": "c",
+        "init_services.h": "c",
+        "gdt.h": "c",
+        "vmm.h": "c",
+        "elf.h": "c",
+        "disk.h": "c"
     }
 }

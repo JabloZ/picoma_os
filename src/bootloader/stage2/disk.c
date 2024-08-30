@@ -51,7 +51,7 @@ bool disk_read_sectors(DISK* disk, uint32_t lba, uint8_t sectors, void *data_out
     disk_lba_to_chs(disk, lba, &cylinder, &sector, &head);
     
     for (int i=0; i<3; i++){
-        
+            
         if(x86_read_disk(disk->id, cylinder, sector, head, sectors, data_out)){
             return true;
         }

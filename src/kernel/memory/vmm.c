@@ -1,10 +1,12 @@
+//NOTE: SHOULD RENAME THIS, THIS IS JUST BUDDY ALLOCATOR
 #include "pmm.h"
 #include "page.h"
 #include "vmm.h"
 #include "../clibs/stdio.h"
+#include "../../glibs/memory_params.h"
 #define MAX_LEVELS 9
-#define MEMORY_SIZE 2*1024*1024
-static uint8_t memory_pool[2*1024*1024];
+#define MEMORY_SIZE 1*1024*1024
+static uint8_t memory_pool[1*1024*1024];
 
 uint32_t blocks_iter=0;
 uint8_t* memory_pool_ptr;
@@ -12,7 +14,7 @@ allocator_block g_allocator;
 
 
 allocator_block* create_block(const allocator_block* b_parent, uint32_t mem_size, uint32_t lvl){
-   
+    
     allocator_block* block = (allocator_block*)memory_pool_ptr;
     memory_pool_ptr += sizeof(allocator_block);
 
@@ -52,8 +54,10 @@ void test_mem(void* ptr, uint32_t size) {
 }
 void init_vmm(){
     
+    
     memory_pool_ptr = memory_pool;
     memory_pool_ptr+=sizeof(allocator_block);
+    
     g_allocator.used=1;
     g_allocator.parent=NULL;
     g_allocator.buddy1=NULL;
@@ -129,11 +133,13 @@ void* mem_allocate(uint32_t size){
         printf("couldnt find any block to allocate\n");
         return;
     }
-    found_block->memory_ptr=memory_pool_ptr+(found_block->block_nr*found_block->size);
+     found_block->memory_ptr=memory_pool_ptr+(found_block->block_nr*found_block->size);
    
     found_block->used=1;
     mark_lower_used_blocks(found_block,1);
     mark_higher_used_blocks(found_block,1);
+   
+    //map_page(found_block->memory_ptr, found_block->memory_ptr);
     blocks[found_block->block_nr + (1 << MAX_LEVELS)] = found_block;
     //printf("memory_ptr_allocated: %p",found_block->memory_ptr);
     //blocks[found_block->block_nr+(1<<MAX_LEVELS)]=found_block;

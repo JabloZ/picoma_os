@@ -5,7 +5,6 @@
 #include "stdio.h"
 
 
-
 char *exceptionMessages[] = {
     "Division by Zero",
     "Debug",
