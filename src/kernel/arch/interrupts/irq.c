@@ -14,9 +14,12 @@ void handler_irq_0(){
 }
 
 void init_irq(){
+    
     g_irq_handler[0]=handler_irq_0;
     g_irq_handler[1]=handler_irq_1;
+    
     remap_pic(REMAP_OFFSET, REMAP_OFFSET+8);
+    
     for (uint8_t i=0; i<16; i++){
         isr_h[REMAP_OFFSET+i]=irq_handler_f;
         enable_gate(REMAP_OFFSET+i);

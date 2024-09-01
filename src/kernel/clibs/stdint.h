@@ -12,3 +12,5 @@ typedef unsigned int uint32_t;
 typedef signed long long int int64_t;
 typedef unsigned long long int uint64_t;
 
+#define VIRTUAL_BASE 0xC0000000
+void* P2V(void* physical_address);

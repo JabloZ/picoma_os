@@ -2,7 +2,7 @@ BUILD_DIR?=build
 ASM?=nasm -g
 ASMFLAGS?=-f elf32
 CC?=i386-elf-gcc
-CFLAGS?=-ffreestanding -nostdlib -std=c99 -m32 -fno-pie -Wall
+CFLAGS?=-ffreestanding -nostdlib -std=c99 -m32 -fno-pie -Wall 
 CFLAGS += -I$(SRCDIR)/kernel
 #LINK?=/usr/local/i386elfgcc/bin/i386-elf-ld
 LINK?=ld
@@ -21,9 +21,9 @@ OBJECTS_ASM=$(patsubst %.asm, $(BUILD_DIR)/kernel/asm/%.o, $(SOURCES_ASM))
 .PHONY: all kernel clean
 all: kernel
 
-kernel: $(BUILD_DIR)/kernel.elf
+kernel: $(BUILD_DIR)/kernel.bin
 
-$(BUILD_DIR)/kernel.elf: $(OBJECTS_ASM) $(OBJECTS_C)
+$(BUILD_DIR)/kernel.bin: $(OBJECTS_ASM) $(OBJECTS_C)
 	$(LINK) $(LINKFLAGS) -Map=$(BUILD_DIR)/kernel.map -o $@ $^ $(LINKLIBS)
 
 $(BUILD_DIR)/kernel/c/%.o: %.c $(HEADERS_C)

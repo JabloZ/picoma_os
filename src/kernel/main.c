@@ -3,28 +3,46 @@
 #include "clibs/memory.h"
 #include "arch/init_services.h"
 #include "arch/interrupts/irq.h"
+#include "arch/interrupts/idt.h"
 #include "../glibs/memory_params.h"
-#include "memory/page_entry.h"
 #include "memory/page.h"
+
 void print_string(char *str)
 {
-  uint8_t* vidmem = (uint8_t *) 0xc01b8000;
+  //__asm__ volatile("hlt");
+  
+  uint8_t* vidmem = (uint8_t *) 0xc00B8000;
+
   while(*str)
   {
+
     *vidmem++ = *str++;
     *vidmem++ = 0x7;
   }
+ 
 }
-void kernel_main()
+
+void __attribute__((section(".entry"))) _start()
 {
-  
+   
+    //init_gdt();
     //
     //int b=2;
+    //clear_screen();
+    //print_string("hello, world!");
+  //__asm__ volatile("hlt");
+  
+    
+    clear_screen();
+   
+   
+    //printf("hello, world");
+    
+    //print_string("hello, world!");
+   
+    //printf("po: %d",b);
 
     print_string("hello, world!");
-    //printf("po: %d",b);
-    clear_screen();
-    __asm__ volatile("hlt");
     services_init();
     printf("________________________________________________________________________________");
     printf("|                            X86 PICOMA OS: v0.0.1                             |");

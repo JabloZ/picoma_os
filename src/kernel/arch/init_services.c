@@ -7,14 +7,14 @@
 #include "../memory/page.h"
 #include "../memory/vmm.h"
 void services_init(){
-    init_gdt();
+    //init_gdt();
     init_idt();
     init_isr();
-    init_irq();
-    init_pmm();
+    init_irq(); //ERROR?
+    //init_pmm();
 
     //init_page();
     
-    init_vmm();
+    //init_vmm();
     
 }

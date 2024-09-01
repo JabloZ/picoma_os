@@ -9,8 +9,10 @@
 #include "string.h"
 #include "memory_detection.h"
 #include "elf.h"
+#include "jmp.h"
 uint8_t* kernel_mem=(uint8_t*)MEMORY_LOAD_KERNEL;
-uint8_t* kernel=(uint8_t*)KERNEL_LOAD_ADDR;
+uint8_t* kernel=(uint8_t*)KERNEL_ADDR_PHYS;
+
 typedef void (*KernelStart)();
 
 void __attribute__((cdecl)) _start(uint16_t boot_drive) {
@@ -38,22 +40,32 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
    }*/
 
    // load kernel
-    /*fat_file* kernel_read=open_fat(&disk, "/k_setup.bin");
+      
+      fat_file* kernel_read=open_fat(&disk, "/kernel.bin");
       read=0;
       uint8_t* kernel_membuf=kernel;
-
+      
       while((read=read_fat_file(&disk, kernel_read, MEMORY_SIZE,kernel_mem))){ // this function is for reading file contents (reading dirs with this will cause unexpected behaviour)
          memcpy(kernel_membuf, kernel_mem, read);
          kernel_membuf+=read;
-      }*/
-      
+      }
+
       //close_file(kernel_read);
+      /*
       if (read_elf(&disk, "/kernel.elf", (void**)&kernel_e)==false){
          printf("failed reading elf kernel");
-      return;}
+      return;}*/
+
+
+      //printf("adr kernel_entry: %p",kernel_e);
+      //print_buffer("before paging: ", 0xc01025bd, 100);
       
+      //__asm__ volatile("hlt");
       
-      KernelStart kernels= (KernelStart)kernel_e;
+      prepare_paging();
+      //change_stack();
+    
+      KernelStart kernels= (KernelStart)0xc0000000+KERNEL_ADDR_PHYS;
       kernels();
     
     

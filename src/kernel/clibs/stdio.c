@@ -32,7 +32,7 @@ void update_cursor(int x, int y)
 	outb(0x3D4, 0x0E);
 	outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
     //__asm__ volatile("hlt");
-    return;
+    
 }
 void remove_char(int x, int y){
     if (video_x==0){
@@ -136,21 +136,25 @@ void printf_unsigned(unsigned long long number, int radix)
         putc(buffer[pos]);
 }
 
-void printf(const char* fstr, ...){
+void printf(char* fstr, ...){
+   
     va_list args;
     va_start(args, fstr);
     int number=0;
     int radix=10;
     int state=P_STATE_NORMAL;
-   
+    
     while (*fstr){
+       
         switch (state){
+            
             case P_STATE_NORMAL:
                 if (*fstr=='%'){
                     state=P_STATE_SPECIFY;
                     break;
                 }
                 else{
+                    
                     putc(*fstr);
                     break;
                 }

@@ -9,6 +9,32 @@ int8_t* video_buffer = (int8_t *) 0xb8000;
 int video_x=0;
 int video_y=0;
 
+void print_buffer(const char* msg, const void* buffer, uint32_t count) {
+    const unsigned char* buf = (const unsigned char*)buffer;
+
+    printf("%s\n", msg);
+
+    for (uint32_t i = 0; i < count; i++) {
+        // Print 16 bytes per line
+        if (i % 16 == 0) {
+            printf("%p: ", i);
+        }
+
+     
+        printf("%p ", buf[i]);
+
+      
+        if ((i + 1) % 16 == 0) {
+            printf("\n");
+        }
+    }
+
+    
+    if (count % 16 != 0) {
+        printf("\n");
+    }
+}
+
 void clear_screen(){
     int8_t* video_memory = (int8_t *) 0xb8000;
     for (int i=0; i<SCREEN_HEIGHT; i++){
