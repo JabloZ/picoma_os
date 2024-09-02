@@ -5,8 +5,11 @@
 
 #define PAGE_SIZE 4096
 
-#define total_pages 4096
-uint8_t physical_bitmap[4096];
-
+#define total_pages 1048576
+uint8_t physical_mem[total_pages];
+uint32_t last_alloc;
 void init_pmm();
 void* pmm_alloc();
+void pmm_free();
+void pmm_alloc_addr();
+void print_pmm();

@@ -3,7 +3,7 @@ export BUILD_DIR=build
 export SRC_DIR=src
 CC_DIR = /usr/local/i386elfgcc/bin
 export PATH := $(CC_DIR):$(PATH)
-CC=/usr/local/i386elfbingcc/bin/i386-elf-gcc
+CC=/usr/local/i386elfgcc/bin/i386-elf-gcc
 
 .PHONY: all floppy_image kernel bootloader clean always
 

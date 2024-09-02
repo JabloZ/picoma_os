@@ -6,54 +6,19 @@
 #include "arch/interrupts/idt.h"
 #include "../glibs/memory_params.h"
 #include "memory/page.h"
-
-void print_string(char *str)
-{
-  //__asm__ volatile("hlt");
-  
-  uint8_t* vidmem = (uint8_t *) 0xc00B8000;
-
-  while(*str)
-  {
-
-    *vidmem++ = *str++;
-    *vidmem++ = 0x7;
-  }
- 
-}
-
+#include "memory/kalloc.h"
+#include "memory/pmm.h"
 void __attribute__((section(".entry"))) _start()
 {
-   
-    //init_gdt();
-    //
-    //int b=2;
-    //clear_screen();
-    //print_string("hello, world!");
-  //__asm__ volatile("hlt");
-  
-    
-    clear_screen();
-   
-   
-    //printf("hello, world");
-    
-    //print_string("hello, world!");
-   
-    //printf("po: %d",b);
 
-    print_string("hello, world!");
+    clear_screen();
     services_init();
     printf("________________________________________________________________________________");
     printf("|                            X86 PICOMA OS: v0.0.1                             |");
     printf("________________________________________________________________________________\n");
-    print_regions();
-    //int b=2/0;
     printf(">");
+    print_pmm();
     
-    uint32_t max_mem= g_memory_regs_info->memory_regions[g_memory_regs_info->region_num-1].base_low+g_memory_regs_info->memory_regions[g_memory_regs_info->region_num-1].region_low;
-    //int i=0;
-   
 end:
     while(1);
 }

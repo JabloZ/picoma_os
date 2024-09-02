@@ -3,7 +3,7 @@
 #include "../clibs/memory.h"
 #include "../clibs/stdio.h"
 #include "../../glibs/memory_params.h"
-#include "vmm.h"
+#include "kalloc.h"
 #include "pmm.h"
 #include "../../kernel/arch/gdt/gdt.h"
 #include "../../kernel/arch/interrupts/idt.h"
@@ -46,11 +46,4 @@ void vmm_map_page_4kb(uint32_t virtual_address, uint32_t physical_address);
 page_directory_entry page_directory[PAGE_DIR_COUNT] __attribute__((aligned(PAGE_SIZE)));
 page_table_entry page_table[PAGE_TABLE_COUNT] __attribute__((aligned(PAGE_SIZE)));
 
-typedef struct{
-    page_directory_entry entries[1024];
-}page_directory_entry_t;
-typedef struct{
-    page_table_entry entries[1024];
-}page_table_entry_t;
-void __attribute((cdecl)) change_stack();
 void __attribute((cdecl)) reload_segments();

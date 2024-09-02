@@ -1,7 +1,7 @@
 //NOTE: SHOULD RENAME THIS, THIS IS JUST BUDDY ALLOCATOR
 #include "pmm.h"
 #include "page.h"
-#include "vmm.h"
+#include "kalloc.h"
 #include "../clibs/stdio.h"
 #include "../../glibs/memory_params.h"
 #define MAX_LEVELS 9
@@ -52,7 +52,7 @@ void test_mem(void* ptr, uint32_t size) {
     }
     printf("memory works fine\n");
 }
-void init_vmm(){
+void init_kalloc(){
     
     
     memory_pool_ptr = memory_pool;
