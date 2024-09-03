@@ -10,8 +10,6 @@
 <li>
 <a href="https://www.youtube.com/@nanobyte-dev">Nanobyte</a>  
 </li>
-<li>
-<a href="https://stanislavs.org/helppc">Stanislavs interrupt list+ascii</a>  
-</li>
+
 
 </ul>

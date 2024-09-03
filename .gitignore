@@ -1,6 +1,6 @@
 build
 .bashrc
-bx_enh_dbg.ini
+bx_enh_dbg
 setup_gcc_cp.sh
 testelf.asm
 testelf.o

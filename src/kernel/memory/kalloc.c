@@ -80,6 +80,7 @@ void init_kalloc(){
 void mark_lower_used_blocks(allocator_block* block, uint32_t int_used){
         if (block->level==0){
             block->used=int_used;
+            
             return;
         }
        
