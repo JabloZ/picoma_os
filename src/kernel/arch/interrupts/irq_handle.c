@@ -102,13 +102,12 @@ void handler_irq_1(){
         }
         else{
             switch(scancode){
-                case 28:
+                case 28: //enter
                     memset(global_command, 0, strlen(global_command));
                     global_command_num=0;
                     printf("\n>");
                     break;
-                case 14:
-                    
+                case 14: //backspace
                     global_command_num--;
                     global_command[global_command_num]=0;
                     remove_char(video_x, video_y);

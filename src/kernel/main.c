@@ -4,6 +4,7 @@
 #include "arch/init_services.h"
 #include "arch/interrupts/irq.h"
 #include "arch/interrupts/idt.h"
+#include "arch/disk.h"
 #include "../glibs/memory_params.h"
 #include "memory/page.h"
 #include "memory/kalloc.h"
@@ -18,12 +19,15 @@ void __attribute__((section(".entry"))) _start()
     printf("________________________________________________________________________________\n");
     printf(">");
     print_pmm();
-    vmm_alloc_page_4kb(0xC0805000);
-    vmm_alloc_page_4kb(0xC0806000);
+    //vmm_alloc_page_4kb(0xC0805000);
+    //vmm_alloc_page_4kb(0xC0806000);
     //print_pmm();
-    vmm_unmap_page_4kb(0xC0805000);
+    //vmm_unmap_page_4kb(0xC0805000);
     //print_pmm();
     vmm_memory_status();
+    //uint8_t* ata_membuf;
+    //ata_lba_read(0,1,ata_membuf);
+
 end:
     while(1);
 }

@@ -6,9 +6,7 @@ void init_pmm(){
     for (int i=0; i<total_pages; i++){
         physical_mem[i]=0;
     }
-    for (int i=0; i<0x100000; i+=0x1000){
-        pmm_alloc_addr(i);
-    }
+    
     for (uint32_t reg=0; reg<g_memory_regs_info->region_num; reg++){
         
         uint32_t* from_adr=g_memory_regs_info->memory_regions[reg].base_low;
@@ -39,6 +37,7 @@ void pmm_alloc_addr(uint32_t phys_addr){
 void* pmm_alloc(){
     for (int i=0; i<total_pages; i++){
         if (physical_mem[i]==0){
+        
             physical_mem[i]=1;
              return i*0x1000;
         }
@@ -58,10 +57,13 @@ void print_pmm(){
         count_free++;
        }
        else{
+        if (i>=2048 && i<4000){
+        printf("number not free: %d\n",i);}
         not_free++;
        }
         
     }
-    printf("usage: %d bytes / kilobytes: %d / megabytes: %d \n",(not_free)*4096,(not_free*4096)/1024, (not_free*4096)/1048576);
+    printf("PMM STATUS\n");
+    printf("usage: %d bytes / kilobytes: %d / megabytes: %d \n\n",(not_free)*4096,(not_free*4096)/1024, (not_free*4096)/1048576);
     //printf("free mem: %d (x2, i have no long int print xD)", (int32_t)count_free*2048);
 }
