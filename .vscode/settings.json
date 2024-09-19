@@ -13,6 +13,8 @@
         "gdt.h": "c",
         "vmm.h": "c",
         "elf.h": "c",
-        "disk.h": "c"
+        "disk.h": "c",
+        "pmm.h": "c",
+        "irq_handle.h": "c"
     }
 }

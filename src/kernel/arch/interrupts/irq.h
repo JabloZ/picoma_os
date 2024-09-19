@@ -10,4 +10,5 @@ void disable_interrupts();
 typedef void (*irq_handler)(registers* regs);
 void init_irq();
 void irq_handler_f(registers* regs);
+void irq_wait(int irq_num);
 irq_handler g_irq_handler[16];

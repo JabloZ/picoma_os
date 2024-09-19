@@ -5,11 +5,12 @@
 #include "arch/interrupts/irq.h"
 #include "arch/interrupts/idt.h"
 #include "arch/disk.h"
+#include "arch/drivers/fdc.h"
 #include "../glibs/memory_params.h"
 #include "memory/page.h"
 #include "memory/kalloc.h"
 #include "memory/pmm.h"
-void __attribute__((section(".entry"))) _start()
+void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
 {
 
     clear_screen();
@@ -25,8 +26,11 @@ void __attribute__((section(".entry"))) _start()
     //vmm_unmap_page_4kb(0xC0805000);
     //print_pmm();
     vmm_memory_status();
-    //uint8_t* ata_membuf;
-    //ata_lba_read(0,1,ata_membuf);
+    init_fdc();
+    uint8_t* mem=mem_allocate(512);
+    fdc_read_sector(0, 0);
+    
+    printf("fdc_dma: %s", fdc_dma_buffer);
 
 end:
     while(1);

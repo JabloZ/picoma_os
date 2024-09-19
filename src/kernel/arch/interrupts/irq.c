@@ -2,6 +2,7 @@
 #include "irq.h"
 #include "../../clibs/stdio.h"
 #define REMAP_OFFSET 0x20
+volatile int irq_received = 0; 
 void enable_interrupts(){
     __asm__ volatile ("sti; hlt");
 }
@@ -12,6 +13,7 @@ void disable_interrupts(){
 void handler_irq_0(){
     ;
 }
+
 
 void init_irq(){
     

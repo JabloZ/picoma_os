@@ -217,6 +217,6 @@ void vmm_memory_status(){
         }
     }
     printf("taken virtual memory: %d\n",not_free*0x1000);
-    page_directory[0].present=0;
+   page_directory[0].present=0;
 }
 //page_directory[0].present=1; page_directory[0].present=0; in every action after enabled paging to ensure no physical memory error because pages frame addr is phys, not virt
