@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../../clibs/x86.h"
 #include "../../clibs/stdint.h"
 #include "../interrupts/pic.h"
@@ -11,7 +13,7 @@ void fdc_detect_drives();
 int fdc_wait_ready();
 int fdc_calibrate(int drive);
 void fdc_send_command(uint8_t command);
-
+int fdc_read_sector(int drive, int lba, uint8_t* data_out);
 #define FDC_DOR 0x3F2
 #define FDC_MSR 0x3F4
 #define FDC_FIFO 0x3F5
@@ -20,10 +22,12 @@ void fdc_send_command(uint8_t command);
 #define FDC_SEEK 0xF
 #define DMA_BUFFER 512
 
-int fdc_read_sector(int drive, unsigned cyl);
+int fdc_read_track(int drive, unsigned cyl);
 unsigned char floppy_read_data();
 
 #define FDC_SENSE_INTERRUPT 0x08
 #define FDC_RECALIBRATE 0x07
 
-static const char fdc_dma_buffer[0x4800];
+#define floppy_dma_len 0x4800
+static uint8_t fdc_dma_buffer[floppy_dma_len];
+static uint8_t fdc_sector_buffer[0x200];

@@ -75,6 +75,7 @@ after_map:
     or eax, 0x003
     mov [boot_page_directory+ (768 * 4)], eax
     mov [boot_page_directory], eax
+   
 
     mov ecx, (boot_page_directory)
     mov cr3, ecx

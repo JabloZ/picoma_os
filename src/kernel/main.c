@@ -12,7 +12,7 @@
 #include "memory/pmm.h"
 void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
 {
-
+   
     clear_screen();
     services_init();
     printf("________________________________________________________________________________");
@@ -28,9 +28,18 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
     vmm_memory_status();
     init_fdc();
     uint8_t* mem=mem_allocate(512);
-    fdc_read_sector(0, 0);
+    //fdc_read_track(0, 0);
+    uint8_t sector[512];
+    if (fdc_read_sector(0,0,sector)!=0){
+        printf("unsuccesful read\n");
+    }
+    else{
+        for (int i=0; i<512; i++){
+        printf("%c ",sector[i]);
+    }
+    }
     
-    printf("fdc_dma: %s", fdc_dma_buffer);
+    
 
 end:
     while(1);

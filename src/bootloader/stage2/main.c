@@ -61,10 +61,27 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
       //print_buffer("before paging: ", 0xc01025bd, 100);
       
       //__asm__ volatile("hlt");
+      /*
+       fat_file* file_read=open_fat(&disk, "/");
+      int n=0;
+      directory_entry entry;
+      read=0;
+      while (fat_entry(&disk, file_read, &entry) ){
+      printf("\n");
+      for (int i=0; i<11; i++){
+         putc(entry.filename[i]);
+      }
+      
+      n++;
+      if (n==6){
+         break;
+      }
+      }
+      close_file(file_read);*/
      
       prepare_paging();
+      
       //change_stack();
-    
       KernelStart kernels= (KernelStart)0xc0000000+KERNEL_ADDR_PHYS;
       kernels(boot_drive);
     

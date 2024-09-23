@@ -5,7 +5,6 @@ static volatile int floppy_motor_state = 0;
 #define motor_wait 2
 #define type_read 1
 #define type_write 2
-#define floppy_dma_len 0x4800
 
 void init_fdc(){
     fdc_detect_drives();
@@ -92,7 +91,17 @@ int fdc_calibrate(int drive){
     inb(FDC_FIFO);
     fdc_control_motor(motor_off);
 }
-int fdc_read_sector(int drive, unsigned cyl){
+int fdc_read_sector(int drive, int lba, uint8_t* data_out){
+    int heads=2;
+    int sectors=18;
+    // DELETE THIS IF, IF SUPPORTED BIGGER FAT(32, 16)
+    if (lba>=2880){
+        printf("LBA OUT OF LIMIT FOR FAT12: MAX IS 2879\n");
+        return 1;
+    }
+    int cyl = lba / (heads * sectors);       
+    int head = (lba / sectors) % heads;      
+    int sector = (lba % sectors) + 1;  
     if (floppy_seek(cyl, 0)){ return -1;};
     if (floppy_seek(cyl, 1)){ return -1;};
 
@@ -105,7 +114,128 @@ int fdc_read_sector(int drive, unsigned cyl){
         fdc_write_command(cyl); 
         fdc_write_command(0);//first head
         fdc_write_command(1);//first sector
-        fdc_write_command(2);//bytes per sector
+        fdc_write_command(2);//bytes per sector, but counted differently
+        fdc_write_command(18);//tracks
+        fdc_write_command(0x1b); //gap3
+        fdc_write_command(0xff); //data len
+        
+        unsigned char st0, st1, st2, rcy, rhe, rse, bps;
+        st0=floppy_read_data();
+        st1=floppy_read_data();
+        st2=floppy_read_data();
+        
+        rcy=floppy_read_data();
+        rhe=floppy_read_data();
+        rse=floppy_read_data();
+        bps=floppy_read_data();
+
+        int error = 0;
+        
+        if(st0 & 0xC0) {
+            static const char * status[] =
+            { 0, "error", "invalid command", "drive not ready" };
+            printf("floppy_do_sector: status = %s\n", status[st0 >> 6]);
+            error = 1;
+        }
+        if(st1 & 0x80) {
+            printf("floppy_do_sector: end of cylinder\n");
+            error = 1;
+        }
+        if(st0 & 0x08) {
+            printf("floppy_do_sector: drive not ready\n");
+            error = 1;
+        }
+        if(st1 & 0x20) {
+            printf("floppy_do_sector: CRC error\n");
+            error = 1;
+        }
+        if(st1 & 0x10) {
+            printf("floppy_do_sector: controller timeout\n");
+            error = 1;
+        }
+        if(st1 & 0x04) {
+            printf("floppy_do_sector: no data found\n");
+            error = 1;
+        }
+        if((st1|st2) & 0x01) {
+            printf("floppy_do_sector: no address mark found\n");
+            error = 1;
+        }
+        if(st2 & 0x40) {
+            printf("floppy_do_sector: deleted address mark\n");
+            error = 1;
+        }
+        if(st2 & 0x20) {
+            printf("floppy_do_sector: CRC error in data\n");
+            error = 1;
+        }
+        if(st2 & 0x10) {
+            printf("floppy_do_sector: wrong cylinder\n");
+            error = 1;
+        }
+        if(st2 & 0x04) {
+            printf("floppy_do_sector: uPD765 sector not found\n");
+            error = 1;
+        }
+        if(st2 & 0x02) {
+            printf("floppy_do_sector: bad cylinder\n");
+            error = 1;
+        }
+        if(bps != 0x2) {
+            printf("floppy_do_sector: wanted 512B/sector, got %d", (1<<(bps+7)));
+            error = 1;
+        }
+        if(st1 & 0x02) {
+            printf("floppy_do_sector: not writable\n");
+            error = 2;
+        }
+
+        if(!error) {
+            unsigned char *data = (unsigned char *)fdc_dma_buffer;
+            printf("Data read from sector:\n");
+            int count=0;
+            for (int i = 0+(18*512*head)+(512*(sector-1)); i < 512+(18*512*head)+(512*(sector-1)); i++) {//LIMIT IS 0x4800, now we are reading first sector of cylinder
+                //printf("%c ", data[i]);
+                data_out[count]=data[i];
+                count++;
+                /*if (data[i-2]=='c' && data[i-1]=='z' && data[i]=='e'){
+                    printf("TAK");
+                    return;
+                }*/
+            }
+            
+
+            fdc_control_motor(motor_off);
+
+        
+        
+            return 0;
+        }
+        if(error > 1) {
+            printf("floppy_do_sector: not retrying..\n");
+            fdc_control_motor(motor_off);
+            return -2;
+        }
+        
+    }
+    printf("couldnt read");
+    return -1;
+    
+}
+int fdc_read_track(int drive, unsigned cyl){
+    if (floppy_seek(cyl, 0)){ return -1;};
+    if (floppy_seek(cyl, 1)){ return -1;};
+
+    for (int i=0; i<20; i++){
+        init_dma();
+        for (int i=0; i<100000; i++){;};
+        fdc_write_command(0x46);
+        
+        fdc_write_command(0);//drive
+        fdc_write_command(cyl); 
+        fdc_write_command(0);//first head
+        fdc_write_command(1);//first sector
+        fdc_write_command(2);//bytes per sector, but counted differently
         fdc_write_command(18);//tracks
         fdc_write_command(0x1b); //gap3
         fdc_write_command(0xff); //data len
@@ -191,6 +321,7 @@ int fdc_read_sector(int drive, unsigned cyl){
                     return;
                 }*/
             }
+            
 
             fdc_control_motor(motor_off);
             return 0;
@@ -241,20 +372,6 @@ int floppy_seek(int cyl, int head){
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-int floppy_read_track(unsigned cyl){
-    return fdc_read_sector(0, cyl);
-}
 
 
 static const char * drive_types[8] = {
