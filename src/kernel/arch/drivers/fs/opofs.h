@@ -1,5 +1,6 @@
 
 #include "../../../clibs/stdint.h"
+#include "../../../clibs/stdio.h"
 
 typedef struct
 {
