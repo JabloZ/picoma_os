@@ -15,6 +15,10 @@
         "elf.h": "c",
         "disk.h": "c",
         "pmm.h": "c",
-        "irq_handle.h": "c"
+        "irq_handle.h": "c",
+        "fdc.h": "c",
+        "memdef.h": "c",
+        "ctype.h": "c",
+        "string.h": "c"
     }
 }

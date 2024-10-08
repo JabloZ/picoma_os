@@ -91,7 +91,31 @@ int fdc_calibrate(int drive){
     inb(FDC_FIFO);
     fdc_control_motor(motor_off);
 }
-int fdc_read_sector(int drive, int lba, uint8_t* data_out){
+int fdc_read_sectors(int drive, int lba, int sectors_to_read, uint8_t* data_out){
+   
+    int heads=2;
+    int sectors=18;
+    // DELETE THIS IF, IF SUPPORTED BIGGER FAT(32, 16)
+    if (lba>=2880){
+        printf("LBA OUT OF LIMIT FOR FAT12: MAX IS 2879\n");
+        return 0;
+    }
+    int cyl = lba / (heads * sectors);       
+    int head = (lba / sectors) % heads;      
+    int sector = (lba % sectors) + 1;  
+    int new_lba = lba;
+    int how_many_until=0;
+    for (int i=0; i<sectors_to_read; i++){
+        if (fdc_read_sector(drive, new_lba, data_out, how_many_until)!=0){
+            return 0;
+        };
+        new_lba++;
+        how_many_until++;
+    }
+    return 1;
+
+}
+int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until){
     int heads=2;
     int sectors=18;
     // DELETE THIS IF, IF SUPPORTED BIGGER FAT(32, 16)
@@ -192,10 +216,9 @@ int fdc_read_sector(int drive, int lba, uint8_t* data_out){
 
         if(!error) {
             unsigned char *data = (unsigned char *)fdc_dma_buffer;
-            printf("Data read from sector:\n");
-            int count=0;
-            for (int i = 0+(18*512*head)+(512*(sector-1)); i < 512+(18*512*head)+(512*(sector-1)); i++) {//LIMIT IS 0x4800, now we are reading first sector of cylinder
-                //printf("%c ", data[i]);
+            int count=how_many_until*SECTOR_SIZE;
+            for (int i = 0+(18*SECTOR_SIZE*head)+(SECTOR_SIZE*(sector-1)); i < SECTOR_SIZE+(18*SECTOR_SIZE*head)+(SECTOR_SIZE*(sector-1)); i++) {//LIMIT IS 0x4800, now we are reading first sector of cylinder
+
                 data_out[count]=data[i];
                 count++;
                 /*if (data[i-2]=='c' && data[i-1]=='z' && data[i]=='e'){
@@ -203,12 +226,7 @@ int fdc_read_sector(int drive, int lba, uint8_t* data_out){
                     return;
                 }*/
             }
-            
-
             fdc_control_motor(motor_off);
-
-        
-        
             return 0;
         }
         if(error > 1) {
@@ -313,8 +331,8 @@ int fdc_read_track(int drive, unsigned cyl){
 
         if(!error) {
             unsigned char *data = (unsigned char *)fdc_dma_buffer;
-            printf("Data read from sector:\n");
-            for (int i = 0; i < 512; i++) {//LIMIT IS 0x4800, now we are reading first sector of cylinder
+            
+            for (int i = 0; i < SECTOR_SIZE; i++) {//LIMIT IS 0x4800, now we are reading first sector of cylinder
                 printf("%c ", data[i]);
                 /*if (data[i-2]=='c' && data[i-1]=='z' && data[i]=='e'){
                     printf("TAK");

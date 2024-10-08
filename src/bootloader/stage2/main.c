@@ -10,6 +10,7 @@
 #include "memory_detection.h"
 #include "elf.h"
 #include "jmp.h"
+#include "opofs.h"
 uint8_t* kernel_mem=(uint8_t*)MEMORY_LOAD_KERNEL;
 uint8_t* kernel=(uint8_t*)KERNEL_ADDR_PHYS;
 
@@ -17,6 +18,7 @@ typedef void (*KernelStart)(uint16_t boot_drive);
 
 void __attribute__((cdecl)) _start(uint16_t boot_drive) {
    clear_screen();
+   return;
    DISK disk;
    if (!disk_initialize(&disk, boot_drive)){
       printf("error initializing disk");
@@ -29,6 +31,7 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
       goto end;
 
    }
+   
    detect_mem();
    uint32_t read=0;
    
@@ -38,10 +41,15 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
       printf("failed reading elf kernel");
       return;
    }*/
-
+  init_opofs(&disk);
+  return;
+  fat_file* test_read=open_fat(&disk, "/test.txt");
+  printf("test read: %d %d %d %d",test_read->file_size, test_read->is_directory, test_read->manage, test_read->pos);
+   
    // load kernel
       
       fat_file* kernel_read=open_fat(&disk, "/kernel.bin");
+      
       read=0;
       uint8_t* kernel_membuf=kernel;
       

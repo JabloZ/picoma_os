@@ -6,6 +6,7 @@
 #include "arch/interrupts/idt.h"
 #include "arch/disk.h"
 #include "arch/drivers/fdc.h"
+#include "arch/drivers/fs/fat.h"
 #include "../glibs/memory_params.h"
 #include "memory/page.h"
 #include "memory/kalloc.h"
@@ -27,18 +28,18 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
     //print_pmm();
     vmm_memory_status();
     init_fdc();
-    uint8_t* mem=mem_allocate(512);
+    //uint8_t temp_buf[512];
+    //fdc_read_sectors(0,0,1,temp_buf);
+    //print_regions();
+    init_fat();
+    open_fat(0,"test.txt");
     //fdc_read_track(0, 0);
-    uint8_t sector[512];
-    if (fdc_read_sector(0,0,sector)!=0){
-        printf("unsuccesful read\n");
-    }
-    else{
-        for (int i=0; i<512; i++){
-        printf("%c ",sector[i]);
-    }
-    }
-    
+   /*
+    uint8_t sector_s[SECTOR_SIZE*2];
+    fdc_read_sectors(0, 0, 2, sector_s);
+   
+    for (int i=0; i<SECTOR_SIZE*2; i++){
+    printf("%c",sector_s[i]);}*/
     
 
 end:

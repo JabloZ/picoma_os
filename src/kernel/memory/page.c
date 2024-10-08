@@ -51,7 +51,7 @@ void init_page(){
         kernel_second[j].read_write = 1;
         kernel_second[j].user = 0;
         kernel_second[j].frame_addr = j;
-        pmm_alloc_addr(j*0x1000);
+        //pmm_alloc_addr(j*0x1000);
     }
     pd_index = (KERNEL_SPACE >> 22)+1;
     page_directory[pd_index].present = 1;
@@ -64,7 +64,7 @@ void init_page(){
         kernel_third[j].read_write = 1;
         kernel_third[j].user = 0;
         kernel_third[j].frame_addr = j+0x400;
-        pmm_alloc_addr(j*0x1000+0x400000);
+        //pmm_alloc_addr(j*0x1000+0x400000);
     }
 
     /*
@@ -88,7 +88,7 @@ void init_page(){
     enable_paging(VIRT_TO_PHYS(&page_directory));
     
     
-    page_directory[0].present=0; //if unlimited low memory errors happen, just delete this line
+    //page_directory[0].present=0; //if unlimited low memory errors happen, just delete this line
 }
 
 
@@ -100,7 +100,7 @@ void *vmm_alloc_page_4kb(void *virtual_address) {
         vmm_map_page_4kb(virtual_address, physical_address);
     }
    
-    return physical_address;
+    return virtual_address;
 }
 void vmm_map_page_4mb(uint32_t virtual_address, uint32_t physical_address) {
 
@@ -143,7 +143,7 @@ void vmm_map_page_4kb(uint32_t virtual_address, uint32_t physical_address) { //t
             page_directory[pd_index].read_write=0;
             page_directory[pd_index].frame_addr=0;
         }
-        page_directory[0].present=0;
+        //page_directory[0].present=0;
         return;
         
     }
@@ -151,11 +151,11 @@ void vmm_map_page_4kb(uint32_t virtual_address, uint32_t physical_address) { //t
     pt[pt_index].read_write = 1;
     pt[pt_index].user = 0;
     pt[pt_index].frame_addr = ((uint32_t)physical_address) >>12;
-    page_directory[0].present=0;
+    //page_directory[0].present=0;
     //pmm_alloc_addr(physical_address);
 }
 void vmm_unmap_page_4kb(void *virtual_address) {
-    page_directory[0].present=1;
+    //page_directory[0].present=1;
     uint32_t pd_index = ((uint32_t)virtual_address >> 22);
     uint32_t pt_index = ((uint32_t)virtual_address >> 12) & 0x3FF;
     //printf("pd index: %d, pt index: %d, phys22: %p \n",pd_index, pt_index, page_directory[pd_index].frame_addr << 12);
@@ -166,7 +166,7 @@ void vmm_unmap_page_4kb(void *virtual_address) {
     pt[pt_index].read_write = 0;
     pt[pt_index].user = 0;
     pt[pt_index].frame_addr = 0;
-    page_directory[0].present=0;
+    //page_directory[0].present=0;
 }
 
 
@@ -217,6 +217,12 @@ void vmm_memory_status(){
         }
     }
     printf("taken virtual memory: %d\n",not_free*0x1000);
-   page_directory[0].present=0;
+   //page_directory[0].present=0;
 }
 //page_directory[0].present=1; page_directory[0].present=0; in every action after enabled paging to ensure no physical memory error because pages frame addr is phys, not virt
+void unpage_first_4mb(){
+    page_directory[0].present=0;
+}
+void page_first_4mb(){
+    page_directory[0].present=1;
+}

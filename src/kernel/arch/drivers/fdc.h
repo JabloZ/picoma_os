@@ -13,7 +13,10 @@ void fdc_detect_drives();
 int fdc_wait_ready();
 int fdc_calibrate(int drive);
 void fdc_send_command(uint8_t command);
-int fdc_read_sector(int drive, int lba, uint8_t* data_out);
+int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until);
+int fdc_read_sectors(int drive, int lba, int sectors_to_read, uint8_t* data_out);
+
+#define SECTOR_SIZE 512
 #define FDC_DOR 0x3F2
 #define FDC_MSR 0x3F4
 #define FDC_FIFO 0x3F5

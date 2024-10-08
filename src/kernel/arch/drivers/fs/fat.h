@@ -2,6 +2,7 @@
 
 #include "../../../clibs/stdint.h"
 #include "../../../clibs/stdbool.h"
+#include "../../../memory/page.h"
 #define SECTOR_SIZE 512
 #define ROOT_DIR -1
 #define FILES_COUNT 10
@@ -17,7 +18,7 @@ typedef struct{
     uint16_t reserved_sectors;
     uint8_t fat_count;
     uint16_t dir_entries;
-    uint16_t totaL_sectors;
+    uint16_t total_sectors;
     uint8_t media_descriptor;
     uint16_t sectors_per_fat;
     uint16_t sectors_per_track;
@@ -96,3 +97,9 @@ typedef struct{
     file_data root_directory;
 	file_data opened_files[FILES_COUNT];
 } data;
+bool fat_init();
+fat_file* open_fat(uint32_t disk, const char* path);
+bool find_file(uint32_t disk, fat_file* cf, const char* name, directory_entry* dir_entry_out);
+uint32_t read_fat_file(uint32_t disk, fat_file* file, uint32_t bytes, void* data_out);
+void close_file(fat_file* file);
+bool fat_entry(uint32_t disk, fat_file* cf, directory_entry* dir_entry);
