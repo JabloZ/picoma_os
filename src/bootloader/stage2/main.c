@@ -17,20 +17,23 @@ uint8_t* kernel=(uint8_t*)KERNEL_ADDR_PHYS;
 typedef void (*KernelStart)(uint16_t boot_drive);
 
 void __attribute__((cdecl)) _start(uint16_t boot_drive) {
+   
+   printf("Aaa");
+   printf("bbb");
    clear_screen();
-   return;
+   printf("in stage2");
    DISK disk;
    if (!disk_initialize(&disk, boot_drive)){
       printf("error initializing disk");
       goto end;
    }
   
-   if (!fat_init(&disk)){
+   /*if (!fat_init(&disk)){
       printf("error initializing fat driver");
       
       goto end;
 
-   }
+   }*/
    
    detect_mem();
    uint32_t read=0;

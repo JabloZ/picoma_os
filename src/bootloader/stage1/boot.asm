@@ -32,12 +32,12 @@ ebr_system_id:              db 'FAT12   '
 start:
     ;data segments
     
-    mov ax, 0   
+    xor ax, ax
     mov ds, ax
     mov es, ax
     mov ss, ax
     mov sp, 0x7C00
-    
+    sti
     .after_start:
         push es
         mov ah, 08h

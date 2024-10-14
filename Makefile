@@ -13,14 +13,9 @@ floppy_image: $(BUILD_DIR)/main_disk.img
 
 $(BUILD_DIR)/main_disk.img: bootloader kernel
 	dd if=/dev/zero of=$(BUILD_DIR)/main_disk.img bs=512 count=2880
-	dd if=$(BUILD_DIR)/stage1.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc 
-	mcopy -i $(BUILD_DIR)/main_disk.img -mv $(BUILD_DIR)/stage2.bin "::stage2.bin"
-	mcopy -i $(BUILD_DIR)/main_disk.img -mv $(BUILD_DIR)/kernel.bin "::kernel.bin"
-	
-	mcopy -i $(BUILD_DIR)/main_disk.img test.txt "::test.txt"
-	mmd -i $(BUILD_DIR)/main_disk.img "::testd"
-	mmd -i $(BUILD_DIR)/main_disk.img "::testd/testd2"
-	mcopy -i $(BUILD_DIR)/main_disk.img test.txt "::testd/testd2/test.txt"
+	dd if=$(BUILD_DIR)/stage1.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc count=1 seek=0
+	dd if=$(BUILD_DIR)/stage2.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=1
+
 
  
 bootloader: stage1 stage2
