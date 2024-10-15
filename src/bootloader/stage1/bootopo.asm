@@ -27,8 +27,8 @@ start:
         mov ah, 02
         mov al, 1 ;sectors to read
         mov ch, 0 ;cylinder
-        mov cl, 2 ;sector
-        mov dh, 0 ;head
+        mov cl, 1 ;sector
+        mov dh, 1 ;head
         mov dl, [drive_number]
         mov ah, 02h
         

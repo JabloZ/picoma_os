@@ -1,31 +1,29 @@
 #include <stdio.h>
+#include <stdint.h>
 
-void wypisz_binarna(unsigned int n) {
-    if (n==0){
-        printf("0");
-        return 0;
-    }
-    int bez_zer_wiodacych=0;
-    unsigned int maska=1<<31; //1 i 31 zer
-    
-    while (maska!=0){
-       if (maska & n){
-           printf("1");
-           bez_zer_wiodacych=1;
-       }
-       else{
-           if (bez_zer_wiodacych==1){
-               printf("0");
-           }
-       }
-       maska=maska>>1; //przesuniecie jedynki o jeden w prawo
-    }
-    return 0;
-}
+typedef struct {
+    uint8_t filename[15];
+    uint8_t is_dir;
+    uint32_t size;
+    uint32_t lba_first;
+    uint8_t reserved[8];
+} __attribute__((packed)) file_entry;
 
 int main() {
-    unsigned int liczba;
-    scanf("%d",&liczba);
-    wypisz_binarna(liczba);
-    return 0;
+    file_entry entry = {
+        .filename = "example.txt",
+        .is_dir = 0,
+        .size = 123456789,
+        .lba_first = 100,
+        .reserved = {0}
+    };
+
+    FILE* file = fopen("file_entry.bin", "wb");
+    if (file != NULL) {
+        fwrite(&entry, sizeof(file_entry), 1, file);
+        fclose(file);
+        return 0;
+    } else {
+        return 1;
+    }
 }
