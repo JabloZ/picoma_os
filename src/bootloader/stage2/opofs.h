@@ -1,16 +1,18 @@
 
+#pragma once
 #include "stdint.h"
 #include "disk.h"
 #include "stdio.h"
+#include "string.h"
 #define HEAD 2
 #define SECTOR 18
 #define CYLINDER 80
 typedef struct
 {
     uint8_t filename[15];
+    uint8_t is_dir;
     uint32_t size;
     uint32_t lba_first;
-    uint8_t is_dir;
     uint8_t reserved[8];
 } __attribute__((packed)) file_entry;
 
@@ -25,3 +27,4 @@ typedef struct{
 } __attribute__((packed)) boot_sector;
 
 void init_opofs(DISK* disk);
+uint32_t find_file_opo(DISK* disk, char* path, file_entry* file_e);

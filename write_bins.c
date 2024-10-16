@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <stdio.h>//gcc -o write_bins write_bins.c && ./write_bins
 #include <stdint.h>
 
 typedef struct {
@@ -11,9 +11,9 @@ typedef struct {
 
 int main() {
     file_entry entry = {
-        .filename = "example.txt",
+        .filename = "example     txt",
         .is_dir = 0,
-        .size = 123456789,
+        .size = 1100,
         .lba_first = 100,
         .reserved = {0}
     };
