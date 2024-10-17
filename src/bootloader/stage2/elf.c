@@ -1,9 +1,9 @@
 #include "elf.h"
-#include "fat.h"
 #include "memdef.h"
 #include "memory.h"
 #include "stdio.h"
 #include "disk.h"
+/*
 bool read_elf(DISK* disk, const char* path, void** data_out){
     uint8_t* header_load=ELF_LOAD_ADDR;
     uint8_t* elf_load_addr=MEMORY_LOAD_KERNEL;
@@ -104,3 +104,4 @@ bool read_elf(DISK* disk, const char* path, void** data_out){
    
     return true;
 }
+*/

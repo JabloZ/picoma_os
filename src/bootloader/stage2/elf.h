@@ -1,6 +1,6 @@
 #include "stdint.h"
 #include "stdbool.h"
-#include "fat.h"
+#include "disk.h"
 #define ELF_32 1
 #define ELF_64 2
 

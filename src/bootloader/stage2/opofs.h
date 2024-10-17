@@ -4,6 +4,7 @@
 #include "disk.h"
 #include "stdio.h"
 #include "string.h"
+#include "stdbool.h"
 #define HEAD 2
 #define SECTOR 18
 #define CYLINDER 80
@@ -27,4 +28,4 @@ typedef struct{
 } __attribute__((packed)) boot_sector;
 
 void init_opofs(DISK* disk);
-uint32_t find_file_opo(DISK* disk, char* path, file_entry* file_e);
+bool find_file_opo(DISK* disk, char* path, file_entry* file_e, file_entry* file_test);

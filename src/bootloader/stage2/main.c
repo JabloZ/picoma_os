@@ -1,7 +1,6 @@
 #include "stdint.h"
 #include "stdio.h"
 #include "stdbool.h"
-#include "fat.h"
 #include "disk.h"
 #include "x86.h"
 #include "memdef.h"
@@ -46,21 +45,8 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
    }*/
   init_opofs(&disk);
   return;
-  fat_file* test_read=open_fat(&disk, "/test.txt");
-  printf("test read: %d %d %d %d",test_read->file_size, test_read->is_directory, test_read->manage, test_read->pos);
-   
-   // load kernel
-      
-      fat_file* kernel_read=open_fat(&disk, "/kernel.bin");
-      
-      read=0;
-      uint8_t* kernel_membuf=kernel;
-      
-      while((read=read_fat_file(&disk, kernel_read, MEMORY_SIZE,kernel_mem))){ // this function is for reading file contents (reading dirs with this will cause unexpected behaviour)
-         memcpy(kernel_membuf, kernel_mem, read);
-         kernel_membuf+=read;
-      }
-
+  
+ 
       //close_file(kernel_read);
       /*
       if (read_elf(&disk, "/kernel.elf", (void**)&kernel_e)==false){
