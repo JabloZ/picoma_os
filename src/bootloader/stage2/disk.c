@@ -34,22 +34,22 @@ bool disk_initialize(DISK* disk, uint8_t drive){
 ;H = (LBA ÷ SPT) mod HPC
 ;S = (LBA mod SPT) + 1
 */
-void disk_lba_to_chs(DISK* disk, uint32_t lba, uint16_t* _cylinder, uint16_t* _sector, uint16_t* _head){
-    // printf("LBA: %d, Cylinder: %d, Head: %d, Sector: %d\n", lba, *_cylinder, *_head, *_sector);
-    *_sector=lba%disk->sectors+1;
+int disk_lba_to_chs(DISK* disk, uint32_t lba, uint16_t* cyl, uint16_t* head, uint16_t* sec){
+    *cyl=lba/(HEAD*SECTOR);
+    lba=lba%(HEAD*SECTOR);
+    *head=lba/SECTOR;
+    lba=lba%SECTOR+1;
+    *sec=lba;
     
-    *_cylinder=(lba/disk->sectors)/disk->heads;
-    
-    *_head=(lba/disk->sectors)%disk->heads;
-    //printf("LBA: %d, Cylinder: %d, Head: %d, Sector: %d\n", lba, *_cylinder, *_head, *_sector);
 }
+
 
 //bool x86_read_disk(uint8_t drive, uint16_t cylinder, uint16_t sector, uint16_t head, uint8_t sectors_count, void* dataOut);
 bool disk_read_sectors(DISK* disk, uint32_t lba, uint8_t sectors, void *data_out){
     uint16_t cylinder, sector, head;
     
-    disk_lba_to_chs(disk, lba, &cylinder, &sector, &head);
-    
+    disk_lba_to_chs(disk, lba, &cylinder, &head,  &sector);
+    //printf("chs: %d %d %d ",cylinder, head, sector);
     for (int i=0; i<3; i++){
             
         if(x86_read_disk(disk->id, cylinder, sector, head, sectors, data_out)){

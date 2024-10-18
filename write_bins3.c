@@ -10,17 +10,15 @@ typedef struct {
 } __attribute__((packed)) file_entry;
 
 int main() {
-    file_entry entry = {
-        .filename = "example3    txt",
-        .is_dir = 0,
-        .size = 512,
-        .lba_first = 1002,
-        .reserved = {0}
-    };
-
-    FILE* file = fopen("file_entry2.bin", "wb");
+    
+    uint8_t buf[512];
+    for (int i=0; i<512; i++){
+        buf[i]='x';
+    }
+    FILE* file = fopen("file_entry3.bin", "wb");
     if (file != NULL) {
-        fwrite(&entry, sizeof(file_entry), 1, file);
+        
+        fwrite(&buf,512,1,file);
         //fwrite(&entry2, sizeof(file_entry), 1, file);
         fclose(file);
         return 0;

@@ -28,4 +28,5 @@ typedef struct{
 } __attribute__((packed)) boot_sector;
 
 void init_opofs(DISK* disk);
-bool find_file_opo(DISK* disk, char* path, file_entry* file_e, file_entry* file_test);
+bool find_file_opo(DISK* disk, char* path, file_entry* file_e, file_entry* file_test, file_entry *end_file);
+int read_file_opo(DISK* disk, file_entry* fe, uint8_t* buf);

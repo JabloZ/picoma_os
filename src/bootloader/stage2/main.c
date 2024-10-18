@@ -44,6 +44,8 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
       return;
    }*/
   init_opofs(&disk);
+  printf("\n nibba");
+  __asm__ volatile("hlt;");
   return;
   
  

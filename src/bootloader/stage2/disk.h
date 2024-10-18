@@ -1,6 +1,9 @@
 #pragma once
 #include <stdint.h>
 #include "stdbool.h"
+#define HEAD 2
+#define SECTOR 18
+#define CYLINDER 80
 typedef struct{
     uint8_t id;
     uint16_t cylinders;
