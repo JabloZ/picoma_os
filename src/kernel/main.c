@@ -13,7 +13,7 @@
 #include "memory/pmm.h"
 void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
 {
-   
+   __asm__ volatile("hlt;");
     clear_screen();
     services_init();
     printf("________________________________________________________________________________");

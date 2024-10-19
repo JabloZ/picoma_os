@@ -11,10 +11,13 @@ entry:
     cli
     mov ax, ds
     mov ss, ax
+    mov es, ax
+    mov fs, ax
+    mov ss, ax
    
     ; setup stack at 0xFFF0
-    mov sp, 0x9000
-    mov bp, sp
+    mov esp, 0xFFF0
+    mov ebp, esp
     
     
     mov [bootDrive], dl
@@ -38,6 +41,7 @@ protected_mode:
     mov ax, 0x10
     mov ds, ax
     mov ss, ax
+    mov es, ax
    
     mov edi, __bss_start
     mov ecx, __end

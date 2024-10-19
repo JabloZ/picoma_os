@@ -15,6 +15,7 @@ $(BUILD_DIR)/main_disk.img: bootloader kernel
 	dd if=/dev/zero of=$(BUILD_DIR)/main_disk.img bs=512 count=2880
 	dd if=$(BUILD_DIR)/stage1.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc count=1 seek=0
 	dd if=$(BUILD_DIR)/stage2.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=18
+	dd if=$(BUILD_DIR)/kernel.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=99
 	dd if=file_entry.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=3
 	dd if=file_entry2.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=1001
 	dd if=file_entry3.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=1002

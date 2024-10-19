@@ -23,6 +23,7 @@ void init_opofs(DISK* disk){
     uint16_t cyl, head, sec;
     lba_to_chs(0, &cyl, &head, &sec);
     //printf(" %d %d %d\n",cyl, head, sec);
+    /*
     file_entry save_f;
     file_entry end_file;
     //"testdir        /example3    txt"
@@ -30,10 +31,8 @@ void init_opofs(DISK* disk){
         printf("endfile: %s, %d, %d, %d",end_file.filename, end_file.is_dir, end_file.size, end_file.lba_first);
     }
     uint8_t buf[end_file.size];
-    read_file_opo(disk,&end_file,&buf);
-    for (int i=0; i<512; i++){
-        printf("%c",buf[i]);
-    }
+    read_file_opo(disk,&end_file,&buf);*/
+    
     
 }
 
@@ -80,8 +79,7 @@ bool find_file_opo(DISK* disk, char* path, file_entry* file_e, file_entry* file_
             for (int k=0; k<15; k++){
                 file_test->filename[k]=buf[i*32+k];
             }
-            if (file_test->filename[0]=='t'){
-            printf("filenaem: %s",file_test->filename);}
+  
             file_test->is_dir=(int)buf[i*32+15];
             file_test->size=0;
             file_test->lba_first=0;
@@ -90,7 +88,7 @@ bool find_file_opo(DISK* disk, char* path, file_entry* file_e, file_entry* file_
             
             if(strcmp(file_searched,file_test->filename, 15)==1 && strlen(file_test->filename)!=0 && strlen(file_searched)!=0){
                 if (strlen(path)==15){
-                    printf("file found\n");
+                
                      for (int k=0; k<15; k++){
                         end_file->filename[k]=buf[i*32+k];
                     }
@@ -115,35 +113,35 @@ int read_file_opo(DISK* disk, file_entry* fe, uint8_t* buf){
     
     int sectors_to_read;
     uint8_t temp_buf[512];
-
-    if (fe->size%512==0){
+    int copy_mod=fe->size%512;
+    if (copy_mod==0){
         sectors_to_read=fe->size/SECTOR_SIZE;
     }
     else{
         sectors_to_read=(fe->size/SECTOR_SIZE)+1;
     }
-    int max_b;
-    printf("sectors to read: %d lba_first: %d  ",sectors_to_read,fe->lba_first);
-    for (int i=0; i<sectors_to_read; i++){
-        printf("\nBEFORE READ DISK");
-        disk_read_sectors(disk,fe->lba_first+i,1,&temp_buf);
-       
 
-        if (fe->size%512!=0){
+    int max_b=512;
+    printf("sectors to read: %d lba_first: %d  ",sectors_to_read,fe->lba_first);
+    int cpy=fe->lba_first;
+    for (int i=0; i<sectors_to_read; i++){
+        
+        disk_read_sectors(disk,cpy+i,1,&temp_buf);
+        
+        if (copy_mod!=0){
             if (i+1==sectors_to_read){
-                    max_b=fe->size%512;
+                    max_b=copy_mod;
                 }
         }
         else{
             max_b=SECTOR_SIZE;
         }
-        
         for (int n=0; n<max_b; n++){
-            buf[n]=temp_buf[n];
+            
+            buf[(i*SECTOR_SIZE)+n]=temp_buf[n];
+            //printf("%d ",buf[i*SECTOR_SIZE+n]);
         }
-        
-      
-
     }
+    
     return 1;
 }

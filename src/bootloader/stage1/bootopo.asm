@@ -129,7 +129,7 @@ stage2_msg: db 'TTried stage 2', ENDL, 0
 
 stage2_sector: dw 0
 drive_number: db 0
-sectors_to_read equ 60
+sectors_to_read equ 80
 sectors_read: dw 0
 stage2_file:    db 'STAGE2  BIN'
 stage2_load_segment equ 0

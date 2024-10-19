@@ -44,11 +44,26 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
       return;
    }*/
   init_opofs(&disk);
-  printf("\n nibba");
-  __asm__ volatile("hlt;");
-  return;
-  
- 
+  file_entry root_dir;
+   root_dir.size=15*512;
+    root_dir.lba_first=3;
+    root_dir.is_dir=1;
+    root_dir.filename;
+   file_entry save_f;
+    file_entry end_file;
+    uint8_t* kernel_membuf=kernel;
+    uint8_t buf[30000];
+   
+      if (find_file_opo(&disk, "kernel      bin",&root_dir, &save_f, &end_file)){
+
+         read_file_opo(&disk, &end_file, &buf);
+      }
+      for (int i=0; i<23524; i++){
+         if (buf[i]!=0){
+         printf("%d ",buf[i]);
+         }
+      }
+      memcpy(&kernel_membuf, &buf, 30000);
       //close_file(kernel_read);
       /*
       if (read_elf(&disk, "/kernel.elf", (void**)&kernel_e)==false){
@@ -80,7 +95,10 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
      
       prepare_paging();
       
+    
+      
       //change_stack();
+      
       KernelStart kernels= (KernelStart)0xc0000000+KERNEL_ADDR_PHYS;
       kernels(boot_drive);
     
