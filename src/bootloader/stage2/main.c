@@ -51,55 +51,32 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
     root_dir.filename;
    file_entry save_f;
     file_entry end_file;
-    uint8_t* kernel_membuf=kernel;
-    uint8_t buf[30000];
-   
+   uint8_t* kernel_membuf=kernel;
+    printf("kerneL:%p|",kernel_membuf);
+    uint8_t buf[40000];
+   memset(buf,0,40000);
       if (find_file_opo(&disk, "kernel      bin",&root_dir, &save_f, &end_file)){
 
          read_file_opo(&disk, &end_file, &buf);
       }
-      for (int i=0; i<23524; i++){
-         if (buf[i]!=0){
-         printf("%d ",buf[i]);
+      
+      memcpy(kernel_membuf, buf, 40000);
+      //printf(" %p ", kernel_membuf);
+      for (int i=0; i<40000; i++){
+         if (kernel_membuf[i]!=0){
+            //printf("%p",kernel_membuf[i]);
          }
       }
-      memcpy(&kernel_membuf, &buf, 30000);
-      //close_file(kernel_read);
-      /*
-      if (read_elf(&disk, "/kernel.elf", (void**)&kernel_e)==false){
-         printf("failed reading elf kernel");
-      return;}*/
 
-
-      //printf("adr kernel_entry: %p",kernel_e);
-      //print_buffer("before paging: ", 0xc01025bd, 100);
-      
-      //__asm__ volatile("hlt");
-      /*
-       fat_file* file_read=open_fat(&disk, "/");
-      int n=0;
-      directory_entry entry;
-      read=0;
-      while (fat_entry(&disk, file_read, &entry) ){
-      printf("\n");
-      for (int i=0; i<11; i++){
-         putc(entry.filename[i]);
-      }
-      
-      n++;
-      if (n==6){
-         break;
-      }
-      }
-      close_file(file_read);*/
      
       prepare_paging();
       
-    
-      
+      //printf("AFTER PAGING");
+      //__asm__ volatile("hlt;");
       //change_stack();
       
       KernelStart kernels= (KernelStart)0xc0000000+KERNEL_ADDR_PHYS;
+      //__asm__ volatile("hlt;");
       kernels(boot_drive);
     
     

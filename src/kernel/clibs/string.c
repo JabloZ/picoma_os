@@ -38,3 +38,12 @@ unsigned strlen(const char* str){
     }
     return count;
 }
+int strcmp(const char* str1, const char* str2, int len){
+    
+    for (int i=0; i<len; i++){
+        if (str1[i]!=str2[i]){
+            return 0;
+        }
+    }
+    return 1;
+}

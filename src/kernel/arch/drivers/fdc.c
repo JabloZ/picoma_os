@@ -6,6 +6,11 @@ static volatile int floppy_motor_state = 0;
 #define type_read 1
 #define type_write 2
 
+#define HEAD 2
+#define SECTOR 18
+#define CYLINDER 80
+
+
 void init_fdc(){
     fdc_detect_drives();
     g_irq_handler[6]=fdc_irq_handle;
@@ -24,7 +29,7 @@ int fdc_control_motor(int state){
     }
     else{
         if (floppy_motor_state==motor_wait){
-            printf("already waiting");
+            //printf("already waiting");
         }
         floppy_motor_state=motor_wait;
     }
@@ -100,10 +105,12 @@ int fdc_read_sectors(int drive, int lba, int sectors_to_read, uint8_t* data_out)
         printf("LBA OUT OF LIMIT FOR FAT12: MAX IS 2879\n");
         return 0;
     }
+    
     int cyl = lba / (heads * sectors);       
     int head = (lba / sectors) % heads;      
     int sector = (lba % sectors) + 1;  
     int new_lba = lba;
+    
     int how_many_until=0;
     for (int i=0; i<sectors_to_read; i++){
         if (fdc_read_sector(drive, new_lba, data_out, how_many_until)!=0){
@@ -120,7 +127,7 @@ int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until){
     int sectors=18;
     // DELETE THIS IF, IF SUPPORTED BIGGER FAT(32, 16)
     if (lba>=2880){
-        printf("LBA OUT OF LIMIT FOR FAT12: MAX IS 2879\n");
+        //printf("LBA OUT OF LIMIT FOR FAT12: MAX IS 2879\n");
         return 1;
     }
     int cyl = lba / (heads * sectors);       
@@ -128,7 +135,7 @@ int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until){
     int sector = (lba % sectors) + 1;  
     if (floppy_seek(cyl, 0)){ return -1;};
     if (floppy_seek(cyl, 1)){ return -1;};
-
+    //printf("%d %d %d", cyl,head,sector);
     for (int i=0; i<20; i++){
         init_dma();
         for (int i=0; i<100000; i++){;};
@@ -136,7 +143,7 @@ int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until){
         
         fdc_write_command(0);//drive
         fdc_write_command(cyl); 
-        fdc_write_command(0);//first head
+        fdc_write_command(head);//first head
         fdc_write_command(1);//first sector
         fdc_write_command(2);//bytes per sector, but counted differently
         fdc_write_command(18);//tracks
@@ -213,14 +220,17 @@ int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until){
             printf("floppy_do_sector: not writable\n");
             error = 2;
         }
-
+        
         if(!error) {
             unsigned char *data = (unsigned char *)fdc_dma_buffer;
+            
             int count=how_many_until*SECTOR_SIZE;
-            for (int i = 0+(18*SECTOR_SIZE*head)+(SECTOR_SIZE*(sector-1)); i < SECTOR_SIZE+(18*SECTOR_SIZE*head)+(SECTOR_SIZE*(sector-1)); i++) {//LIMIT IS 0x4800, now we are reading first sector of cylinder
-
-                data_out[count]=data[i];
-                count++;
+            int iter=0;
+            //printf("CHS: %d %d %d ",cyl, head, sector);
+            for (int i = SECTOR_SIZE*(sector-1); i < (SECTOR_SIZE*(sector-1)+SECTOR_SIZE); i++) {//LIMIT IS 0x4800, now we are reading first sector of cylinder
+                //printf("%c ",data[i]);
+                data_out[iter]=data[i];
+                iter++;
                 /*if (data[i-2]=='c' && data[i-1]=='z' && data[i]=='e'){
                     printf("TAK");
                     return;
@@ -384,6 +394,7 @@ int floppy_seek(int cyl, int head){
         }
 
         if(cyl == cyl1) {
+           
             fdc_control_motor(motor_off);
             return 0;
         }

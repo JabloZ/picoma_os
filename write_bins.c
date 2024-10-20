@@ -24,13 +24,6 @@ int main() {
         .lba_first = 1001,
         .reserved = {0}
     };
-    file_entry entry3 = {
-        .filename = "example2    txt",
-        .is_dir = 0,
-        .size = 1000,
-        .lba_first = 1003,
-        .reserved = {0}
-    };
     file_entry entry_kernel={
         .filename = "kernel      bin",
         .is_dir = 0,
@@ -42,7 +35,7 @@ int main() {
     if (file != NULL) {
         fwrite(&entry, sizeof(file_entry), 1, file);
         fwrite(&entry2, sizeof(file_entry), 1, file);
-        fwrite(&entry3, sizeof(file_entry), 1, file);
+        //fwrite(&entry3, sizeof(file_entry), 1, file);
         fwrite(&entry_kernel, sizeof(file_entry), 1, file);
         fclose(file);
         return 0;

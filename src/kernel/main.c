@@ -5,6 +5,7 @@
 #include "arch/interrupts/irq.h"
 #include "arch/interrupts/idt.h"
 #include "arch/disk.h"
+#include "arch/drivers/fs/opofs.h"
 #include "arch/drivers/fdc.h"
 #include "arch/drivers/fs/fat.h"
 #include "../glibs/memory_params.h"
@@ -13,7 +14,7 @@
 #include "memory/pmm.h"
 void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
 {
-   __asm__ volatile("hlt;");
+   //__asm__ volatile("hlt;");
     clear_screen();
     services_init();
     printf("________________________________________________________________________________");
@@ -28,11 +29,12 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
     //print_pmm();
     vmm_memory_status();
     init_fdc();
+    init_opofs(0);
     //uint8_t temp_buf[512];
     //fdc_read_sectors(0,0,1,temp_buf);
     //print_regions();
-    init_fat();
-    open_fat(0,"test.txt");
+    //init_fat();
+    //open_fat(0,"test.txt");
     //fdc_read_track(0, 0);
    /*
     uint8_t sector_s[SECTOR_SIZE*2];

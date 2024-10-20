@@ -100,6 +100,8 @@ bool find_file_opo(DISK* disk, char* path, file_entry* file_e, file_entry* file_
                     printf("size: %d lba: %d",end_file->size, end_file->lba_first);
                     return true;
                 }else{
+                     //printf("znaleziono, %s| %d|",path_without_file, strlen(path_without_file));
+                     
                     find_file_opo(disk, path_without_file, file_test, file_test, end_file);
                 }
                 

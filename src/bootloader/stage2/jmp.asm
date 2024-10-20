@@ -61,9 +61,9 @@ after_map:
     
 upper_mem:
    
-    mov eax, KERNEL_VIRTUAL_ADDRESS
-    add esp, eax  
-    mov ebp, esp           
+    ;mov eax, KERNEL_VIRTUAL_ADDRESS
+    ;add esp, eax  
+    ;mov ebp, esp           
     
     lgdt [gdt_descriptor]
     
