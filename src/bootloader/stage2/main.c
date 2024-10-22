@@ -53,16 +53,16 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
     file_entry end_file;
    uint8_t* kernel_membuf=kernel;
     printf("kerneL:%p|",kernel_membuf);
-    uint8_t buf[40000];
-   memset(buf,0,40000);
+   
+   memset(kernel_membuf,0,30000);
       if (find_file_opo(&disk, "kernel      bin",&root_dir, &save_f, &end_file)){
 
-         read_file_opo(&disk, &end_file, &buf);
+         read_file_opo(&disk, &end_file, kernel_membuf);
       }
       
-      memcpy(kernel_membuf, buf, 40000);
+      //memcpy(kernel_membuf, buf, 30000);
       //printf(" %p ", kernel_membuf);
-      for (int i=0; i<40000; i++){
+      for (int i=0; i<30000; i++){
          if (kernel_membuf[i]!=0){
             //printf("%p",kernel_membuf[i]);
          }

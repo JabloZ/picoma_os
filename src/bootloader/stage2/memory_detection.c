@@ -23,4 +23,5 @@ void detect_mem(){
     g_memory_regs_info->memory_regions=g_mem_regs;
     g_memory_regs_info->region_num=iter_mem_regs;
     
+    
 }

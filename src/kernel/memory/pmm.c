@@ -10,6 +10,7 @@ void init_pmm(){
     for (uint32_t reg=0; reg<g_memory_regs_info->region_num; reg++){
         
         uint32_t* from_adr=g_memory_regs_info->memory_regions[reg].base_low;
+       
         if (g_memory_regs_info->memory_regions[reg].region_type!=USABLE){
             uint32_t how_much_to_load=g_memory_regs_info->memory_regions[reg].region_low;
             //printf("Region %d: Base Address: %p, Length: 0x%p\n", reg, from_adr, how_much_to_load);

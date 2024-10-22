@@ -231,10 +231,7 @@ int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until){
                 //printf("%c ",data[i]);
                 data_out[iter]=data[i];
                 iter++;
-                /*if (data[i-2]=='c' && data[i-1]=='z' && data[i]=='e'){
-                    printf("TAK");
-                    return;
-                }*/
+                
             }
             fdc_control_motor(motor_off);
             return 0;

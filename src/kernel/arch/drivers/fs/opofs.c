@@ -41,17 +41,7 @@ void init_opofs(uint32_t disk){
         printf("%c ",buf1[i]);
     }
     return;*/
-    if(find_file_opo(disk, "testdir        /example3    txt", &root_dir, &save_f, &end_file)==true){
-        
-        printf("endfile: %s, %d, %d, %d",end_file.filename, end_file.is_dir, end_file.size, end_file.lba_first);
-    }
-
-    uint8_t buf[end_file.size];
     
-    read_file_opo(disk,&end_file,&buf);
-    for (int i=0; i<512; i++){
-        printf("%c ",buf[i]);
-    }
     
 }
 

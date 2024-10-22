@@ -27,7 +27,7 @@ int main() {
     file_entry entry_kernel={
         .filename = "kernel      bin",
         .is_dir = 0,
-        .size = 40000,
+        .size = 30000,
         .lba_first = 99,
         .reserved = {0}
     };

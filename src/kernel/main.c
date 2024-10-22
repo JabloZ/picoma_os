@@ -16,12 +16,14 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
 {
    //__asm__ volatile("hlt;");
     clear_screen();
+    //print_regions();
     services_init();
     printf("________________________________________________________________________________");
     printf("|                            X86 PICOMA OS: v0.0.1                             |");
     printf("________________________________________________________________________________\n");
     printf(">");
     print_pmm();
+    
     //vmm_alloc_page_4kb(0xC0805000);
     //vmm_alloc_page_4kb(0xC0806000);
     //print_pmm();
@@ -49,6 +51,7 @@ end:
 }
 void print_regions(){
     for (int i=0; i<g_memory_regs_info->region_num; i++){
+         //printf("E820: base=%p length=%p type=%p acpi=%p\n", mem_r.base_low, mem_r.region_low, mem_r.region_type, mem_r.acpi);
         printf("base: 0x%p, length: 0x%p, type: %p\n",g_memory_regs_info->memory_regions[i].base_low, g_memory_regs_info->memory_regions[i].region_low, g_memory_regs_info->memory_regions[i].region_type);
     }
 }
