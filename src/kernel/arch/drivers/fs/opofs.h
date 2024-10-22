@@ -27,7 +27,7 @@ typedef struct{
     uint32_t lba;
     uint8_t mem[512];
 } __attribute__((packed)) boot_sector;
-
+file_entry root_dir;
 void init_opofs(uint32_t disk);
 bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* file_test, file_entry *end_file);
 int read_file_opo(uint32_t disk, file_entry* fe, uint8_t* buf);

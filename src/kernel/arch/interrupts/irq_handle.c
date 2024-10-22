@@ -87,6 +87,17 @@ const char* get_key_name(int scancode) {
         default: return "Unknown";
     }
 }
+int return_command_num(char* str_cmd){
+    if (strlen(str_cmd)==0){
+        return 0;
+    }
+    if (strcmp(str_cmd,"la",2)==1){
+        return 1;
+    }
+    if (strcmp(str_cmd,"ld",2)==1){
+        return 2;
+    }
+}
 void handler_irq_1(){
     uint8_t scancode = inb(0x60);
     char* pressed=get_key_name(scancode);
@@ -95,23 +106,50 @@ void handler_irq_1(){
     }
     else{
         if (strlen(pressed)==1){
-            printf("%s", get_key_name(scancode));
-            global_command[global_command_num]=pressed[0];
+            if (capslock_pressed==0){
+                
+                printf("%c", (int)get_key_name(scancode)[0]+32);
+                global_command[global_command_num]=(int)pressed[0]+32;
+            }
+            else{
+                
+                printf("%c", (int)get_key_name(scancode)[0]);
+                global_command[global_command_num]=(int)pressed[0];
+            } 
+        
             global_command_num++;
             
         }
         else{
             switch(scancode){
                 case 28: //enter
+                    recognize_command(global_command);
+                    execute_or_recognize_command();
+                    memset(&g_cmd_str, 0, sizeof(g_cmd_str));
                     memset(global_command, 0, strlen(global_command));
+                    
                     global_command_num=0;
                     printf("\n>");
                     break;
                 case 14: //backspace
+                    if (global_command_num==0){
+                        break;
+                    }
                     global_command_num--;
                     global_command[global_command_num]=0;
                     remove_char(video_x, video_y);
                     break;
+                case 58:
+                    if (capslock_pressed==0){
+                        capslock_pressed=1;
+                    }
+                    else{
+                        capslock_pressed=0;
+                    }
+                case 57:
+                    printf(" ");
+                    global_command[global_command_num]=' ';
+                    global_command_num++;
             }
 
 
@@ -121,4 +159,49 @@ void handler_irq_1(){
     }
     
     pic_send_eoi(1);
+}
+int recognize_command(char* command){
+    //printf("\ncommand: %s",command);
+    char cmd_buf[strlen(command)];
+    memset(&cmd_buf,0,strlen(command));
+    int cmd_buf_iter=0;
+    int cmd_count=0;
+
+    for (int i=0; i<strlen(command);i++){ 
+        if (command[i]==' '){
+            continue;
+        }
+        if ((command[i-1]==' ' && command[i]!=' ')){
+            printf(" |%s| ",cmd_buf);
+            strcpy(g_cmd_str[cmd_count],cmd_buf);
+            memset(&cmd_buf,0,strlen(cmd_buf));
+            
+            cmd_count++;
+            cmd_buf_iter=0; 
+        }
+        cmd_buf[cmd_buf_iter]=command[i];
+        cmd_buf_iter++;
+        if (i==strlen(command)-1){
+            printf(" |%s| ",cmd_buf);
+            strcpy(g_cmd_str[cmd_count],cmd_buf);
+        }
+
+    }
+}
+int execute_or_recognize_command(){
+    uint8_t buf[15*512];
+    memset(&buf, 0, 15*512);
+    for (int i=1; i<10; i++){
+        switch(return_command_num(g_cmd_str[i-1])){
+            case 0:
+                break;
+            case 1: //la - list all from dir
+                printf("WILL LIST FILES AND DIRS, IN PATH: %s",g_cmd_str[i]);
+                //read_file_opo(0,&root_dir,&buf);
+                break;
+            default:
+                printf("\nCommand unrecognised!\n");
+                break;
+        }
+    }
 }

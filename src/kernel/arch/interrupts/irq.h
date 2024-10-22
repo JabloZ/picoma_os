@@ -12,3 +12,4 @@ void init_irq();
 void irq_handler_f(registers* regs);
 void irq_wait(int irq_num);
 irq_handler g_irq_handler[16];
+int capslock_pressed;

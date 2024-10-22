@@ -4,7 +4,7 @@
 #define SECTOR_SIZE 512
 #define ROOT_SECTORS 15
 
-file_entry root_dir;
+
 
 int lba_to_chs(int lba, uint16_t* cyl, uint16_t* head, uint16_t* sec){
     *cyl=lba/(HEAD*SECTOR);

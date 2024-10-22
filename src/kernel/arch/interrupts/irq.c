@@ -16,7 +16,7 @@ void handler_irq_0(){
 
 
 void init_irq(){
-    
+    capslock_pressed=0;
     g_irq_handler[0]=handler_irq_0;
     g_irq_handler[1]=handler_irq_1;
     
