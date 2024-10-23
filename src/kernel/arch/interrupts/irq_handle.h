@@ -1,5 +1,6 @@
 #include "../../clibs/stdint.h"
 #include "../../clibs/stdio.h"
+#include "../../clibs/stdbool.h"
 #include "../../arch/drivers/fs/opofs.h"
 #include "../../clibs/string.h"
 #include "../../clibs/memory.h"

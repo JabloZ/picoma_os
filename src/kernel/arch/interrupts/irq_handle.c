@@ -107,8 +107,11 @@ void handler_irq_1(){
     else{
         if (strlen(pressed)==1){
             if (capslock_pressed==0){
-                
-                printf("%c", (int)get_key_name(scancode)[0]+32);
+                if ((scancode>=16 && scancode<=25) || (scancode>=30 && scancode<=38) || scancode>=44 && scancode<=50){
+                printf("%c", (int)get_key_name(scancode)[0]+32);}
+                else{
+                    printf("%c", (int)get_key_name(scancode)[0]);
+                }
                 global_command[global_command_num]=(int)pressed[0]+32;
             }
             else{
@@ -182,23 +185,69 @@ int recognize_command(char* command){
         cmd_buf[cmd_buf_iter]=command[i];
         cmd_buf_iter++;
         if (i==strlen(command)-1){
-            printf(" |%s| ",cmd_buf);
             strcpy(g_cmd_str[cmd_count],cmd_buf);
         }
 
     }
 }
 int execute_or_recognize_command(){
-    uint8_t buf[15*512];
-    memset(&buf, 0, 15*512);
+   
     for (int i=1; i<10; i++){
         switch(return_command_num(g_cmd_str[i-1])){
             case 0:
                 break;
-            case 1: //la - list all from dir
-                printf("WILL LIST FILES AND DIRS, IN PATH: %s",g_cmd_str[i]);
-                //read_file_opo(0,&root_dir,&buf);
-                break;
+            case 1: {//la 'dir' - list all from dir
+                //printf("WILL LIST FILES AND DIRS, IN PATH: %s\n",g_cmd_str[i]);
+                //STRING FORMATTING : ONLY FOR DIRECTORIES FOR NOW 
+                
+                printf("\n");
+                file_entry file_e;
+                file_entry save_f;
+                char name_to_format[16];
+                for (int n=0; n<strlen(g_cmd_str[i]);n++){
+                    name_to_format[n]=g_cmd_str[i][n];
+                }
+                for (int n=strlen(g_cmd_str[i]); n<15; n++){
+
+                    name_to_format[n]=' ';
+                }
+                name_to_format[15]='\0';
+
+
+                if (find_file_opo(0,name_to_format,&root_dir,&save_f,&file_e)!=true){
+                    printf("file/directory not found!");
+                    break;
+                };
+                
+                //defining size
+                int max_j=0;
+                if (file_e.size%512==0){
+                    max_j=file_e.size/512;
+                }
+                else{
+                    max_j=(file_e.size/512)+1;
+                }
+
+                uint8_t* buf=mem_allocate(max_j*512);
+                char name[16];
+                
+                for (int j=0; j<max_j; j++){
+                    fdc_read_sector(0,file_e.lba_first+j, buf,0);
+                    for (int i=0; i<16; i++){
+                        for (int z=0; z<15; z++){
+                            name[z]=(char)buf[(i*32)+z];
+                        }
+                        name[15]='\0';
+                        
+                        if (name[0]!=0){
+                            printf("%s\n",name);
+                        }
+                        memset(name, 0, 16);
+                    }
+                }
+                
+                memory_free(buf);
+                break;}
             default:
                 printf("\nCommand unrecognised!\n");
                 break;
