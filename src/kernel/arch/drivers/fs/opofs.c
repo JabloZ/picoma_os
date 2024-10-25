@@ -105,6 +105,7 @@ bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* fi
                      for (int k=0; k<15; k++){
                         end_file->filename[k]=buf[i*32+k];
                     }
+                    //printf("%endf: %s\n",end_file->filename);
                     end_file->is_dir=(int)buf[i*32+15];
                     end_file->size=0;
                     end_file->lba_first=0;

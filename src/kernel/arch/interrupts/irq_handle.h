@@ -12,3 +12,4 @@ int execute_or_recognize_command();
 int global_command_num;
 char global_command[2048];
 int return_command_num(char* str);
+void opo_path_formatter(char* path, char* path_new, int count_elements);

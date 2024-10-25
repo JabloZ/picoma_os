@@ -11,14 +11,14 @@ typedef struct {
 
 int main() {
     file_entry entry = {
-        .filename = "testdir1       ",
-        .is_dir = 1,
+        .filename = "example3    txt",
+        .is_dir = 0,
         .size = 512,
-        .lba_first = 1002,
+        .lba_first = 1003,
         .reserved = {0}
     };
 
-    FILE* file = fopen("file_entry2.bin", "wb");
+    FILE* file = fopen("file_entry4.bin", "wb");
     if (file != NULL) {
         fwrite(&entry, sizeof(file_entry), 1, file);
         //fwrite(&entry2, sizeof(file_entry), 1, file);
