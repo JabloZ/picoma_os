@@ -6,7 +6,7 @@
 #include "../../clibs/memory.h"
 #include "irq.h"
 void handler_irq_1();
-char g_cmd_str[10][15];
+char g_cmd_str[10][100];
 int recognize_command();
 int execute_or_recognize_command();
 int global_command_num;

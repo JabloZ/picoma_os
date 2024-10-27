@@ -94,7 +94,7 @@ int return_command_num(char* str_cmd){
     if (strcmp(str_cmd,"la",2)==1){
         return 1;
     }
-    if (strcmp(str_cmd,"ld",2)==1){
+    if (strcmp(str_cmd,"pf",2)==1){
         return 2;
     }
 }
@@ -130,7 +130,7 @@ void handler_irq_1(){
                 case 28: //enter
                     recognize_command(global_command);
                     execute_or_recognize_command();
-                    memset(&g_cmd_str, 0, sizeof(g_cmd_str));
+                    memset(g_cmd_str, 0, sizeof(g_cmd_str));
                     memset(global_command, 0, strlen(global_command));
                     
                     global_command_num=0;
@@ -183,7 +183,7 @@ int recognize_command(char* command){
             continue;
         }
         if ((command[i-1]==' ' && command[i]!=' ')){
-            printf(" |%s| ",cmd_buf);
+            
             strcpy(g_cmd_str[cmd_count],cmd_buf);
             memset(&cmd_buf,0,strlen(cmd_buf));
             
@@ -205,9 +205,9 @@ int execute_or_recognize_command(){
             case 0:
                 break;
             case 1: {//la 'dir' - list all from dir
-                //printf("WILL LIST FILES AND DIRS, IN PATH: %s\n",g_cmd_str[i]);
                 //STRING FORMATTING : ONLY FOR DIRECTORIES FOR NOW 
                 
+                printf("\n\n");
                 int count_elements=0;
                 for (int j=0; j<strlen(g_cmd_str[i])-1;j++){
                     if (g_cmd_str[i][j]=='/'){
@@ -215,31 +215,26 @@ int execute_or_recognize_command(){
                     }
                 }
                 char path[(15*(count_elements+1))+(count_elements+1)];
+               
+                memset(path,' ',(15*(count_elements+1))+(count_elements+1));
                 
-                memset(path,0,(15*(count_elements+1))+(count_elements+1));
                 file_entry file_e;
                 file_entry save_f;
+
                 opo_path_formatter(g_cmd_str[i], path, count_elements);
-                printf("\n|PATH FORMATTED: %s len: %d|",path,strlen(path));
-              
-                if (find_file_opo(0,path,&root_dir,&save_f,&file_e)!=true){
-                    if (strcmp(g_cmd_str[i],".",1)==1){
-                        file_e=root_dir;
+                find_file_opo(0,path,&root_dir,&save_f,&file_e);
+
+                if (strcmp(g_cmd_str[i],".",1)==1){
+                    file_e=root_dir;
+                }
+                
+                else{
+                    if (file_e.is_dir==0){
+                        printf("[%s] is not a directory",g_cmd_str[i]);
+                        break;
                     }
-                    else{
-                        if (file_e.is_dir==0){
-                            printf("[%s] is not a directory",g_cmd_str[i]);
-                            break;
-                        }
-                        else{
-                        printf("File/directory [%s] unrecognized, try again",g_cmd_str[i]);
-                        break;}
-                    //break;
-                    }  
-                };
-                
-                
-                //defining size
+                } 
+               
                 int max_j=0;
                 if (file_e.size%512==0){
                     max_j=file_e.size/512;
@@ -248,14 +243,11 @@ int execute_or_recognize_command(){
                     max_j=(file_e.size/512)+1;
                 }
 
-                uint8_t* buf=mem_allocate(max_j*512);
+                uint8_t buf[max_j*512];
                 char name[16];
-                printf("file_n: %s\n",file_e.filename);
-                printf("file_s: %d",file_e.size);
-                
                 
                 for (int j=0; j<max_j; j++){
-                    fdc_read_sector(0,file_e.lba_first+j, buf,0);
+                    fdc_read_sector(0,file_e.lba_first+j, &buf,0);
                     for (int i=0; i<16; i++){
                         for (int z=0; z<15; z++){
                             name[z]=(char)buf[(i*32)+z];
@@ -269,7 +261,31 @@ int execute_or_recognize_command(){
                     }
                 }
                 
-                memory_free(buf);
+               
+                break;} //pf 
+            case 2:{
+             
+                 int count_elements=0;
+                for (int j=0; j<strlen(g_cmd_str[i])-1;j++){
+                    if (g_cmd_str[i][j]=='/'){
+                    count_elements++;
+                    }
+                }
+                char path[(15*(count_elements+1))+(count_elements+1)];
+               
+                memset(path,' ',(15*(count_elements+1))+(count_elements+1));
+                
+                file_entry file_e;
+                file_entry save_f;
+
+                opo_path_formatter(g_cmd_str[i], path, count_elements);
+                find_file_opo(0,path,&root_dir,&save_f,&file_e);
+                char buf[file_e.size];
+                read_file_opo(0,&file_e,&buf);
+                for (int c=0; c<file_e.size; c++){
+                    printf("%c ",buf[c]);
+                }
+
                 break;}
             default:
                 printf("\nCommand unrecognised!\n");
@@ -281,29 +297,48 @@ void opo_path_formatter(char* og_path, char* new_path, int count_elements){
    
     int add_spaces=0;
     int iter=0;
+    int path_el_length=0;
+    int was_dot=0;
+    int spaces_to_add_ext=0;
+    int already_added_dot=0;
+
     for (int i=0; i<count_elements+1; i++){
         for (int j=0; j<15; j++){
+            
+            if (og_path[iter]=='.' ){
+                add_spaces=1;
+                spaces_to_add_ext=15-path_el_length-3;//for example3    txt| 
+                new_path[(i*16)+j]=' ';
+                already_added_dot++;
+              
+                if (already_added_dot==spaces_to_add_ext){
+                    iter++;
+                    add_spaces=0;
+                    continue;
+                }
+            }
              if (og_path[iter]=='/' || og_path[iter]==0){
-                //new_path[(i*15)+j]=og_path[iter];
                 add_spaces=1;
                 new_path[(i*16)+j]=' ';
-                //iter++;
             }
             if (add_spaces==1){
+                
                 new_path[(i*16)+j]=' ';
             }
              else{
                 new_path[(i*16)+j]=og_path[iter];
                 iter++;
+                path_el_length++;
             }
-           
-           
-            
         }
-        new_path[(i*15)+15]='/';
+        new_path[(i*16)+15]='/';
         iter++;
+        path_el_length=0;
         add_spaces=0;
+        
     }
-    new_path[(count_elements*15)+15]='\0';
+
+    //new_path[(count_elements*15)+15]=' ';
+    new_path[(count_elements*16)+15]='\0';
    
 }
