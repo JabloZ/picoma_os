@@ -8,14 +8,17 @@
 #include "../../clibs/stdio.h"
 #include "../../memory/page.h"
 #include "fs/opofs.h"
+#define sector_read 1
+#define sector_write 2
+
 void reset_fdc();
 void fdc_irq_handle();
 void fdc_detect_drives();
 int fdc_wait_ready();
 int fdc_calibrate(int drive);
 void fdc_send_command(uint8_t command);
-int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until);
-int fdc_read_sectors(int drive, int lba, int sectors_to_read, uint8_t* data_out);
+int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until, int cmd);
+int fdc_read_sectors(int drive, int lba, int sectors_to_read, uint8_t* data_out, int cmd);
 int lba_to_chs(int lba, uint16_t* cyl, uint16_t* head, uint16_t* sec);
 
 #define SECTOR_SIZE 512

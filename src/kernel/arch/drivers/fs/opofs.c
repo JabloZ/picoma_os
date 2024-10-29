@@ -84,7 +84,7 @@ bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* fi
     //READ DISK SECTOR, SAVE TO BUFFER, TEST IF FILE_TEST FILENAME IS EQUAL TO FILE_SEARCHED
     for (int j=1; j<max_j+1;j++){
         
-        fdc_read_sector(disk,file_e->lba_first-1+j,&buf,0);
+        fdc_read_sector(disk,file_e->lba_first-1+j,&buf,0,sector_read);
          
         for (int i=0; i<16; i++){//
             
@@ -142,7 +142,7 @@ int read_file_opo(uint32_t disk, file_entry* fe, uint8_t* buf){
     for (int i=0; i<sectors_to_read; i++){
         
 
-        fdc_read_sector(disk,cpy+i,&temp_buf,0);
+        fdc_read_sector(disk,cpy+i,&temp_buf,0,sector_read);
         
         if (copy_mod!=0){
             if (i+1==sectors_to_read){

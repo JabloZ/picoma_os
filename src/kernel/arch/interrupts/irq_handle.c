@@ -247,7 +247,7 @@ int execute_or_recognize_command(){
                 char name[16];
                 
                 for (int j=0; j<max_j; j++){
-                    fdc_read_sector(0,file_e.lba_first+j, &buf,0);
+                    fdc_read_sector(0,file_e.lba_first+j, &buf,0,sector_read);
                     for (int i=0; i<16; i++){
                         for (int z=0; z<15; z++){
                             name[z]=(char)buf[(i*32)+z];

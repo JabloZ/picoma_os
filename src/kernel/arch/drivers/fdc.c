@@ -96,7 +96,7 @@ int fdc_calibrate(int drive){
     inb(FDC_FIFO);
     fdc_control_motor(motor_off);
 }
-int fdc_read_sectors(int drive, int lba, int sectors_to_read, uint8_t* data_out){
+int fdc_read_sectors(int drive, int lba, int sectors_to_read, uint8_t* data_out, int cmd){
    
     int heads=2;
     int sectors=18;
@@ -113,7 +113,7 @@ int fdc_read_sectors(int drive, int lba, int sectors_to_read, uint8_t* data_out)
     
     int how_many_until=0;
     for (int i=0; i<sectors_to_read; i++){
-        if (fdc_read_sector(drive, new_lba, data_out, how_many_until)!=0){
+        if (fdc_read_sector(drive, new_lba, data_out, how_many_until, cmd)!=0){
             return 0;
         };
         new_lba++;
@@ -122,7 +122,7 @@ int fdc_read_sectors(int drive, int lba, int sectors_to_read, uint8_t* data_out)
     return 1;
 
 }
-int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until){
+int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until, int cmd){
     int heads=2;
     int sectors=18;
     // DELETE THIS IF, IF SUPPORTED BIGGER FAT(32, 16)
