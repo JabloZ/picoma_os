@@ -53,3 +53,4 @@ clean:
 run:
 	
 	qemu-system-i386 -m 128M -fda $(BUILD_DIR)/main_disk.img -no-reboot -no-shutdown -monitor stdio
+	chmod 666 $(BUILD_DIR)/main_disk.img 

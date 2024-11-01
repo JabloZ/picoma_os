@@ -28,4 +28,14 @@ int memcmp(const void* ptr1, const void* ptr2, uint16_t size){
     }
     return 0;
 }
+void sleep(unsigned int milliseconds) {
+    volatile unsigned int count;
+    const unsigned int loop_per_ms = 1000;
+  
+    for (unsigned int i = 0; i < milliseconds; i++) {
+        for (count = 0; count < loop_per_ms; count++) {
+            __asm__ __volatile__("nop");
+        }
+    }
+}
 

@@ -32,15 +32,7 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
     vmm_memory_status();
     init_fdc();
     init_opofs(0);
-    file_entry e_f;
-    file_entry t_f;
-    char buf[512];
-    find_file_opo(0,"testdir        /testdir1       ",&root_dir, &t_f, &e_f);
-    
-    read_file_opo(0,&e_f, &buf);
-    for (int i=0; i<512; i++){
-        //printf("%c ",buf[i]);
-    }
+
     //uint8_t temp_buf[512];
     //fdc_read_sectors(0,0,1,temp_buf);
     //print_regions();
@@ -53,8 +45,30 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
    
     for (int i=0; i<SECTOR_SIZE*2; i++){
     printf("%c",sector_s[i]);}*/
+    char buf[512];
+    for (int i=0; i<512; i++){
+        buf[i]='o';
+    }
+    //fdc_read_sector(0,200,&buf,0,sector_read);
+    char buf_r[512];
+    memset(&buf_r,0,512);
     
+    fdc_write_sector(0,16,&buf,0,sector_write);
 
+    fdc_read_sector(0,1003,&buf_r,0,sector_read);
+    
+    for (int i=0; i<512; i++){
+        printf("%c",buf_r[i]);
+    }
+    
+    memset(&buf_r, 0, 512);
+    fdc_read_sector(0,16,&buf_r,0,sector_read);
+    for (int i=0; i<512; i++){
+        printf("%c",buf_r[i]);
+    }
+    
+    
+    
 end:
     while(1);
 }
