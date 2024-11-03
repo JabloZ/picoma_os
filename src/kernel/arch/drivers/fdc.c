@@ -14,7 +14,6 @@ int received_int=0;
 uint8_t floppy_wait_irq()
 {
   while(received_int == 0){
-    
   };
   //reset floppy_recieved_int to default (FALSE)
   received_int = 0;
@@ -30,20 +29,16 @@ void init_fdc(){
 
 }
 int fdc_control_motor(int state){
-    
-     //we want to turn off
-        if (state == motor_on){
+    if (state == motor_on){
             outb(FDC_DOR, 0x1C);
             floppy_motor_state=motor_on;     
             sleep(2000);
         }
-   
-        if (state==motor_off){
+    if (state==motor_off){
             outb(FDC_DOR, 0x0C);
             floppy_motor_state=motor_off;
             sleep(2000);
         }
-    
     return 0;
 }
 void fdc_check_interrupt(int* st0, int* cyl){
@@ -80,19 +75,15 @@ void init_dma(int cmd){
     }
    
      //mask dma 2
-   
     outb(0x0A, 0x06);
     outb(0x0d, 0xff); //reset
-
     outb(0x04, a.bytes[0]);
     outb(0x04, a.bytes[1]);
     outb(0x81, a.bytes[2]);
-   
     outb(0x0c, 0xff); //reset
     outb(0x05, c.bytes[0]);
     outb(0x05, c.bytes[1]);
-    
-     outb(0x0b, cmd_floppy);
+    outb(0x0b, cmd_floppy);
     outb(0x0A, 0x02);
   
 }
@@ -107,8 +98,6 @@ int fdc_reset(){
         int st0, cyl;
         fdc_check_interrupt( &st0, &cyl);
     }
-
-
     outb(FDC_CCR, 0); //1.44 default
     fdc_write_command(3);
     fdc_write_command(0xdf);
@@ -167,17 +156,14 @@ int fdc_write_sector(int drive, int lba, uint8_t* data_out, int how_many_until, 
             //memcpy(fdc_dma_buffer,'b',512);
             fdc_control_motor(motor_on);
             outb(FDC_CCR, 0);
-
-            
+   
             fdc_write_command(cmd_floppy); 
             fdc_write_command(0);//drive
-            //return 0;
-            
             fdc_write_command(cyl); 
             fdc_write_command(head);//first head
             fdc_write_command(sector);//first sector
             fdc_write_command(2);//bytes per sector, but counted differently
-            fdc_write_command(sector+1);//tracks
+            fdc_write_command(sector);//tracks
             fdc_write_command(0x1b); //gap3
             fdc_write_command(0xff); //data len
             
@@ -222,11 +208,6 @@ int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until, u
     if (cmd==sector_read){
         cmd_floppy=0x46;
     }
-    else if (cmd==sector_write){
-        
-        cmd_floppy=0x4a; //0x4a
-    }
-   
     else{
         printf("niby tu");
         return -1;
@@ -241,16 +222,9 @@ int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until, u
     memset(fdc_dma_buffer, 0, 512);
     
     for (int i=0; i<20; i++){
-      
-       
-        //init_dma(cmd_floppy);
-        unsigned char *data = virt_to_phys(fdc_dma_buffer);
+        unsigned char *data = (fdc_dma_buffer);
         fdc_control_motor(motor_on);
-        for (int tries = 0;tries < 3;tries++) {
-           
-            fdc_control_motor(motor_on);
             init_dma(sector_read);
-
             outb(FDC_CCR, 0);
             fdc_write_command(cmd_floppy); 
            
@@ -263,14 +237,14 @@ int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until, u
             fdc_write_command(0x1b); //gap3
             fdc_write_command(0xff); //data len
             //fdc_write_command(FDC_SENSE_INTERRUPT);
-            floppy_wait_irq();
+            //floppy_wait_irq();
 
             unsigned char st0, st1, st2, st3;
             st0=floppy_read_data();
             st1=floppy_read_data();
             st2=floppy_read_data();
             st3=floppy_read_data();
-            printf(" %d %d %d %d\n",st0,st1,st2,st3);
+            //printf(" %d %d %d %d\n",st0,st1,st2,st3);
             if (cmd==sector_read){
                 int iter=0;
                 for (int j=0; j < 512; j++) {
@@ -284,14 +258,13 @@ int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until, u
     printf("couldnt read");
     fdc_control_motor(motor_off);
     return -1;
-    
-}}
+}
 
 
 
 unsigned char floppy_read_data() {
     for(int i = 0; i < 600; i++) {
-        sleep(100);
+        sleep(10);
         if(0x80 & inb(FDC_MSR)) {
             return inb(FDC_FIFO);
         }

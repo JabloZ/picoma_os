@@ -53,19 +53,20 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
     char buf_r[512];
     memset(&buf_r,0,512);
     
-    fdc_write_sector(0,16,&buf,0,sector_write);
+    fdc_write_sector(0,213,&buf,0,sector_write);
 
     fdc_read_sector(0,1003,&buf_r,0,sector_read);
     
     for (int i=0; i<512; i++){
-        printf("%c",buf_r[i]);
+        //printf("%c",buf_r[i]);
     }
     
     memset(&buf_r, 0, 512);
-    fdc_read_sector(0,16,&buf_r,0,sector_read);
+    fdc_read_sector(0,213,&buf_r,0,sector_read);
     for (int i=0; i<512; i++){
-        printf("%c",buf_r[i]);
+        //printf("%c",buf_r[i]);
     }
+    printf(">");
     
     
     

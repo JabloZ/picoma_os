@@ -13,7 +13,11 @@ void disable_interrupts(){
 void handler_irq_0(){
     ;
 }
-
+void init_filesystem_vars(){
+    capslock_pressed=0;
+    memset(global_cmd_prefix,0,1024);
+    elements_in_prefix=0;
+}
 
 void init_irq(){
     capslock_pressed=0;
