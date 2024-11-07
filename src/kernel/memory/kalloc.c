@@ -1,9 +1,6 @@
 //NOTE: SHOULD RENAME THIS, THIS IS JUST BUDDY ALLOCATOR
-#include "pmm.h"
-#include "page.h"
 #include "kalloc.h"
-#include "../clibs/stdio.h"
-#include "../../glibs/memory_params.h"
+
 #define MAX_LEVELS 9
 #define MEMORY_SIZE 1*1024*1024
 static uint8_t memory_pool[1*1024*1024];

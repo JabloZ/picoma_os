@@ -1,7 +1,10 @@
 build
 .bashrc
-bx_enh_dbg
+qemu.log
+bx_enh_dbg.ini
 setup_gcc_cp.sh
 testelf.asm
 testelf.o
 testelf
+/test_bins
+test_main_dir.txt

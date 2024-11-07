@@ -1,13 +1,16 @@
 #include "stdint.h"
 #include "x86.h"
 #include "stdio.h"
-const uint32_t SCREEN_WIDTH=80;
-const uint32_t SCREEN_HEIGHT=25;
-const uint8_t DEFAULT_COLOR=0x7;
+
 int8_t* video_buffer = (int8_t *) 0xc00B8000;
 int video_x=0;
 int video_y=0;
 
+void init_vals(){
+    SCREEN_WIDTH=80;
+    SCREEN_HEIGHT=25;
+    DEFAULT_COLOR=0x7;
+}
 void clear_screen(){
     int8_t* video_memory = (int8_t *) 0xC00B8000;
     

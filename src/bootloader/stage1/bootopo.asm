@@ -20,7 +20,7 @@ start:
         int 13h
         jc disk_error   
 
-       mov bx, stage2_load_segment
+        mov bx, stage2_load_segment
         mov es, bx
         mov bx, stage2_load_offset
         

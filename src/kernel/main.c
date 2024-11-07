@@ -17,6 +17,7 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
    //__asm__ volatile("hlt;");
     clear_screen();
     //print_regions();
+    init_vals();
     services_init();
     printf("________________________________________________________________________________");
     printf("|                            X86 PICOMA OS: v0.0.2                             |");

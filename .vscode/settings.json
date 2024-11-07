@@ -19,6 +19,7 @@
         "fdc.h": "c",
         "memdef.h": "c",
         "ctype.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "opofs.h": "c"
     }
 }

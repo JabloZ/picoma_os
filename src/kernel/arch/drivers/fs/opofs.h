@@ -9,8 +9,8 @@
 #define HEAD 2
 #define SECTOR 18
 #define CYLINDER 80
-typedef struct
-{
+
+typedef struct file_entry{
     uint8_t filename[15];
     uint8_t is_dir;
     uint32_t size;

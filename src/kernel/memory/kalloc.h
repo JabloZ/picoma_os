@@ -2,6 +2,8 @@
 #include "../clibs/stdbool.h"
 #include "../clibs/stdint.h"
 #include "../clibs/memory.h"
+#include "../clibs/stdio.h"
+
 #include "../../glibs/memory_params.h"
 typedef enum{ //*4096
     BS_0=0, //4KB

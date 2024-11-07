@@ -21,6 +21,8 @@ void init_filesystem_vars(){
 
 void init_irq(){
     capslock_pressed=0;
+    pte_mode=0;
+    pte_cmd_mode=0;
     g_irq_handler[0]=handler_irq_0;
     g_irq_handler[1]=handler_irq_1;
     
