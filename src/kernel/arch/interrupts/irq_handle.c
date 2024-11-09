@@ -115,32 +115,60 @@ void handler_irq_1(){
     else{
         if (strlen(pressed)==1){
             if (capslock_pressed==0){
-                if ((scancode>=16 && scancode<=25) || (scancode>=30 && scancode<=38) || scancode>=44 && scancode<=50){
+                if (((scancode>=16 && scancode<=25) || (scancode>=30 && scancode<=38) || scancode>=44 && scancode<=50)){
                 printf("%c", (int)get_key_name(scancode)[0]+32);
-                global_command[global_command_num]=(int)pressed[0]+32;}
+                if (pte_cmd_mode==1 && pte_mode==1 || pte_mode==0 && pte_cmd_mode==0){
+                    global_command[global_command_num]=(int)pressed[0]+32;
+                    global_command_num++;
+                }
+                }
                 else{
                     printf("%c", (int)get_key_name(scancode)[0]);
+                    if (pte_cmd_mode==1 && pte_mode==1 || pte_mode==0 && pte_cmd_mode==0){
                     global_command[global_command_num]=(int)pressed[0];
+                    global_command_num++;}
                 }
                 
             }
             else{
                 
                 printf("%c", (int)get_key_name(scancode)[0]);
+                if (pte_cmd_mode==1 && pte_mode==1 || pte_mode==0 && pte_cmd_mode==0){
                 global_command[global_command_num]=(int)pressed[0];
+                global_command_num++;}
             } 
         
-            global_command_num++;
+            
             
         }
         else{
             switch(scancode){
                 case 28: //enter
+                    if (pte_mode==1 && pte_cmd_mode==1){
+                        if (global_command[0]=='q'){
+                            pte_mode=0;
+                            pte_cmd_mode=0;
+                            return_video_memory();
+                            update_cursor(save_cursor_x, save_cursor_y);
+                            video_x=save_cursor_x; video_y=save_cursor_y;
+                        }
+                        else{
+                            video_x=32;
+                            video_y=0;
+                            update_cursor(32,0);
+                            int8_t* video_memory_pte = (int8_t *) 0xC00B8000+64;
+                            for (int i=0; i<48; i++){
+                                *video_memory_pte=' ';
+                                video_memory_pte+=2;
+                            }
+                        }
+                    }
                     
                     recognize_command(global_command);
                     execute_or_recognize_command();
-                    memset(g_cmd_str, 0, sizeof(g_cmd_str));
-                    memset(global_command, 0, strlen(global_command));
+                    
+                    memset(g_cmd_str, 0, 1000);
+                    memset(global_command, 0, 1024);
                     
                     global_command_num=0;
                     if (pte_mode==0){
@@ -148,8 +176,18 @@ void handler_irq_1(){
                     }
                     break;
                 case 14: //backspace
-                    if (global_command_num==0){
+                    if (global_command_num==0 && pte_mode==0){
                         break;
+                    }
+                    if (pte_cmd_mode==0 && pte_mode==1){
+                        if (video_y==2 && video_x==0){
+                            break;
+                        }
+                    }
+                    if (pte_cmd_mode==1 && pte_mode==1){
+                        if (video_x==32 && video_y==0){
+                            break;
+                        }
                     }
                     global_command_num--;
                     global_command[global_command_num]=0;
@@ -170,7 +208,8 @@ void handler_irq_1(){
                     break;
                 case 1:
                     if (pte_mode==1){
-                    pte_escape_handle();}
+                        pte_escape_handle();
+                    }
                     
                     break;
             }
@@ -190,7 +229,7 @@ void handler_irq_1(){
 
 int return_file_entry(int i, file_entry* save_f, file_entry* file_e){
                 if (g_cmd_str[i][0]=='/'){
-                    printf("\n\n");
+                    //printf("\n\n");
                     int count_elements=0;
                     for (int j=0; j<strlen(g_cmd_str[i])-1;j++){
                         if (g_cmd_str[i][j]=='/'){
@@ -213,12 +252,13 @@ int return_file_entry(int i, file_entry* save_f, file_entry* file_e){
                     }
                     path_c[strlen(path_c)]='\0';
                     opo_path_formatter(path_c, path, count_elements);
-                    find_file_opo(0,path,&root_dir,save_f,file_e);
+                    find_file_opo(0,path,&root_dir,save_f,file_e)==false;
+                    
                     
                 }
                 else{
                
-                    printf("\n\n");
+                    //printf("\n\n");
                     int count_elements=0;
                     for (int j=0; j<strlen(g_cmd_str[i])-1;j++){
                         if (g_cmd_str[i][j]=='/'){
@@ -230,13 +270,15 @@ int return_file_entry(int i, file_entry* save_f, file_entry* file_e){
                     
                     opo_path_formatter(g_cmd_str[i], path, count_elements);
                     find_file_opo(0,path,&root_dir,save_f,file_e);
+                        
+                    
                 }
                 return 1;
 }
 int recognize_command(char* command){
     //printf("\ncommand: %s",command);
     char cmd_buf[strlen(command)];
-    memset(&cmd_buf,0,strlen(command));
+    memset(cmd_buf,0,strlen(command));
     int cmd_buf_iter=0;
     int cmd_count=0;
 
@@ -269,11 +311,14 @@ int execute_or_recognize_command(){
                 break;
             case 1: {//la 'dir' - list all from dir
                 //STRING FORMATTING : ONLY FOR DIRECTORIES FOR NOW 
+                printf("\n\n");
                 if (strlen(g_cmd_str[i])==0){
                     break;
                 }
                 file_entry file_e;
                 file_entry save_f;
+                memset(&file_e,0,sizeof(file_e));
+                memset(&file_e,0,sizeof(file_e));
                 return_file_entry(i, &save_f, &file_e);
 
                 if (strcmp(g_cmd_str[i],".",1)==1){
@@ -286,7 +331,7 @@ int execute_or_recognize_command(){
                         break;
                     }
                 } 
-               
+                
                 int max_j=0;
                 if (file_e.size%512==0){
                     max_j=file_e.size/512;
@@ -294,12 +339,12 @@ int execute_or_recognize_command(){
                 else{
                     max_j=(file_e.size/512)+1;
                 }
-
+                
                 uint8_t buf[max_j*512];
                 char name[16];
                 
                 for (int j=0; j<max_j; j++){
-                    fdc_read_sector(0,file_e.lba_first+j, &buf,0,sector_read);
+                    fdc_read_sector(0,file_e.lba_first+j, buf,0,sector_read);
                     for (int i=0; i<16; i++){
                         for (int z=0; z<15; z++){
                             name[z]=(char)buf[(i*32)+z];
@@ -312,25 +357,26 @@ int execute_or_recognize_command(){
                         memset(name, 0, 16);
                     }
                 }
-                
+                memset(buf,0,max_j*512);
+                memset(name,0,16);
                
                 break;} 
             case 2:{ //pf
              
-                 int count_elements=0;
+                int count_elements=0;
                 for (int j=0; j<strlen(g_cmd_str[i])-1;j++){
                     if (g_cmd_str[i][j]=='/'){
                     count_elements++;
                     }
                 }
                 char path[(15*(count_elements+1))+(count_elements+1)];
-               
                 memset(path,' ',(15*(count_elements+1))+(count_elements+1));
                 
                 file_entry file_e;
                 file_entry save_f;
 
                 return_file_entry(i, &save_f, &file_e);
+
                 char buf[file_e.size];
                 read_file_opo(0,&file_e,&buf);
                 for (int c=0; c<file_e.size; c++){
@@ -381,11 +427,22 @@ int execute_or_recognize_command(){
                 file_entry file_e;
                 file_entry save_f;
 
-                return_file_entry(i, &save_f, &file_e);
+                int b=return_file_entry(i, &save_f, &file_e);
                 //printf("file e: %s",file_e.filename);
+                if (file_e.is_dir==1 || strlen(file_e.filename)!=15){
+                    printf("Error: not a file.");
+                    break;
+                };
                 
                 pte_mode=1;
+                save_cursor_x=video_x;
+                save_cursor_y=video_y;
                 setup_pte(&file_e);
+                strcpy(g_cmd_str[i-1],"pf");
+                
+                //strcpy(g_cmd_str[i],path);
+
+                execute_or_recognize_command();
                 //save_video_memory();
                 //clear_screen();
                 

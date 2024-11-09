@@ -24,7 +24,7 @@ int return_video_memory(){
 void setup_pte(struct file_entry* file_e){
     save_video_memory();
     printf("FILE: %s |command:",file_e->filename);//komenda 3 litery
-    for (int c=0; c<80-32; c++){
+    for (int c=0; c<80-31; c++){
         printf(" ");
     }
     for (int c=0; c<80; c++){
@@ -33,15 +33,17 @@ void setup_pte(struct file_entry* file_e){
 }
 void pte_escape_handle(){
     if (pte_cmd_mode==0){
+        save_cur_no_cmd_pte_x=video_x;
+        save_cur_no_cmd_pte_y=video_y;
         update_cursor(32,0);
         video_x=32;
         video_y=0;
         pte_cmd_mode=1;
     }
     else{
-        update_cursor(2,0);
-        video_x=0;
-        video_y=2;
+        update_cursor(save_cur_no_cmd_pte_x,save_cur_no_cmd_pte_y);
+        video_x=save_cur_no_cmd_pte_x;
+        video_y=save_cur_no_cmd_pte_y;
         pte_cmd_mode=0;
     }
 }

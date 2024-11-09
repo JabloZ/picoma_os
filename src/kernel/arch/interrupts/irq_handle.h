@@ -18,5 +18,8 @@ char global_cmd_prefix[1024];
 int elements_in_prefix;
 int pte_mode;
 int pte_cmd_mode;
+int save_cursor_x;
+int save_cursor_y;
+
 int return_command_num(char* str);
 void opo_path_formatter(char* path, char* path_new, int count_elements);
