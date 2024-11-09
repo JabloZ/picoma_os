@@ -117,14 +117,14 @@ void handler_irq_1(){
             if (capslock_pressed==0){
                 if (((scancode>=16 && scancode<=25) || (scancode>=30 && scancode<=38) || scancode>=44 && scancode<=50)){
                 printf("%c", (int)get_key_name(scancode)[0]+32);
-                if (pte_cmd_mode==1 && pte_mode==1 || pte_mode==0 && pte_cmd_mode==0){
+                if ((pte_cmd_mode==1 && pte_mode==1)||(pte_mode==0 && pte_cmd_mode==0)){
                     global_command[global_command_num]=(int)pressed[0]+32;
                     global_command_num++;
                 }
                 }
                 else{
                     printf("%c", (int)get_key_name(scancode)[0]);
-                    if (pte_cmd_mode==1 && pte_mode==1 || pte_mode==0 && pte_cmd_mode==0){
+                    if ((pte_cmd_mode==1 && pte_mode==1) || (pte_mode==0 && pte_cmd_mode==0)){
                     global_command[global_command_num]=(int)pressed[0];
                     global_command_num++;}
                 }
@@ -133,7 +133,7 @@ void handler_irq_1(){
             else{
                 
                 printf("%c", (int)get_key_name(scancode)[0]);
-                if (pte_cmd_mode==1 && pte_mode==1 || pte_mode==0 && pte_cmd_mode==0){
+                if ((pte_cmd_mode==1 && pte_mode==1) || (pte_mode==0 && pte_cmd_mode==0)){
                 global_command[global_command_num]=(int)pressed[0];
                 global_command_num++;}
             } 
@@ -145,6 +145,7 @@ void handler_irq_1(){
             switch(scancode){
                 case 28: //enter
                     if (pte_mode==1 && pte_cmd_mode==1){
+                      
                         if (global_command[0]=='q'){
                             pte_mode=0;
                             pte_cmd_mode=0;
@@ -169,7 +170,6 @@ void handler_irq_1(){
                     
                     memset(g_cmd_str, 0, 1000);
                     memset(global_command, 0, 1024);
-                    
                     global_command_num=0;
                     if (pte_mode==0){
                         printf("\n~/%s>",global_cmd_prefix);
@@ -181,6 +181,10 @@ void handler_irq_1(){
                     }
                     if (pte_cmd_mode==0 && pte_mode==1){
                         if (video_y==2 && video_x==0){
+                            break;
+                        }
+                        else{
+                            remove_char(video_x, video_y);
                             break;
                         }
                     }
@@ -382,6 +386,7 @@ int execute_or_recognize_command(){
                 for (int c=0; c<file_e.size; c++){
                     printf("%c",buf[c]);
                 }
+                //printf("pte: %d\n",pte_mode);
 
                 break;}
             case 3:{//cd
@@ -427,7 +432,7 @@ int execute_or_recognize_command(){
                 file_entry file_e;
                 file_entry save_f;
 
-                int b=return_file_entry(i, &save_f, &file_e);
+                return_file_entry(i, &save_f, &file_e);
                 //printf("file e: %s",file_e.filename);
                 if (file_e.is_dir==1 || strlen(file_e.filename)!=15){
                     printf("Error: not a file.");
@@ -443,6 +448,10 @@ int execute_or_recognize_command(){
                 //strcpy(g_cmd_str[i],path);
 
                 execute_or_recognize_command();
+                memset(&file_e, 0, sizeof(file_e));
+                memset(&save_f, 0, sizeof(save_f));
+                strcpy(g_cmd_str[i],"");
+                strcpy(g_cmd_str[i-1],"");
                 //save_video_memory();
                 //clear_screen();
                 
