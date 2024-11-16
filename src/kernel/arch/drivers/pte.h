@@ -4,8 +4,10 @@
 #include "../../clibs/stdint.h"
 #include "../../clibs/string.h"
 #include "fs/opofs.h"
+struct file_entry* file_opened;
 void pte_escape_handle();
 int return_video_memory();
+void read_new_contents();
 int save_cur_no_cmd_pte_x;
 int save_cur_no_cmd_pte_y;
 void setup_pte(struct file_entry* file_e);

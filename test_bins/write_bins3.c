@@ -13,8 +13,12 @@ int main() {
     
     uint8_t buf[512];
     for (int i=0; i<512; i++){
-        buf[i]='x';
+        buf[i]='z';
     }
+    buf[255]='\n';
+    buf[127]='\n';
+    buf[383]='\n';
+    buf[512]='\0';
     FILE* file = fopen("file_entry3.bin", "wb");
     if (file != NULL) {
         

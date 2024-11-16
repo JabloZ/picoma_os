@@ -7,6 +7,7 @@ int video_x=0;
 int video_y=0;
 
 void init_vals(){
+    global_video_memory_start=(uint8_t*) 0xC00B8000;
     SCREEN_WIDTH=80;
     SCREEN_HEIGHT=25;
     DEFAULT_COLOR=0x7;
@@ -40,12 +41,14 @@ void update_cursor(int x, int y)
 void remove_char(int x, int y){
     if (video_x==0){
         video_y--;
-        video_x=80;
-        video_buffer[2*((y-1)*SCREEN_WIDTH+x)]=' ';
+        video_x=79;
+        video_buffer[2*((y)*SCREEN_WIDTH+x-1)]=' ';
+        
     }
     else{
         video_x--;
         video_buffer[2*(y*SCREEN_WIDTH+x-1)]=' ';
+
     }
     
     update_cursor(video_x, video_y);

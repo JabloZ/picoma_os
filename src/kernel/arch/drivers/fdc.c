@@ -151,12 +151,14 @@ int fdc_write_sector(int drive, int lba, uint8_t* data_out, int how_many_until, 
     }
     //memset((uint8_t*)fdc_dma_buffer, 'c', 512);
     memcpy(&fdc_dma_buffer,data_out, 512);
+    
     init_dma(sector_write);
+    
         for (int tries = 0;tries < 20;tries++) {
             //memcpy(fdc_dma_buffer,'b',512);
             fdc_control_motor(motor_on);
             outb(FDC_CCR, 0);
-   
+            
             fdc_write_command(cmd_floppy); 
             fdc_write_command(0);//drive
             fdc_write_command(cyl); 
@@ -168,10 +170,12 @@ int fdc_write_sector(int drive, int lba, uint8_t* data_out, int how_many_until, 
             fdc_write_command(0xff); //data len
             
             //fdc_write_command(FDC_SENSE_INTERRUPT);
-            if (!floppy_wait_irq()){
-                printf("irq fail");
-                break;
-            }
+           
+            //if (!floppy_wait_irq()){ // error
+                //printf("irq fail");
+                //break;
+            //}
+            
             //memset(&fdc_dma_buffer, 'c', 512);
             unsigned char st0, st1, st2, st3, reg1, reg2, reg3;
             st0=floppy_read_data();
@@ -183,9 +187,11 @@ int fdc_write_sector(int drive, int lba, uint8_t* data_out, int how_many_until, 
             reg3=floppy_read_data();
             //fdc_check_interrupt(&st0, &cyl);
             if (!(st0 & 0xC0)){
+                //printf("succesfully written to disk!");
                 
                 return 1;
             }
+            
             fdc_calibrate(0);
         }
         printf("failed after 20 tries");

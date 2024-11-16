@@ -13,8 +13,8 @@ int main() {
     file_entry entry = {
         .filename = "example     txt",
         .is_dir = 0,
-        .size = 1100,
-        .lba_first = 999,
+        .size = 512,
+        .lba_first = 990,
         .reserved = {0}
     };
     file_entry entry2 = {

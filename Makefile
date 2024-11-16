@@ -17,9 +17,11 @@ $(BUILD_DIR)/main_disk.img: bootloader kernel
 	dd if=$(BUILD_DIR)/stage2.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=18
 	dd if=$(BUILD_DIR)/kernel.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=99
 	dd if=test_bins/file_entry.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=3
+	dd if=test_bins/file_entry5.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=4
 	dd if=test_bins/file_entry2.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=1001
 	dd if=test_bins/file_entry3.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=1003
 	dd if=test_bins/file_entry4.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=1002
+	dd if=test_bins/file_entry3.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=990
  
 bootloader: stage1 stage2
 

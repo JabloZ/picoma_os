@@ -46,9 +46,10 @@ void init_opofs(uint32_t disk){
 }
 
 
-bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* file_test, file_entry* end_file){
+bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* file_test, file_entry* end_file, int* lba_of_filedir){
     //WARNING: FOR NOW '/' AT BEGINNING OF PATH IS NOT SUPPORTED, AND PATH IS ONLY ABSOLUTE (ALWAYS FROM ROOT_DIR)
     //FORMAT PATH OPERATIONS: EXTRACT CURRENT FILE/FOLDER AND CHANGE 'folder/file1' to 'file1' for searching next files
+
     if (strlen(path)<15){
         return false;
     } 
@@ -85,7 +86,9 @@ bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* fi
     for (int j=1; j<max_j+1;j++){
         
         fdc_read_sector(disk,file_e->lba_first-1+j,&buf,0,sector_read);
-         
+        
+         *lba_of_filedir=file_e->lba_first-1+j;
+        
         for (int i=0; i<16; i++){//
             
             for (int k=0; k<15; k++){
@@ -97,7 +100,8 @@ bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* fi
             file_test->lba_first=0;
             file_test->size=(int)buf[i*32+16]<<0 | (int)buf[i*32+17]<<8 | (int)buf[i*32+18]<<16 | (int)buf[i*32+19]<<24;
             file_test->lba_first=(int)buf[i*32+20]<<0 | (int)buf[i*32+21]<<8 | (int)buf[i*32+22]<<16 | (int)buf[i*32+23]<<24;
-            
+        
+
             if(strcmp(file_searched,file_test->filename, 15)==1){
               
                 if (strlen(path)<=30){
@@ -111,11 +115,13 @@ bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* fi
                     end_file->lba_first=0;
                     end_file->size=(int)buf[i*32+16]<<0 | (int)buf[i*32+17]<<8 | (int)buf[i*32+18]<<16 | (int)buf[i*32+19]<<24;
                     end_file->lba_first=(int)buf[i*32+20]<<0 | (int)buf[i*32+21]<<8 | (int)buf[i*32+22]<<16 | (int)buf[i*32+23]<<24;
+                    
                     //printf("size: %d lba: %d",end_file->size, end_file->lba_first);
+                 
                     return true;
                 }else{
                     
-                    find_file_opo(disk, path_without_file, file_test, file_test, end_file);
+                    find_file_opo(disk, path_without_file, file_test, file_test, end_file, lba_of_filedir);
                 }
                 
             }
@@ -160,4 +166,61 @@ int read_file_opo(uint32_t disk, file_entry* fe, uint8_t* buf){
     }
     
     return 1;
+}
+int change_file_entry_opo(file_entry* file_e, int new_size, int new_lba){
+        unsigned char buf[512];
+        memset(buf,0,512);
+        fdc_read_sector(0,new_lba,buf,0,sector_read);
+        
+        unsigned char filename[16];
+        filename[15]='\0';
+        bool is_dir=0;
+        int lba_first=0;
+        int size=0;
+        unsigned char buf_new[512];
+        memset(buf_new,0,512);
+        for (int i=0; i<16; i++){//
+            
+            for (int k=0; k<15; k++){
+                filename[k]=buf[i*32+k];
+            }
+            if (strcmp(filename, file_e->filename, sizeof(file_e->filename))==1){
+               
+                for (int k=0; k<15; k++){
+                   buf_new[i*32+k]=buf[i*32+k];
+                }
+                
+                is_dir=(int)buf[i*32+15];
+            
+                
+                buf_new[i*32+15]=(int)buf[i*32+15];
+                buf_new[i*32+16]=(new_size>>0) & 0xFF;
+                buf_new[i*32+17]=(new_size>>8)& 0xFF;
+                buf_new[i*32+18]=(new_size>>16)& 0xFF; 
+                buf_new[i*32+19]=(new_size>>24)& 0xFF;
+                
+                size=(int)buf_new[i*32+16]<<0 | (int)buf_new[i*32+17]<<8 | (int)buf_new[i*32+18]<<16 | (int)buf_new[i*32+19]<<24;
+                //printf("new_size: %d | size: %d\n",new_size,size);
+                buf_new[i*32+20]=buf[i*32+20];
+                buf_new[i*32+21]=buf[i*32+21];
+                buf_new[i*32+22]=buf[i*32+22];
+                buf_new[i*32+23]=buf[i*32+23];
+                for (int x=24;x<32;x++){
+                    buf_new[i*32+x]=0;
+                }
+            }
+            else{
+                for (int x=0; x<32; x++){
+                    buf_new[i*32+x]=buf[i*32+x];
+                }
+            }
+            }
+            //("|size of file: %d %d %d %d|", (int)buf_new[i*32+16], (int)buf_new[i*32+17] , (int)buf_new[i*32+18], (int)buf_new[i*32+19]);
+           
+            fdc_write_sector(0,new_lba, buf_new, 0, sector_write);
+            return 0;
+
+            //lba_first=(int)buf[i*32+20]<<0 | (int)buf[i*32+21]<<8 | (int)buf[i*32+22]<<16 | (int)buf[i*32+23]<<24;
+
+        
 }

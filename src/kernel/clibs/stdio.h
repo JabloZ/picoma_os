@@ -9,6 +9,7 @@ int video_x;
 int video_y;
 void remove_char(int x, int y);
 void init_vals();
+uint8_t* global_video_memory_start;
 int8_t* video_buffer;
 int8_t* video_memory;
 uint32_t SCREEN_WIDTH;

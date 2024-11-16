@@ -54,7 +54,7 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
     char buf_r[512];
     memset(&buf_r,0,512);
     
-    fdc_write_sector(0,213,&buf,0,sector_write);
+    //fdc_write_sector(0,991,&buf,0,sector_write);
 
     fdc_read_sector(0,1003,&buf_r,0,sector_read);
     

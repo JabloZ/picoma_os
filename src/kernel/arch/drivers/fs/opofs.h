@@ -30,5 +30,6 @@ typedef struct{
 char global_prefix[100];
 file_entry root_dir;
 void init_opofs(uint32_t disk);
-bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* file_test, file_entry *end_file);
+bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* file_test, file_entry *end_file, int* lba_of_filedir);
 int read_file_opo(uint32_t disk, file_entry* fe, uint8_t* buf);
+int change_file_entry_opo(file_entry* file_e, int new_size, int new_lba);

@@ -45,5 +45,6 @@ void pte_escape_handle(){
         video_x=save_cur_no_cmd_pte_x;
         video_y=save_cur_no_cmd_pte_y;
         pte_cmd_mode=0;
+        //printf("")
     }
 }
