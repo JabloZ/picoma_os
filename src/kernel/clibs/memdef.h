@@ -16,6 +16,6 @@
 //kernel attribs - load
 //0x40000 start, and load 1mb
 
-#define MEMORY_LOAD_KERNEL 0x40000
+#define MEMORY_LOAD_KERNEL 0x50000
 #define MEMORY_SIZE 0x10000
 #define KERNEL_LOAD_ADDR 0x100000

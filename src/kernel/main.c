@@ -46,29 +46,14 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
    
     for (int i=0; i<SECTOR_SIZE*2; i++){
     printf("%c",sector_s[i]);}*/
-    char buf[512];
-    for (int i=0; i<512; i++){
-        buf[i]='o';
-    }
-    //fdc_read_sector(0,200,&buf,0,sector_read);
-    char buf_r[512];
-    memset(&buf_r,0,512);
+   
     
     //fdc_write_sector(0,991,&buf,0,sector_write);
-
-    fdc_read_sector(0,1003,&buf_r,0,sector_read);
-    
-    for (int i=0; i<512; i++){
-        //printf("%c",buf_r[i]);
-    }
-    
-    memset(&buf_r, 0, 512);
-    fdc_read_sector(0,213,&buf_r,0,sector_read);
-    for (int i=0; i<512; i++){
-        //printf("%c",buf_r[i]);
-    }
+    setup_global_file_info_table();
+   
     printf(">");
-    
+    //printf("filetest    txt");
+   //create_file_opofs(&root_dir, 3, "filetest.txt", 900,0,0);
     
     
 end:

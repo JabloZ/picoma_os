@@ -32,12 +32,12 @@ int fdc_control_motor(int state){
     if (state == motor_on){
             outb(FDC_DOR, 0x1C);
             floppy_motor_state=motor_on;     
-            sleep(2000);
+            sleep(100);
         }
     if (state==motor_off){
             outb(FDC_DOR, 0x0C);
             floppy_motor_state=motor_off;
-            sleep(2000);
+            sleep(100);
         }
     return 0;
 }
@@ -270,7 +270,7 @@ int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until, u
 
 unsigned char floppy_read_data() {
     for(int i = 0; i < 600; i++) {
-        sleep(10);
+        //sleep(10);
         if(0x80 & inb(FDC_MSR)) {
             return inb(FDC_FIFO);
         }

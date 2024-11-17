@@ -54,15 +54,18 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
    uint8_t* kernel_membuf=kernel;
     printf("kerneL:%p|",kernel_membuf);
    
-   memset(kernel_membuf,0,30000);
+   memset(kernel_membuf,0,50000);
       if (find_file_opo(&disk, "kernel      bin",&root_dir, &save_f, &end_file)){
 
          read_file_opo(&disk, &end_file, kernel_membuf);
       }
+      else{
+         printf("couldn't find kernel.bin");
+      }
       
       //memcpy(kernel_membuf, buf, 30000);
       //printf(" %p ", kernel_membuf);
-      for (int i=0; i<30000; i++){
+      for (int i=0; i<50000; i++){
          if (kernel_membuf[i]!=0){
             //printf("%p",kernel_membuf[i]);
          }

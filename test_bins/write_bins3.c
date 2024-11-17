@@ -18,7 +18,7 @@ int main() {
     buf[255]='\n';
     buf[127]='\n';
     buf[383]='\n';
-    buf[512]='\0';
+    
     FILE* file = fopen("file_entry3.bin", "wb");
     if (file != NULL) {
         

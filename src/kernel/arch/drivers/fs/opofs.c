@@ -116,7 +116,7 @@ bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* fi
                     end_file->size=(int)buf[i*32+16]<<0 | (int)buf[i*32+17]<<8 | (int)buf[i*32+18]<<16 | (int)buf[i*32+19]<<24;
                     end_file->lba_first=(int)buf[i*32+20]<<0 | (int)buf[i*32+21]<<8 | (int)buf[i*32+22]<<16 | (int)buf[i*32+23]<<24;
                     
-                    //printf("size: %d lba: %d",end_file->size, end_file->lba_first);
+                    printf("size: %d lba: %d\n",end_file->size, end_file->lba_first);
                  
                     return true;
                 }else{
@@ -223,4 +223,204 @@ int change_file_entry_opo(file_entry* file_e, int new_size, int new_lba){
             //lba_first=(int)buf[i*32+20]<<0 | (int)buf[i*32+21]<<8 | (int)buf[i*32+22]<<16 | (int)buf[i*32+23]<<24;
 
         
+}
+int create_file_opofs(file_entry* og_dir, int lba_where_to_create, char* new_filename, int new_lba, int new_size, uint8_t* new_file_data, int dir){
+    //printf("filen: %s",new_filename);
+    int sectors_to_read=0;
+    int size_mod=og_dir->size%512;
+    uint8_t directory_data[512];
+    uint8_t new_data[512];
+    if (size_mod==0){   
+        sectors_to_read=og_dir->size/SECTOR_SIZE;
+    }
+    else{
+        sectors_to_read=(og_dir->size/SECTOR_SIZE)+1;
+    }
+    bool file_saved=0;
+    //printf("filen: %s",new_filename);
+    memset(directory_data,0,512);
+    memset(new_data,0,512);
+    for (int j=0; j<sectors_to_read; j++){
+        fdc_read_sector(0,lba_where_to_create+j,&directory_data,0,sector_read);
+        for (int i=0; i<16; i++){
+            if (directory_data[i*32]!=0){
+                for (int z=0; z<32; z++){
+                    new_data[i*32+z]=directory_data[i*32+z];
+                }
+            }
+            else{// if nxt ==0
+                if (file_saved==0){
+                    for (int z=0; z<15; z++){
+                        new_data[i*32+z]=new_filename[z];
+                    }
+                    new_data[i*32+15]=dir;
+                    new_data[i*32+16]=(new_size>>0) & 0xFF;
+                    new_data[i*32+17]=(new_size>>8)& 0xFF;
+                    new_data[i*32+18]=(new_size>>16)& 0xFF; 
+                    new_data[i*32+19]=(new_size>>24)& 0xFF;
+                    
+                    //size=(int)buf_new[i*32+16]<<0 | (int)buf_new[i*32+17]<<8 | (int)buf_new[i*32+18]<<16 | (int)buf_new[i*32+19]<<24;
+                    //printf("new_size: %d | size: %d\n",new_size,size);
+                    new_data[i*32+20]=new_lba>>0;
+                    new_data[i*32+21]=new_lba>>8;
+                    new_data[i*32+22]=new_lba>>16;
+                    new_data[i*32+23]=new_lba>>24;
+                    for (int z=24; z<32; z++){
+                        new_data[i*32+z]=0;
+                    }
+                    file_saved=1;
+                }
+            }
+        }
+        
+        if (file_saved==1){
+            if (new_size%512==0){
+                allocate_sectors(new_lba, (new_size%512));
+            }
+            else{
+                allocate_sectors(new_lba, (new_size%512)+1);
+            }
+           
+            fdc_write_sector(0,lba_where_to_create+j,new_data,0,sector_write);
+            
+            memset(&directory_data,0,512);
+            memset(&new_data,0,512);
+            
+            return 1;
+        }else{
+             fdc_write_sector(0,lba_where_to_create+j,new_data,0,sector_write);
+            memset(&directory_data,0,512);
+            memset(&new_data,0,512);
+        }
+    }
+    return 0;
+}
+
+void opo_path_formatter(char* og_path, char* new_path, int count_elements){
+   
+    int add_spaces=0;
+    int iter=0;
+    int path_el_length=0;
+    int was_dot=0;
+    int spaces_to_add_ext=0;
+    int already_added_dot=0;
+
+    for (int i=0; i<count_elements+1; i++){
+        for (int j=0; j<15; j++){
+            
+            if (og_path[iter]=='.' ){
+                add_spaces=1;
+                spaces_to_add_ext=15-path_el_length-3;//for example3    txt| 
+                new_path[(i*16)+j]=' ';
+                already_added_dot++;
+              
+                if (already_added_dot==spaces_to_add_ext){
+                    iter++;
+                    add_spaces=0;
+                    continue;
+                }
+            }
+             if (og_path[iter]=='/' || og_path[iter]==0){
+                add_spaces=1;
+                new_path[(i*16)+j]=' ';
+            }
+            if (add_spaces==1){
+                
+                new_path[(i*16)+j]=' ';
+            }
+             else{
+                //printf("%c ", og_path[iter]);
+                new_path[(i*16)+j]=og_path[iter];
+                iter++;
+                path_el_length++;
+            }
+        }
+        new_path[(i*16)+15]='/';
+        iter++;
+        path_el_length=0;
+        add_spaces=0;
+        
+    }
+
+    //new_path[(count_elements*15)+15]=' ';
+    new_path[(count_elements*16)+15]='\0';
+   
+}
+//opofs_move_file_and_create_space_for_size() TODO
+opofs_remove_file_and_contents(){
+
+}
+
+int setup_global_file_info_table(){
+    uint8_t global_filesystem_data[512];
+    int global_filesystem_iter=0;
+    memset(global_filesystem_data,0,512);
+    uint8_t buf[512];
+    uint8_t bits=0;
+    int bits_iter=0;
+    for (int i=0; i<152; i++){
+        
+        
+        bits = bits | (1<<7-bits_iter);
+        bits_iter++;
+        if (bits_iter==8){
+            global_filesystem_data[global_filesystem_iter]=bits;
+            global_filesystem_iter++;
+            bits_iter=0;
+            bits=0;
+        }
+    }
+    //global_filesystem_data[1]=170;
+    fdc_write_sector(0,1,global_filesystem_data,0,sector_write);
+    return 1;
+}
+
+int getbit(uint8_t* bits, int bit){
+    uint8_t score=(*bits & 1<<(bit));
+    return score;
+}
+int setbit(uint8_t* bits, int bit, int val){
+    uint8_t score=(*bits ^ 1<<(bit));    
+    *bits=score;
+    
+}
+int find_free_sectors_in_disk(int size){
+    int sectors_to_fit;
+    if (size%512==0){   
+        sectors_to_fit=size/SECTOR_SIZE;
+    }
+    else{
+        sectors_to_fit=(size/SECTOR_SIZE)+1;
+    }
+    uint8_t filesystem_info[512];
+    fdc_read_sector(0,1,filesystem_info,0,sector_read);
+    int bit_sector=-1;
+    int free_in_row=0;
+    for(int i=0; i<360; i++){
+        for (int b=7; b>=0; b--){
+            bit_sector=getbit(&filesystem_info[i],b);
+            if (bit_sector==0){
+                free_in_row++;
+            }
+            else{
+                free_in_row=0;
+            }
+            if (free_in_row==sectors_to_fit){
+                //printf("found: %d",i*8+(7-b));
+                return i*8+(7-b);
+            }
+           
+        }
+       
+    }
+
+}
+int allocate_sectors(int lba_start, int sectors){
+    uint8_t filesystem_info[512];
+    fdc_read_sector(0,1,filesystem_info,0,sector_read);
+    int fi_num=lba_start/8;
+    int bit=lba_start%8;
+    setbit(&filesystem_info[fi_num],7-bit,1);
+    fdc_write_sector(0,1,filesystem_info,0,sector_write);
+    return 1;
 }
