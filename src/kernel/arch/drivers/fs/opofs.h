@@ -42,3 +42,4 @@ int find_free_sectors_in_disk(int size);
 int getbit(uint8_t* bits, int bit);
 int setbit(uint8_t* bits, int bit, int val);
 int allocate_sectors(int lba_start, int sectors);
+int delete_file_or_dir(file_entry* file_to_delete, int parent_lba);

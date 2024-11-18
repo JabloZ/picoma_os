@@ -34,8 +34,8 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
     init_fdc();
     init_opofs(0);
 
-    //uint8_t temp_buf[512];
-    //fdc_read_sectors(0,0,1,temp_buf);
+    uint8_t temp_buf[512];
+    fdc_read_sector(0,1,temp_buf,0,sector_read);
     //print_regions();
     //init_fat();
     //open_fat(0,"test.txt");
@@ -50,7 +50,6 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
     
     //fdc_write_sector(0,991,&buf,0,sector_write);
     setup_global_file_info_table();
-   
     printf(">");
     //printf("filetest    txt");
    //create_file_opofs(&root_dir, 3, "filetest.txt", 900,0,0);

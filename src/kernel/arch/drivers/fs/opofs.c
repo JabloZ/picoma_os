@@ -49,7 +49,7 @@ void init_opofs(uint32_t disk){
 bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* file_test, file_entry* end_file, int* lba_of_filedir){
     //WARNING: FOR NOW '/' AT BEGINNING OF PATH IS NOT SUPPORTED, AND PATH IS ONLY ABSOLUTE (ALWAYS FROM ROOT_DIR)
     //FORMAT PATH OPERATIONS: EXTRACT CURRENT FILE/FOLDER AND CHANGE 'folder/file1' to 'file1' for searching next files
-
+    bool can_change_filedir=true;
     if (strlen(path)<15){
         return false;
     } 
@@ -76,6 +76,7 @@ bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* fi
         path_without_file[num2-og_num2]=path[num2];
        
     }
+   
     int max_j;
     if (file_e->size%512==0){
         max_j=file_e->size/SECTOR_SIZE;}
@@ -86,8 +87,6 @@ bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* fi
     for (int j=1; j<max_j+1;j++){
         
         fdc_read_sector(disk,file_e->lba_first-1+j,&buf,0,sector_read);
-        
-         *lba_of_filedir=file_e->lba_first-1+j;
         
         for (int i=0; i<16; i++){//
             
@@ -116,11 +115,13 @@ bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* fi
                     end_file->size=(int)buf[i*32+16]<<0 | (int)buf[i*32+17]<<8 | (int)buf[i*32+18]<<16 | (int)buf[i*32+19]<<24;
                     end_file->lba_first=(int)buf[i*32+20]<<0 | (int)buf[i*32+21]<<8 | (int)buf[i*32+22]<<16 | (int)buf[i*32+23]<<24;
                     
-                    printf("size: %d lba: %d\n",end_file->size, end_file->lba_first);
-                 
+                    //printf("size: %d lba: %d\n",end_file->size, end_file->lba_first);
+                    //*lba_of_filedir=end_file->lba_first;
                     return true;
                 }else{
-                    
+                    //printf("size: %d lba: %d\n",end_file->size, file_test->lba_first);
+                    if (can_change_filedir==true){
+                    *lba_of_filedir=file_test->lba_first;}
                     find_file_opo(disk, path_without_file, file_test, file_test, end_file, lba_of_filedir);
                 }
                 
@@ -171,7 +172,7 @@ int change_file_entry_opo(file_entry* file_e, int new_size, int new_lba){
         unsigned char buf[512];
         memset(buf,0,512);
         fdc_read_sector(0,new_lba,buf,0,sector_read);
-        
+       
         unsigned char filename[16];
         filename[15]='\0';
         bool is_dir=0;
@@ -192,7 +193,7 @@ int change_file_entry_opo(file_entry* file_e, int new_size, int new_lba){
                 
                 is_dir=(int)buf[i*32+15];
             
-                
+
                 buf_new[i*32+15]=(int)buf[i*32+15];
                 buf_new[i*32+16]=(new_size>>0) & 0xFF;
                 buf_new[i*32+17]=(new_size>>8)& 0xFF;
@@ -214,6 +215,7 @@ int change_file_entry_opo(file_entry* file_e, int new_size, int new_lba){
                     buf_new[i*32+x]=buf[i*32+x];
                 }
             }
+            memset(filename,0,16);
             }
             //("|size of file: %d %d %d %d|", (int)buf_new[i*32+16], (int)buf_new[i*32+17] , (int)buf_new[i*32+18], (int)buf_new[i*32+19]);
            
@@ -392,6 +394,9 @@ int find_free_sectors_in_disk(int size){
     else{
         sectors_to_fit=(size/SECTOR_SIZE)+1;
     }
+    if (sectors_to_fit==0){
+        sectors_to_fit++;
+    }
     uint8_t filesystem_info[512];
     fdc_read_sector(0,1,filesystem_info,0,sector_read);
     int bit_sector=-1;
@@ -423,4 +428,78 @@ int allocate_sectors(int lba_start, int sectors){
     setbit(&filesystem_info[fi_num],7-bit,1);
     fdc_write_sector(0,1,filesystem_info,0,sector_write);
     return 1;
+}
+
+int delete_file_or_dir(file_entry* file_to_delete, int parent_lba){
+    uint8_t sector_content_read[512];
+    int sectors_to_read;
+    if (file_to_delete->size%512==0){
+        sectors_to_read=file_to_delete->size/512;
+    }
+    else{
+        sectors_to_read=(file_to_delete->size/512)+1;
+    }
+    if (file_to_delete->is_dir==1){
+        for (int i=0; i<sectors_to_read; i++){
+            fdc_read_sector(0,file_to_delete->lba_first,sector_content_read,0,sector_read);
+            for (int j=0; j<512; j++){
+                if (sector_content_read[j]!=0){
+                    printf("Couldn't delete directory: not empty.");
+                    return 0;
+                }
+           }
+           memset(sector_content_read,0,512);
+        }
+    }
+    memset(sector_content_read,0,512);
+    //DELETE HEADER
+    uint8_t filename[16];
+    memset(filename,0,16);
+    filename[15]='\0';
+    fdc_read_sector(0,parent_lba,sector_content_read,0,sector_read);
+    uint8_t* file_read=mem_allocate(512);
+    memset(file_read,0,512);
+    for (int b=0; b<16; b++){
+        for (int z=0; z<15; z++){
+            filename[z]=sector_content_read[b*32+z];
+            //file_read[b*32+z]=sector_content_read[b*32+z];
+        }
+       
+        if (strcmp(file_to_delete->filename,filename,15)==1){
+            for (int z=0; z<32; z++){
+                file_read[b*32+z]=0;
+            }
+        }
+        else{
+            for(int z=0; z<32; z++){
+                file_read[b*32+z]=sector_content_read[b*32+z];
+            }
+        }
+    }
+    fdc_write_sector(0,parent_lba,file_read,0,sector_write);
+    memory_free(file_read);
+
+    //DELETE CONTENTS
+    uint8_t* file_read_buf=mem_allocate(512);
+    memset(file_read_buf,0,512);
+    int sector_counter=file_to_delete->lba_first;
+    for (int i=0; i<sectors_to_read; i++){
+        fdc_write_sector(0,sector_counter,file_read_buf,0,sector_write);
+        allocate_sectors(sector_counter,sectors_to_read);
+        sector_counter++;
+        //setbit in global map
+        
+    }
+   
+    memory_free(file_read_buf);
+
+    
+    uint8_t temp_buf[512];
+    fdc_read_sector(0,1,temp_buf,0,sector_read);
+    for (int i=0; i<512; i++){
+        printf("%d ",temp_buf[i]);
+    }
+    //printf("Deleted: %s\n", file_to_delete->filename);
+    return 1;
+    
 }

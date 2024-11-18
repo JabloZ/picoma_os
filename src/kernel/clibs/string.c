@@ -38,6 +38,16 @@ unsigned strlen(const char* str){
     }
     return count;
 }
+unsigned strlen_not_space(const char* str){
+    unsigned count=0;
+    while (*str){
+        if (str[count]!=' '){
+        ++count;
+        }
+        ++str;
+    }
+    return count;
+}
 int strcmp(const char* str1, const char* str2, int len){
     
     for (int i=0; i<len; i++){

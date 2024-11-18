@@ -20,6 +20,7 @@ int pte_mode;
 int pte_cmd_mode;
 int save_cursor_x;
 int save_cursor_y;
+uint8_t save_path_for_pte[1024];
 
 int char_count;
 char pte_data[23][80];

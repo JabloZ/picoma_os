@@ -111,6 +111,9 @@ int return_command_num(char* str_cmd){
     if (strcmp(str_cmd,"mkd",3)==1){
         return 6;
     }
+    if (strcmp(str_cmd,"rmv",3)==1){
+        return 7;
+    }
 }
 void handler_irq_1(){
     uint8_t scancode = inb(0x60);
@@ -338,7 +341,7 @@ void handler_irq_1(){
 									
                                     for (int column=0; column<80; column++){
                                         if (count_bytes==512){
-                                            fdc_write_sector(0,sector_to_write,&newbuf,0,sector_write);
+                                            fdc_write_sector(0,sector_to_write,newbuf,0,sector_write);
                                             
                                             sector_to_write++;
                                             //memset(&newbuf,0,512);
@@ -380,15 +383,19 @@ void handler_irq_1(){
                                                         pte_data[i2][j2]=0;
                                                     }
                                                 }
-                                                memset(g_cmd_str, 0, 1000);
-                                                memset(global_command, 0, 1024);
+                                                
                                                 global_command_num=0;
                                                 if (pte_mode==0){
                                                     printf("\n~/%s>",global_cmd_prefix);
                                                 }
                                                 //memset(pte_buf,0,512);
                                                 
-                                                change_file_entry_opo(file_opened,count_size,lba_of_filedir);
+                                                memset(g_cmd_str, 0, 1000);
+                                                memset(global_command, 0, 1024);
+                                                file_entry save_f;
+                                                file_entry file_e;
+                                                int score=return_file_entry_with_name(save_path_for_pte,&save_f,&file_e);
+                                                change_file_entry_opo(file_opened,count_size,score);
                                                 return;
                                                 break;
                                             }
@@ -398,8 +405,10 @@ void handler_irq_1(){
                                     }
                                     
                                 }
-                                fdc_write_sector(0,sector_to_write,newbuf,0,sector_write);
-                                 change_file_entry_opo(file_opened,count_size,lba_of_filedir);
+                                file_entry save_f;
+                                file_entry file_e;
+                                int score=return_file_entry_with_name(save_path_for_pte,&save_f,&file_e);
+                                change_file_entry_opo(file_opened,count_size,score);
 
                                 
                             }
@@ -613,6 +622,7 @@ void left_arrow_func(){
 
 
 int return_file_entry(int i, file_entry* save_f, file_entry* file_e){
+            
                 if (g_cmd_str[i][0]=='/'){
                     //printf("\n\n");
                     int count_elements=0;
@@ -640,8 +650,16 @@ int return_file_entry(int i, file_entry* save_f, file_entry* file_e){
                     
                     int count=0;
                     
-                    find_file_opo(0,path,&root_dir,save_f,file_e,&lba_of_filedir)==false;
-                    count=lba_of_filedir;
+                    find_file_opo(0,path,&root_dir,save_f,file_e,&lba_of_filedir);
+                     if (strcmp(path,".",1)==1 || strchr(path,'/')==NULL){
+                        lba_of_filedir=root_dir.lba_first;
+                        count=root_dir.lba_first;
+                    }else{
+                        
+                        count=lba_of_filedir;
+                    }
+                    
+                    //printf("count: %d\n",count);
                     return count;
                     
                 }
@@ -661,12 +679,72 @@ int return_file_entry(int i, file_entry* save_f, file_entry* file_e){
                     int count=0;
                     find_file_opo(0,path,&root_dir,save_f,file_e,&lba_of_filedir);
                     count=lba_of_filedir;
+                    if (strcmp(path,".",1)==1 || strchr(path,'/')==NULL){
+                        lba_of_filedir=root_dir.lba_first;
+                        count=root_dir.lba_first;
+                    }else{
+                        
+                        count=lba_of_filedir;
+                    }
                     return count;
                     
                 }
                 
 }
+int return_file_entry_with_name(char* name, file_entry* save_f, file_entry* file_e){
+            
+                if (name[0]=='/'){
+                    //printf("\n\n");
+                    int count_elements=0;
+                    for (int j=0; j<strlen(name)-1;j++){
+                        if (name[j]=='/'){
+                        count_elements++;
+                        }
+                    }
+                    count_elements+=(elements_in_prefix-1);
+                    char path[(15*(count_elements+1))+(count_elements+1)];
+                    char path_c[strlen(name)+strlen(global_cmd_prefix)+1];
+                    memset(path,' ',(15*(count_elements+1))+(count_elements+1));
+                    memset(path_c,' ',strlen(name)+strlen(global_cmd_prefix)+1);
 
+                    for (int j=0; j<strlen(global_cmd_prefix); j++){ //prefix loop
+                        path_c[j]=global_cmd_prefix[j];
+                    }
+                    int iter=0;
+                    for (int j=strlen(global_cmd_prefix);j<strlen(path_c);j++){
+                        path_c[j]=name[iter];
+                        iter++;
+                    }
+                    path_c[strlen(path_c)]='\0';
+                    opo_path_formatter(path_c, path, count_elements);
+                    
+                    int count=0;
+                    
+                    find_file_opo(0,path,&root_dir,save_f,file_e,&lba_of_filedir)==false;
+                    count=lba_of_filedir;
+                    return count;
+                    
+                }
+                else{
+               
+                    //printf("\n\n");
+                    int count_elements=0;
+                    for (int j=0; j<strlen(name)-1;j++){
+                        if (name[j]=='/'){
+                        count_elements++;
+                        }
+                    }
+                    char path[(15*(count_elements+1))+(count_elements+1)];
+                    memset(path,' ',(15*(count_elements+1))+(count_elements+1));
+                    
+                    opo_path_formatter(name, path, count_elements);
+                    int count=0;
+                    find_file_opo(0,path,&root_dir,save_f,file_e,&lba_of_filedir);
+                    count=lba_of_filedir;
+                    return count;
+                    
+                }
+}
 
 
 int recognize_command(char* command){
@@ -705,6 +783,10 @@ int execute_or_recognize_command(){
                 break;
             case 1: {//la 'dir' - list all from dir
                 //STRING FORMATTING : ONLY FOR DIRECTORIES FOR NOW 
+                if (strlen_not_space(g_cmd_str[i])==0){
+                    printf("\nToo few arguments.\n");
+                    break;
+                }
                 printf("\n\n");
                 if (strlen(g_cmd_str[i])==0){
                     break;
@@ -748,8 +830,9 @@ int execute_or_recognize_command(){
                         
                         if (name[0]!=0){
                             uint32_t size=(int)buf[(i*32)+1+15]<<0 | (int)buf[(i*32)+2+15]<<8 | (int)buf[(i*32)+3+15]<<16 | (int)buf[(i*32)+4+15]<<24;
+                            uint32_t lba=(int)buf[(i*32)+5+15]<<0 | (int)buf[(i*32)+6+15]<<8 | (int)buf[(i*32)+7+15]<<16 | (int)buf[(i*32)+8+15]<<24;
                             //printf("size1: %d size2: %d size3: %d size4: %d",buf[i*32+1+15]<<0,buf[i*32+2+15],buf[i*32+3+15]<<16,buf[i*32+4+15]<<24);
-                            printf("%s | %d \n",name,size);
+                            printf("%s | lba: %d | size: %d \n",name,lba,size);
                         }
                         memset(name, 0, 16);
                     }
@@ -760,7 +843,10 @@ int execute_or_recognize_command(){
                 memset(&save_f, 0, sizeof(save_f));
                 break;} 
             case 2:{ //pf
-
+                 if (strlen_not_space(g_cmd_str[i])==0){
+                    printf("\nToo few arguments.\n");
+                    break;
+                }
 
         
                 printf("\n");
@@ -788,7 +874,10 @@ int execute_or_recognize_command(){
 
                 break;}
             case 3:{//cd
-                
+                if (strlen_not_space(g_cmd_str[i])==0){
+                    printf("\nToo few arguments.\n");
+                    break;
+                }
                 if (g_cmd_str[i][0]=='.' && '.'==g_cmd_str[i][1]){
                     for (int n=strlen(global_cmd_prefix)-1;n>=0; n--){
                         if (global_cmd_prefix[n]=='/'){
@@ -817,24 +906,21 @@ int execute_or_recognize_command(){
                 break;
             }
             case 4:{ //pte (text editor)
-                if (strlen(g_cmd_str[i])==0){
-                    printf("\nError: input empty\n");
+                 if (strlen_not_space(g_cmd_str[i])==0){
+                    printf("Too few arguments.\n");
                     break;
                 }
-                int count_elements=0;
-                for (int j=0; j<strlen(g_cmd_str[i])-1;j++){
-                    if (g_cmd_str[i][j]=='/'){
-                    count_elements++;
-                    }
-                }
-                char path[(15*(count_elements+1))+(count_elements+1)];
-               
-                memset(path,' ',(15*(count_elements+1))+(count_elements+1));
-                
-                file_entry file_e;
+               int lba;
                 file_entry save_f;
-
-                return_file_entry(i, &save_f, &file_e);
+                file_entry file_e;
+                lba=return_file_entry(i,&save_f, &file_e);
+                if (strcmp(g_cmd_str[i],".",1)==1){
+                    file_e=root_dir;
+                }
+                char path[16];
+                char path_new[16];
+                strcpy(path,g_cmd_str[i+1]);
+                opo_path_formatter(path, path_new,1);
                 //printf("git");
                 //printf("file_e size: %d",file_e.size);
 
@@ -891,7 +977,7 @@ int execute_or_recognize_command(){
                     update_cursor(video_x,video_y);
 
                 }
-
+                strcpy(save_path_for_pte,g_cmd_str[i]);
                 memset(&file_e, 0, sizeof(file_e));
                 memset(&save_f, 0, sizeof(save_f));
                 strcpy(g_cmd_str[i],"");
@@ -902,6 +988,10 @@ int execute_or_recognize_command(){
                 break;
             }
             case 5:{ //mkf
+                if (strlen_not_space(g_cmd_str[i])==0){
+                    printf("\nToo few arguments.\n");
+                    break;
+                }
                 int lba;
                 file_entry save_f;
                 file_entry file_e;
@@ -914,10 +1004,14 @@ int execute_or_recognize_command(){
                 strcpy(path,g_cmd_str[i+1]);
                 opo_path_formatter(path, path_new,1);
                 
-                create_file_opofs(&file_e,file_e.lba_first,path_new,find_free_sectors_in_disk(512),0,0,0);
+                create_file_opofs(&file_e,file_e.lba_first,path_new,find_free_sectors_in_disk(0),0,0,0);
                 break;
             }
             case 6:{ //mkd
+                if (strlen_not_space(g_cmd_str[i])==0){
+                    printf("\nToo few arguments.\n");
+                    break;
+                }
                 int lba;
                 file_entry save_f;
                 file_entry file_e;
@@ -931,6 +1025,21 @@ int execute_or_recognize_command(){
                 opo_path_formatter(path, path_new,1);
                 
                 create_file_opofs(&file_e,file_e.lba_first,path_new,find_free_sectors_in_disk(512),512,0,1);
+                break;
+            }
+            case 7:{
+                if (strlen_not_space(g_cmd_str[i])==0){
+                    printf("\nToo few arguments.\n");
+                    break;
+                }
+                file_entry save_f;
+                file_entry file_e;
+                int lba=return_file_entry(i,&save_f, &file_e);
+                if (strcmp(g_cmd_str[i],".",1)==1){
+                    file_e=root_dir;
+                }
+               
+                delete_file_or_dir(&file_e,lba);
                 break;
             }
             default:
