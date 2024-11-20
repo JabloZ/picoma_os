@@ -437,26 +437,79 @@ void handler_irq_1(){
                         if (video_y==2 && video_x==0){
                             break;
                         }
+                        if (video_x==0){
+                               if(video_y==2){
+                                if (top_cursor==0 && video_y==2){
+                                    break;
+                                }   
+                                top_cursor--;
+                                refresh_based_on_pte_global(top_cursor);
+                                video_y=2;
+                                video_x=0;
+                                update_cursor(video_x, video_y);
+                                break;
+                                }
+                            
+                            //video_y--;
+                                int save_vid_x=video_x;
+                                int save_vid_y=video_y;
+                                while(!(video_y==save_vid_y-1 && save_vid_x==video_x)){
+                                if (video_x==0){
+                                        video_x=79;
+                                        video_y--;
+                                }
+                                else{
+                                        video_x--;
+                                }
+                                if (pte_data[video_y-2][video_x]!=0){
+                                        global_cursor--;
+                                        update_cursor(video_x,video_y);
+                                }
+                            }
+                        video_x=0;
+                        
+                         while (video_x!=79){
+                            if (pte_data[video_y-2][video_x]==0){
+                                video_x++;
+                                update_cursor(video_x,video_y);
+                                break;
+                            }
+                            video_x--;
+                        }
+                        break;
+                        }
                         else{
                             int og_y=video_y;
                             while (!(video_y==2 && video_x==0)){
                                 if (pte_data[video_y-2][video_x-1]!=0){
                                     
 									if (og_y==video_y){
-                                        pte_data[video_y-2][video_x]=0;
+                                        //pte_data[video_y-2][video_x]=0;
                                        
                                         //pte_saved_data[global_cursor-1]=0;
+                                        
+                                        
                                         move_to_left(global_cursor);
-                                         global_cursor--;
-									    remove_char(video_x,video_y);
-                                        //printf("enter removed");
+                                        global_cursor--;
+                                        int save_vid_x=video_x;
+                                        int save_vid_y=video_y;
+                                        refresh_based_on_pte_global(top_cursor);
+                                        video_x=save_vid_x-1;
+                                        video_y=save_vid_y;
+                                        update_cursor(video_x,video_y);
                                         break;
                                     }
                                     //update_cursor(video_x, video_y);
                                     //pte_saved_data[global_cursor-1]=0;
-                                    move_to_left(global_cursor);
-                                    global_cursor--;
-                                    
+                                  
+                                        move_to_left(global_cursor);
+                                        global_cursor--;
+                                        int save_vid_x=video_x;
+                                        int save_vid_y=video_y;
+                                        refresh_based_on_pte_global(top_cursor);
+                                        video_x=save_vid_x-1;
+                                        video_y=save_vid_y;
+                                        update_cursor(video_x,video_y);
                                     break;
                                 }
                                 else{ 
@@ -520,17 +573,40 @@ void handler_irq_1(){
                             break;
                         }
                        
-                       video_y--;
-                       if (pte_data[video_y-2][video_x]==0){
-                            left_arrow_func();
+                       //video_y--;
+                       int save_vid_x=video_x;
+                       int save_vid_y=video_y;
+                       while(!(video_y==save_vid_y-1 && save_vid_x==video_x)){
+                            if (video_x==0){
+                                video_x=79;
+                                video_y--;
+                            }
+                            else{
+                                video_x--;
+                            }
+                            if (pte_data[video_y-2][video_x]!=0){
+                                global_cursor--;
+                                update_cursor(video_x,video_y);
+                            }
                        }
+                         while (video_x!=0){
+                            if (pte_data[video_y-2][video_x]!=0){
+                                video_x++;
+                                update_cursor(video_x,video_y);
+                                break;
+                            }
+                            video_x--;
+                        }
+                       //left_arrow_func();
+                    
                     }
                     
-                     update_cursor(video_x,video_y);
+                    // update_cursor(video_x,video_y);
                     break;
                     
                     
                 case 0x4B: //left arrow
+                
                     left_arrow_func();
 
                     break;
@@ -555,13 +631,35 @@ void handler_irq_1(){
                             
                             break;
                         }
-                       video_y++;
-                       if (pte_data[video_y-2][video_x]==0){
-                            right_arrow_func();
-                       }
+                        int save_vid_x=video_x;
+                        int save_vid_y=video_y;
+                        while(!(video_y==save_vid_y+1 && save_vid_x==video_x)){
+                                if (video_x==79){
+                                    video_x=0;
+                                    video_y++;
+                                }
+                                else{
+                                    video_x++;
+                                }
+                                if (pte_data[video_y-2][video_x]!=0){
+                                    global_cursor++;
+                                    update_cursor(video_x,video_y);
+                                    
+                                }
+                        }
+                        if (pte_data[video_y-2][video_x]==0){
+                        while (video_x!=0){
+                            if (pte_data[video_y-2][video_x]!=0){
+                                video_x--;
+                                update_cursor(video_x,video_y);
+                                break;
+                            }
+                            video_x--;
+                        }}
+                        //right_arrow_func();
                         
                     }
-                   update_cursor(video_x,video_y);
+                   //update_cursor(video_x,video_y);
                     break;
             }
         }
@@ -591,25 +689,16 @@ int only_null_until_end_of_file(int x, int y){
 int move_to_left(int cur){
     uint8_t buf_one;
     uint8_t buf_two;
-    if (video_x==1){
-        return 0;
-    }
+    
     uint8_t* glob_vid_adr=0xC00B8000+(160*video_y)+(cur-1)*2;
-    for (int i=cur-1; i<=strlen(pte_saved_data)-1; i++){
+    for (int i=cur-1; i<strlen(pte_saved_data); i++){
         pte_saved_data[i]=pte_saved_data[i+1];
         //printf("tried moving :%d to %d",i, i-1);
     }
-    for (int i=cur-1;i<=78; i++){
-        pte_data[video_y-2][i]=pte_data[video_y-2][i+1];
-        //glob_vid_adr+=2;
-        //*glob_vid_adr=pte_data[video_y-2][i+1];
-        
-    }
-    //printf("p: %s|",pte_saved_data);
 }
 
 void right_arrow_func(){
-	 int og_x=video_x;
+	    int og_x=video_x;
          int og_y = video_y;
          
          if (video_x == 79) {
@@ -618,13 +707,19 @@ void right_arrow_func(){
          } else {
            video_x++;
          }
-		 
-         if (pte_data[video_y - 2][video_x] == 0) {
+        if (pte_data[video_y-2][video_x]!=0 && pte_data[og_y-2][og_x]!=0){
+            update_cursor(video_x, video_y);
+            global_cursor++;
+            return;
+        }
+         if (!(pte_data[video_y - 2][video_x] == 0 && pte_data[og_y-2][og_x] != 0)) {
            while (!(video_y == 24 && video_x == 79)) {
-             if (!(pte_data[video_y - 2][video_x] == 0 || pte_data[video_y - 2][video_x] == '\n')) {
+             if (!(pte_data[video_y - 2][video_x] == 0)) {
+                //video_x++;
                update_cursor(video_x, video_y);
-                global_cursor++;
-               return;
+                //global_cursor++;
+               
+               break;
              } else {
                if (video_x == 79) {
                  video_y++;
@@ -638,10 +733,12 @@ void right_arrow_func(){
            }
            video_x = og_x;
            video_y = og_y;
-           update_cursor(og_x, og_y);
+           update_cursor(video_x, video_y);
+           global_cursor++;
          }else{
+           
             update_cursor(video_x, video_y);
-            global_cursor++;
+            //global_cursor++;
          }
         
          
@@ -653,19 +750,25 @@ void left_arrow_func(){
           if (video_y==2 && video_x==0){
         return;
     }
+     int og_x=video_x;
+         int og_y = video_y;
       if (video_x == 0) {
         video_y--;
         video_x = 79;
       } else {
         video_x--;
       }
-   
+        if (pte_data[video_y-2][video_x]!=0 && pte_data[og_y-2][og_x]!=0){
+            update_cursor(video_x,video_y);
+            global_cursor--;
+            return;
+        }
       if (pte_data[video_y - 2][video_x] == 0) {
         while (!(video_y == 2 && video_x == 0)) {
           if (pte_data[video_y - 2][video_x] != 0) {
             update_cursor(video_x, video_y);
-             global_cursor--;
-            return;
+            
+            break;
           } else {
             if (video_x == 0) {
               video_y--;
@@ -677,8 +780,12 @@ void left_arrow_func(){
           }
          
         }
+            video_x = og_x;
+           video_y = og_y;
+           update_cursor(video_x, video_y);
+           global_cursor--;
       }else{
-        global_cursor--;
+        //global_cursor--;
           
       update_cursor(video_x, video_y);
       }
