@@ -22,6 +22,7 @@ int save_cursor_x;
 int save_cursor_y;
 uint8_t save_path_for_pte[1024];
 
+int global_page_opened_file;
 int char_count;
 char pte_data[23][80];
 int lba_of_filedir;
@@ -29,3 +30,7 @@ int return_command_num(char* str);
 
 void left_arrow_func();
 void right_arrow_func();
+uint8_t* pte_saved_data;
+uint32_t global_cursor;
+uint32_t top_cursor;
+uint32_t size_of_file;

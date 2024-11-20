@@ -163,6 +163,7 @@ void memory_free(void* mem){
             block=blocks[i];
         }
     }
+    
     mark_lower_used_blocks(block, 0);
     block->used=0;
     block->memory_ptr=NULL;

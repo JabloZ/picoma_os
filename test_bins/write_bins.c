@@ -14,7 +14,7 @@ int main() {
     file_entry entry = {
         .filename = "example     txt",
         .is_dir = 0,
-        .size = 512,
+        .size = 1000,
         .lba_first = 990,
         .reserved = {0}
     };

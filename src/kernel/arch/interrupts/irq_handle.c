@@ -271,9 +271,11 @@ void handler_irq_1(){
                     if ((pte_cmd_mode==1 && pte_mode==1)||(pte_mode==0 && pte_cmd_mode==0)){
                         global_command[global_command_num]=(int)pressed[0]+32;
                         global_command_num++;
+                        
                     }
                     else if (pte_cmd_mode==0 && pte_mode==1){
-                        
+                         pte_saved_data[global_cursor]=(int)pressed[0]+32;
+                        global_cursor++;
                         pte_data[video_y-2][video_x-1]=(int)pressed[0]+32;
                         char_count++;
                     }
@@ -285,6 +287,8 @@ void handler_irq_1(){
                     global_command_num++;
 					}
 					else if (pte_cmd_mode==0 && pte_mode==1){
+                         pte_saved_data[global_cursor]=(int)pressed[0];
+                        global_cursor++;
                         pte_data[video_y-2][video_x-1]=(int)pressed[0];
                         char_count++;
                     }
@@ -302,6 +306,8 @@ void handler_irq_1(){
                 }
                 else if (pte_cmd_mode==0 && pte_mode==1){
                     pte_data[video_y-2][video_x-1]=(int)pressed[0]+32;
+                    pte_saved_data[global_cursor]=(int)pressed[0]+32;
+                    global_cursor++;
                     char_count++;
                 }
                 
@@ -316,8 +322,9 @@ void handler_irq_1(){
 					shift_pressed=1;
 					break;
 				case 28: //enter
+                    
                     if (pte_mode==1 && pte_cmd_mode==1){
-                      
+                       
                         if (global_command[0]=='q'){
                            // pte_data[video_y][video_x]='\0';
                             pte_mode=0;
@@ -337,79 +344,31 @@ void handler_irq_1(){
                             }
                             if (global_command[1]=='s'){
                                 printf("\n");
-                                for (int row=0; row<23;row++){
-									
-                                    for (int column=0; column<80; column++){
-                                        if (count_bytes==512){
-                                            fdc_write_sector(0,sector_to_write,newbuf,0,sector_write);
-                                            
-                                            sector_to_write++;
-                                            //memset(&newbuf,0,512);
-                                            for (int z=0; z<512; z++){
-                                                newbuf[z]=0;
-                                            }
-                                            count_bytes=0;
-                                            
-                                        }
-                                        if (pte_data[row][column]!=0){
-                                           
-                                            //printf("%c",pte_data[row][column]);
-										    newbuf[count_bytes]=pte_data[row][column];
-                                            count_bytes++;
-                                            count_size++;
-                                        }
-										else{
-                                            if (only_null_until_end(row,column)==1 && only_null_until_end_of_file(row,column)!=1){
-                                               
-                                                newbuf[count_bytes]='\n';
-                                                row++;
-                                                column=0;
-                                                count_bytes++;
-                                                count_size++;
-                                            }
-                                            else{
-                                                row++;
-                                                column=0;
-                                            }
-
-                                            if (only_null_until_end_of_file(row,column)==1){
-                                                
-                                                fdc_write_sector(0,sector_to_write,newbuf,0,sector_write);
-                                               
-                                                recognize_command(global_command);
-                                                execute_or_recognize_command();
-                                                for (int i2=0; i2<23; i2++){
-                                                    for (int j2=0; j2<80; j2++){
-                                                        pte_data[i2][j2]=0;
-                                                    }
-                                                }
-                                                
-                                                global_command_num=0;
-                                                if (pte_mode==0){
-                                                    printf("\n~/%s>",global_cmd_prefix);
-                                                }
-                                                //memset(pte_buf,0,512);
-                                                
-                                                memset(g_cmd_str, 0, 1000);
-                                                memset(global_command, 0, 1024);
-                                                file_entry save_f;
-                                                file_entry file_e;
-                                                int score=return_file_entry_with_name(save_path_for_pte,&save_f,&file_e);
-                                                change_file_entry_opo(file_opened,count_size,score);
-                                                return;
-                                                break;
-                                            }
-											
-										}
-                                        
+                                
+                                for (int i=0; i<strlen(pte_saved_data)-1; i++){
+                                    newbuf[i]=pte_saved_data[i];
+                                    count_bytes++;
+                                    count_size++;
+                                    if (count_bytes==512){
+                                        fdc_write_sector(0,sector_to_write,newbuf,0,sector_write);
+                                        sector_to_write++;
+                                        count_bytes=0;
+                                        memset(newbuf,0,512);
                                     }
-                                    
                                 }
+                               
                                 file_entry save_f;
                                 file_entry file_e;
+                                fdc_write_sector(0,sector_to_write,newbuf,0,sector_write);
+                                
                                 int score=return_file_entry_with_name(save_path_for_pte,&save_f,&file_e);
+                                
                                 change_file_entry_opo(file_opened,count_size,score);
-
+                                
+                                memory_free(pte_saved_data);
+                                global_cursor=0;
+                                top_cursor=0;
+                                break;
                                 
                             }
                         }
@@ -427,11 +386,37 @@ void handler_irq_1(){
                     if (pte_cmd_mode==0 && pte_mode==1){
                         //printf("\n");
                         //video_x++;
-                        //pte_data[video_y-2][video_x]='\n';
-                        video_y++;
-                        video_x=0;
-                        update_cursor(video_x, video_y);
+                        //
+                        
+                        if (video_y==24){
+                            
+                            top_cursor++;
+                            //pte_saved_data[global_cursor]='\n';
+                             //video_y=24;
+                            //video_x=0;
+                            //pte_data[video_y-2][video_x]='\n';
+                           
+                            refresh_based_on_pte_global(top_cursor);
+                            
+                             pte_saved_data[global_cursor]='\n';
+                              global_cursor++;
+                            video_x=0;
+                            video_y=24;
+                            update_cursor(video_x,video_y);
+                            //update_cursor(video_x,video_y);
+                            //int g=count_line_starting_point(top_cursor);
+                            //printf("g: %d",g);
+                            break;
+                        }else{
+                            
+                            pte_saved_data[global_cursor]='\n';
+                            global_cursor++;
+                            video_y++;
+                            video_x=0;
+                            update_cursor(video_x, video_y);
                         break;
+                        }
+                       
                         
                     }
                    
@@ -459,13 +444,24 @@ void handler_irq_1(){
                                     
 									if (og_y==video_y){
                                         pte_data[video_y-2][video_x]=0;
+                                       
+                                        //pte_saved_data[global_cursor-1]=0;
+                                        move_to_left(global_cursor);
+                                         global_cursor--;
 									    remove_char(video_x,video_y);
+                                        //printf("enter removed");
+                                        break;
                                     }
                                     //update_cursor(video_x, video_y);
+                                    //pte_saved_data[global_cursor-1]=0;
+                                    move_to_left(global_cursor);
+                                    global_cursor--;
                                     
                                     break;
                                 }
                                 else{ 
+                                    //global_cursor--;
+                                   
                                     remove_char(video_x,video_y);             
                                 }
                             }
@@ -491,7 +487,8 @@ void handler_irq_1(){
                     break;
                 case 57:
                     if (pte_mode==1 && pte_cmd_mode==0){
-                        
+                        pte_saved_data[global_cursor]=' ';
+                        global_cursor++;
                         pte_data[video_y-2][video_x]=' ';
                         printf(" ");
                         update_cursor(video_x, video_y);
@@ -509,35 +506,69 @@ void handler_irq_1(){
                     
                     break;
                 case 0x48: //up arrow
-                    if (video_y!=2 && pte_data[video_y-2-1][video_x]!=0){
-                        video_y--;
-                        update_cursor(video_x, video_y);
-                        //left_arrow_func();
-                    }
-                    else if(video_y!=2 && pte_data[video_y-2][video_x]!=0){
-                        video_y--;
-                        video_x=80;
-                        left_arrow_func();
+                    
+                   if ((pte_mode==1 && pte_cmd_mode==0 )|| (pte_mode==0 && pte_cmd_mode==0)){
+                        if(video_y==2){
+                            if (top_cursor==0 && video_y==2){
+                                break;
+                            }
+                            top_cursor--;
+                            refresh_based_on_pte_global(top_cursor);
+                            video_y=2;
+                            video_x=0;
+                            update_cursor(video_x, video_y);
+                            break;
+                        }
+                       
+                       video_y--;
+                       if (pte_data[video_y-2][video_x]==0){
+                            left_arrow_func();
+                       }
                     }
                     
+                     update_cursor(video_x,video_y);
                     break;
+                    
+                    
                 case 0x4B: //left arrow
                     left_arrow_func();
 
                     break;
                 case 0x4D: //right arrow
+                    
                     right_arrow_func();    
 					break;
                 case 0x50: //down arrow
-                    if ((pte_mode==1 && pte_cmd_mode==0 )|| (pte_mode==0)){
-
+                    
+                    if ((pte_mode==1 && pte_cmd_mode==0 )|| (pte_mode==0 && pte_cmd_mode==0)){
+                        int count=count_file_lines();
+                        
+                          if (count-22-top_cursor-1<0){
+                                
+                                break;
+                            }
+                        if(video_y==24){
+                            
+                          
+                            top_cursor++;
+                            refresh_based_on_pte_global(top_cursor);
+                            
+                            break;
+                        }
+                       video_y++;
+                       if (pte_data[video_y-2][video_x]==0){
+                            right_arrow_func();
+                       }
+                        
                     }
+                   update_cursor(video_x,video_y);
                     break;
             }
         }
     }
     pic_send_eoi(1);
 }
+
 int only_null_until_end(int x, int y){
       for (int column = y; column < 80; column++) {
         if (pte_data[x][column] != 0) {
@@ -557,10 +588,30 @@ int only_null_until_end_of_file(int x, int y){
     return 1;
 }
 
+int move_to_left(int cur){
+    uint8_t buf_one;
+    uint8_t buf_two;
+    if (video_x==1){
+        return 0;
+    }
+    uint8_t* glob_vid_adr=0xC00B8000+(160*video_y)+(cur-1)*2;
+    for (int i=cur-1; i<=strlen(pte_saved_data)-1; i++){
+        pte_saved_data[i]=pte_saved_data[i+1];
+        //printf("tried moving :%d to %d",i, i-1);
+    }
+    for (int i=cur-1;i<=78; i++){
+        pte_data[video_y-2][i]=pte_data[video_y-2][i+1];
+        //glob_vid_adr+=2;
+        //*glob_vid_adr=pte_data[video_y-2][i+1];
+        
+    }
+    //printf("p: %s|",pte_saved_data);
+}
 
 void right_arrow_func(){
 	 int og_x=video_x;
          int og_y = video_y;
+         
          if (video_x == 79) {
            video_y++;
            video_x = 0;
@@ -572,6 +623,7 @@ void right_arrow_func(){
            while (!(video_y == 24 && video_x == 79)) {
              if (!(pte_data[video_y - 2][video_x] == 0 || pte_data[video_y - 2][video_x] == '\n')) {
                update_cursor(video_x, video_y);
+                global_cursor++;
                return;
              } else {
                if (video_x == 79) {
@@ -580,30 +632,40 @@ void right_arrow_func(){
                } else {
                  video_x++;
                }
+               
              }
+             
            }
            video_x = og_x;
            video_y = og_y;
            update_cursor(og_x, og_y);
+         }else{
+            update_cursor(video_x, video_y);
+            global_cursor++;
          }
-         update_cursor(video_x, video_y);
+        
+         
+         //printf("glob: %d",global_cursor);
 }
 
 void left_arrow_func(){
     if ((pte_mode==1 && pte_cmd_mode==0 )|| (pte_mode==0)){
+          if (video_y==2 && video_x==0){
+        return;
+    }
       if (video_x == 0) {
         video_y--;
         video_x = 79;
       } else {
         video_x--;
       }
-		
+   
       if (pte_data[video_y - 2][video_x] == 0) {
-        while (video_y != 2 && video_x != 0) {
+        while (!(video_y == 2 && video_x == 0)) {
           if (pte_data[video_y - 2][video_x] != 0) {
             update_cursor(video_x, video_y);
-
-            break;
+             global_cursor--;
+            return;
           } else {
             if (video_x == 0) {
               video_y--;
@@ -611,10 +673,16 @@ void left_arrow_func(){
             } else {
               video_x--;
             }
+            
           }
+         
         }
-      }
+      }else{
+        global_cursor--;
+          
       update_cursor(video_x, video_y);
+      }
+    
     }
 }
 
@@ -774,6 +842,16 @@ int recognize_command(char* command){
 
     }
 }
+int move_line_down(){
+    uint8_t top[80];
+    uint8_t bot[80];
+    for (int i=2; i<25; i++){
+        for (int j=0; j<80; j++){
+
+        }
+    }
+}
+
 
 int execute_or_recognize_command(){
     
@@ -814,33 +892,33 @@ int execute_or_recognize_command(){
                 else{
                     max_j=(file_e.size/512)+1;
                 }
-             
                 
-                unsigned char* buf=mem_allocate(max_j*512);
+                uint8_t* buf=mem_allocate(max_j*512);
                 char name[16];
-                
                 for (int j=0; j<max_j; j++){
                   
                     fdc_read_sector(0,file_e.lba_first+j, buf,0,sector_read);
-                    for (int i=0; i<16; i++){
+                    for (int x=0; x<16; x++){
                         for (int z=0; z<15; z++){
-                            name[z]=(char)buf[(i*32)+z];
+                            name[z]=(char)buf[(x*32)+z];
                         }
                         name[15]='\0';
                         
                         if (name[0]!=0){
-                            uint32_t size=(int)buf[(i*32)+1+15]<<0 | (int)buf[(i*32)+2+15]<<8 | (int)buf[(i*32)+3+15]<<16 | (int)buf[(i*32)+4+15]<<24;
-                            uint32_t lba=(int)buf[(i*32)+5+15]<<0 | (int)buf[(i*32)+6+15]<<8 | (int)buf[(i*32)+7+15]<<16 | (int)buf[(i*32)+8+15]<<24;
+                            uint32_t size=(int)buf[(x*32)+1+15]<<0 | (int)buf[(x*32)+2+15]<<8 | (int)buf[(x*32)+3+15]<<16 | (int)buf[(x*32)+4+15]<<24;
+                            uint32_t lba=(int)buf[(x*32)+5+15]<<0 | (int)buf[(x*32)+6+15]<<8 | (int)buf[(x*32)+7+15]<<16 | (int)buf[(x*32)+8+15]<<24;
                             //printf("size1: %d size2: %d size3: %d size4: %d",buf[i*32+1+15]<<0,buf[i*32+2+15],buf[i*32+3+15]<<16,buf[i*32+4+15]<<24);
                             printf("%s | lba: %d | size: %d \n",name,lba,size);
                         }
                         memset(name, 0, 16);
                     }
                 }
+                
                 memory_free(buf);
+                
                 memset(name,0,16);
-                memset(&file_e, 0, sizeof(file_e));
-                memset(&save_f, 0, sizeof(save_f));
+                //memset(&file_e, 0, sizeof(file_e));
+                //memset(&save_f, 0, sizeof(save_f));
                 break;} 
             case 2:{ //pf
                  if (strlen_not_space(g_cmd_str[i])==0){
@@ -910,6 +988,9 @@ int execute_or_recognize_command(){
                     printf("Too few arguments.\n");
                     break;
                 }
+               
+               top_cursor=0;
+                global_cursor=0;
                int lba;
                 file_entry save_f;
                 file_entry file_e;
@@ -949,27 +1030,23 @@ int execute_or_recognize_command(){
                         pte_data[x][y]=0;
                     }
                 }
+                if (file_e.size<4096){
+                    pte_saved_data=mem_allocate(4096);
+                    size_of_file=4096;
+                }else{
+                    pte_saved_data=mem_allocate(file_e.size);
+                    size_of_file=((file_e.size/4096)+1)*4096;
+                }
+
                 if (file_e.size!=0){
 
                     for (int c=0; c<file_e.size; c++){
-                        
-                        printf("%c",pte_buf[c]);
-                        if (pte_buf[c]!='\n'){
-                        pte_data[y_pte][x_pte]=pte_buf[c];}
-                        else{
-                            y_pte++;
-                            x_pte=0;
+                        pte_saved_data[c]=pte_buf[c];
+                        global_cursor++;
 
-                        }
-                        if (x_pte==79){
-                            y_pte++;
-                            x_pte=0;
-                        }
-                        else{
-                            x_pte++;
-                        }
-                    }
                  //remove_char(video_x, video_y);
+                    }
+                    refresh_based_on_pte_global(0);
                 }
                 else{
                     video_x=0;
@@ -977,6 +1054,7 @@ int execute_or_recognize_command(){
                     update_cursor(video_x,video_y);
 
                 }
+                //memory_free(pte_saved_data);
                 strcpy(save_path_for_pte,g_cmd_str[i]);
                 memset(&file_e, 0, sizeof(file_e));
                 memset(&save_f, 0, sizeof(save_f));

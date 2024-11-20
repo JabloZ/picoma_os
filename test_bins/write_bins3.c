@@ -11,18 +11,21 @@ typedef struct {
 
 int main() {
     
-    uint8_t buf[512];
-    for (int i=0; i<512; i++){
+    uint8_t buf[1000];
+    for (int i=0; i<1000; i++){
         buf[i]='z';
+        if (i>1000){
+            buf[i]='x';
+        }
+        if ((i+1)%128==0){
+            buf[i]='\n';
+        }
     }
-    buf[255]='\n';
-    buf[127]='\n';
-    buf[383]='\n';
     
     FILE* file = fopen("file_entry3.bin", "wb");
     if (file != NULL) {
         
-        fwrite(&buf,512,1,file);
+        fwrite(&buf,1000,1,file);
         //fwrite(&entry2, sizeof(file_entry), 1, file);
         fclose(file);
         return 0;

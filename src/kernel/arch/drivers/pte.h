@@ -13,3 +13,6 @@ int save_cur_no_cmd_pte_y;
 void setup_pte(struct file_entry* file_e);
 int save_video_memory();
 int8_t saved_mem[2000];
+void refresh_based_on_pte_global(int from_line);
+int count_file_lines();
+int count_line_starting_point();
