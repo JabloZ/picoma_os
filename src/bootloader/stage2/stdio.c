@@ -209,7 +209,36 @@ void printf(const char* fstr, ...){
     
     
 }
-/*
 
+uint64_t __udivdi3(uint64_t n, uint64_t d) {
+    if (d == 0) {
+        return 0;
+    }
 
-*/
+    uint64_t quotient = 0;
+    uint64_t remainder = 0;
+
+    for (int i = 63; i >= 0; i--) {
+     
+        remainder = (remainder << 1) | ((n >> i) & 1);
+        if (remainder >= d) {
+            remainder -= d;
+            quotient |= (1ULL << i);
+        }
+    }
+    return quotient;
+}
+
+uint64_t __umoddi3(uint64_t n, uint64_t d) {
+    if (d == 0) {
+        return 0;
+    }
+    uint64_t remainder = 0;
+    for (int i = 63; i >= 0; i--) {
+        remainder = (remainder << 1) | ((n >> i) & 1);
+        if (remainder >= d) {
+            remainder -= d;
+        }
+    }
+    return remainder;
+}

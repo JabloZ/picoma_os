@@ -1,5 +1,3 @@
-#include "stdint.h"
-#include "x86.h"
 #include "stdio.h"
 
 int8_t* video_buffer = (int8_t *) 0xc00B8000;
@@ -128,14 +126,14 @@ const char g_HexChars[] = "0123456789abcdef";
 
 
 
-void printf_unsigned(unsigned long long number, int radix)
+void printf_unsigned(uint64_t number, int radix)
 {
     char buffer[32];
     int pos = 0;
     do 
     {
-        unsigned long long rem = number % radix;
-        number /= radix;
+        uint64_t rem = __umoddi3(number,radix);
+        number = __udivdi3(number,radix);
         buffer[pos++] = g_HexChars[rem];
     } while (number > 0);
 
@@ -213,7 +211,37 @@ void printf(char* fstr, ...){
     
     
 }
-/*
 
 
-*/
+uint64_t __udivdi3(uint64_t n, uint64_t d) {
+    if (d == 0) {
+        return 0;
+    }
+
+    uint64_t quotient = 0;
+    uint64_t remainder = 0;
+
+    for (int i = 63; i >= 0; i--) {
+     
+        remainder = (remainder << 1) | ((n >> i) & 1);
+        if (remainder >= d) {
+            remainder -= d;
+            quotient |= (1ULL << i);
+        }
+    }
+    return quotient;
+}
+
+uint64_t __umoddi3(uint64_t n, uint64_t d) {
+    if (d == 0) {
+        return 0;
+    }
+    uint64_t remainder = 0;
+    for (int i = 63; i >= 0; i--) {
+        remainder = (remainder << 1) | ((n >> i) & 1);
+        if (remainder >= d) {
+            remainder -= d;
+        }
+    }
+    return remainder;
+}

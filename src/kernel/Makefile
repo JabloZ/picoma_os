@@ -8,7 +8,6 @@ CFLAGS += -I$(SRCDIR)/kernel
 LINK?=ld
 LINKFLAGS?=-T linker.ld -nostdlib -m elf_i386 
  
-LINKLIBS?=/usr/local/i386elfgcc/lib/gcc/i386-elf/12.2.0/libgcc.a
 SOURCES_C=$(shell find . -type f -name  "*.c")
 SOURCES_ASM=$(shell find . -type f -name  "*.asm")
 HEADERS_C=$(shell find . -type f -name  "*.h")
@@ -21,10 +20,12 @@ OBJECTS_ASM=$(patsubst %.asm, $(BUILD_DIR)/kernel/asm/%.o, $(SOURCES_ASM))
 .PHONY: all kernel clean
 all: kernel
 
+
+
 kernel: $(BUILD_DIR)/kernel.bin
 
 $(BUILD_DIR)/kernel.bin: $(OBJECTS_ASM) $(OBJECTS_C)
-	$(LINK) $(LINKFLAGS) -Map=$(BUILD_DIR)/kernel.map -o $@ $^ $(LINKLIBS)
+	$(LINK) $(LINKFLAGS) -o $@ $^
 
 $(BUILD_DIR)/kernel/c/%.o: %.c $(HEADERS_C)
 	@mkdir -p $(dir $@)

@@ -6,7 +6,6 @@ CFLAGS?=-ffreestanding -nostdlib -std=c99 -m32 -fno-pie
 #LINK?=/usr/local/i386elfgcc/bin/i386-elf-ld
 LINK?=i386-elf-ld
 LINKFLAGS?=-T linker.ld -nostdlib -m elf_i386
-LINKLIBS?=/usr/local/i386elfgcc/lib/gcc/i386-elf/12.2.0/libgcc.a
 SOURCES_C=$(shell find . -type f -name  "*.c")
 HEADERS_C=$(shell find . -type f -name  "*.h")
 SOURCES_ASM=$(shell find . -type f -name  "*.asm")
@@ -19,7 +18,7 @@ all: stage2
 stage2: $(BUILD_DIR)/stage2.bin
 
 $(BUILD_DIR)/stage2.bin: $(OBJECTS_ASM) $(OBJECTS_C)
-	$(LINK) $(LINKFLAGS) -Map=$(BUILD_DIR)/stage2.map -o $@ $^ $(LINKLIBS)
+	$(LINK) $(LINKFLAGS) -o $@ $^
 	
 $(BUILD_DIR)/stage2/c/%.o: %.c always
 	$(CC) $(CFLAGS) -c -o $@ $<

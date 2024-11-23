@@ -50,7 +50,7 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
     
     //fdc_write_sector(0,991,&buf,0,sector_write);
     setup_global_file_info_table();
-    printf(">");
+    printf("~/>");
    
     //printf("filetest    txt");
    //create_file_opofs(&root_dir, 3, "filetest.txt", 900,0,0);
