@@ -1,4 +1,4 @@
-#include "../../clibs/stdint.h"
+
 #include "gdt.h"
 
 

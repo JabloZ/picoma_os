@@ -22,4 +22,4 @@ typedef struct {
     memory_region* memory_regions;
     uint32_t region_num;
 } global_mem_info;
-global_mem_info* g_memory_regs_info;
+global_mem_info* g_memory_regs;

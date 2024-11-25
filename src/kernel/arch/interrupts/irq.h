@@ -4,6 +4,7 @@
 #include "idt.h"
 #include "isr.h"
 #include "irq_handle.h"
+#include "../../clibs/stdio.h"
 void enable_interrupts();
 void disable_interrupts();
 

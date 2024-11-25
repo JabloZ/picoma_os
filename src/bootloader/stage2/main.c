@@ -20,7 +20,7 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
    
    
    clear_screen();
-   g_memory_regs_info=NULL;
+   g_memory_regs=NULL;
    DISK disk;
    if (!disk_initialize(&disk, boot_drive)){
       printf("error initializing disk");
@@ -80,7 +80,7 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
       
       KernelStart kernels= (KernelStart)0xc0000000+KERNEL_ADDR_PHYS;
       //__asm__ volatile("hlt;");
-      kernels(boot_drive, g_memory_regs_info);
+      kernels(boot_drive, g_memory_regs);
     
     
   

@@ -1,6 +1,6 @@
 
 #include "irq.h"
-#include "../../clibs/stdio.h"
+
 #define REMAP_OFFSET 0x20
 volatile int irq_received = 0; 
 void enable_interrupts(){
