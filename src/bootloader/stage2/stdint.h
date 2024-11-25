@@ -1,3 +1,6 @@
+#ifndef STDINT_H
+#define STDINT_H
+
 #define NULL 0
 
 typedef signed char int8_t;
@@ -11,3 +14,4 @@ typedef unsigned int uint32_t;
 
 typedef signed long long int int64_t;
 typedef unsigned long long int uint64_t;
+#endif

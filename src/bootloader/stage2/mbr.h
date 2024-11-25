@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MBR_H
+#define MBR_H
 
 #include "stdint.h"
 #include "disk.h"
@@ -17,3 +18,4 @@ typedef struct{
     uint32_t partition_offset;
     uint32_t partition_size;
 } Partition;
+#endif

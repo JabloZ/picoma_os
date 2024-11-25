@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MEMDEF_H
+#define MEMDEF_H
 
 //500 start from bootloader
 #define MEMORY_MIN 0x00000500
@@ -20,3 +21,4 @@
 #define MEMORY_SIZE 0x10000
 #define KERNEL_ADDR_PHYS 0x100000
 #define KERNEL_ADDR_VIRT 0xC0000000
+#endif

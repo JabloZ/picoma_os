@@ -1,8 +1,4 @@
-#include "elf.h"
-#include "memdef.h"
-#include "memory.h"
-#include "stdio.h"
-#include "disk.h"
+
 /*
 bool read_elf(DISK* disk, const char* path, void** data_out){
     uint8_t* header_load=ELF_LOAD_ADDR;

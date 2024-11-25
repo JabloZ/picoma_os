@@ -1,5 +1,6 @@
 
-#pragma once
+#ifndef OPOFS_H
+#define OPOFS_H
 #include "stdint.h"
 #include "disk.h"
 #include "stdio.h"
@@ -30,3 +31,4 @@ typedef struct{
 void init_opofs(DISK* disk);
 bool find_file_opo(DISK* disk, char* path, file_entry* file_e, file_entry* file_test, file_entry *end_file);
 int read_file_opo(DISK* disk, file_entry* fe, uint8_t* buf);
+#endif

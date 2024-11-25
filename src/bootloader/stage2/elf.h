@@ -1,3 +1,5 @@
+#ifndef ELF_H
+#define ELF_H
 #include "stdint.h"
 #include "stdbool.h"
 #include "disk.h"
@@ -85,3 +87,4 @@ enum elf_segment_type{
 };
 
 bool read_elf(DISK* disk, const char* path, void** data_out);
+#endif
