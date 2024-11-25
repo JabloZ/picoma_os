@@ -1,4 +1,5 @@
-#pragma once
+#ifndef STDIO_H
+#define STDIO_H
 #include "stdint.h"
 #include "x86.h"
 
@@ -20,3 +21,4 @@ int8_t* video_memory;
 uint32_t SCREEN_WIDTH;
 uint32_t SCREEN_HEIGHT;
 uint8_t DEFAULT_COLOR;
+#endif

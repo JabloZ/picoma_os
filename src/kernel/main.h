@@ -1,3 +1,5 @@
+#ifndef MAIN_H
+#define MAIN_H
 #include "clibs/stdint.h"
 #include "clibs/stdio.h"
 #include "clibs/memory.h"
@@ -12,3 +14,4 @@
 #include "memory/page.h"
 #include "memory/kalloc.h"
 #include "memory/pmm.h"
+#endif

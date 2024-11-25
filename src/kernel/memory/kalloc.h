@@ -1,4 +1,5 @@
-#pragma once
+#ifndef KALLOC_H
+#define KALLOC_H
 #include "../clibs/stdbool.h"
 #include "../clibs/stdint.h"
 #include "../clibs/memory.h"
@@ -50,3 +51,4 @@ allocator_block* find_block(uint32_t size, const allocator_block* block);
 void mark_higher_used_blocks(allocator_block* block, uint32_t int_used);
 void mark_lower_used_blocks(allocator_block* block, uint32_t int_used);
 void memory_free(void* mem);
+#endif

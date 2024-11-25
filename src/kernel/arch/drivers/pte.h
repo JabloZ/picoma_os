@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PTE_H
+#define PTE_H
 
 #include "../../clibs/stdio.h"
 #include "../../clibs/stdint.h"
@@ -16,3 +17,4 @@ int8_t saved_mem[2000];
 void refresh_based_on_pte_global(int from_line);
 int count_file_lines();
 int count_line_starting_point();
+#endif

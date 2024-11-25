@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IDT_H
+#define IDT_H
 #include "../../clibs/stdint.h"
 typedef struct{
     uint16_t offset_1;
@@ -34,3 +35,4 @@ void set_gate(uint8_t interrupt_num, uint32_t limit, uint16_t selector, uint8_t 
 idt_entry idt_interrupts[256];
 idt_desc g_idt_desc;
 
+#endif

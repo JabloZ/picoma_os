@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MEMORY_PARAMS_H
+#define MEMORY_PARAMS_H
 
 #include "stdint.h"
 typedef struct{
@@ -23,3 +24,4 @@ typedef struct {
     uint32_t region_num;
 } global_mem_info;
 static global_mem_info* g_memory_regs_info;
+#endif

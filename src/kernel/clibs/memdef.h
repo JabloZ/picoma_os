@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef MEMDEF_H
+#define MEMDEF_H
 //500 start from bootloader
 #define MEMORY_MIN 0x00000500
 #define MEMORY_MAX 0x00080000
@@ -19,3 +19,4 @@
 #define MEMORY_LOAD_KERNEL 0x50000
 #define MEMORY_SIZE 0x10000
 #define KERNEL_LOAD_ADDR 0x100000
+#endif

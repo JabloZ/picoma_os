@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PMM_H
+#define PMM_H
 #include "../clibs/stdbool.h"
 #include "../clibs/stdint.h"
 #include "../memory_params.h"
@@ -13,3 +14,4 @@ void* pmm_alloc();
 void pmm_free();
 void pmm_alloc_addr();
 void print_pmm();
+#endif

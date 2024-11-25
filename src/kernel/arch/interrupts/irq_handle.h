@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IRQ_HANDLE_H
+#define IRQ_HANDLE_H
 #include "../drivers/fs/opofs.h"
 #include "../../clibs/stdint.h"
 #include "../../clibs/stdio.h"
@@ -34,3 +35,4 @@ uint8_t* pte_saved_data;
 uint32_t global_cursor;
 uint32_t top_cursor;
 uint32_t size_of_file;
+#endif

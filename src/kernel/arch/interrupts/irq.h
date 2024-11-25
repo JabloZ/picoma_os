@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef IRQ_H
+#define IRQ_H
 #include "pic.h"
 #include "idt.h"
 #include "isr.h"
@@ -15,3 +15,4 @@ void irq_wait(int irq_num);
 __attribute__((aligned(64))) irq_handler g_irq_handler[16];
 int capslock_pressed;
 int shift_pressed;
+#endif

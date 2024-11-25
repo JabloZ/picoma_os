@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PAGE_H
+#define PAGE_H
 #include "../clibs/stdint.h"
 #include "../clibs/memory.h"
 #include "../clibs/stdio.h"
@@ -48,3 +49,4 @@ page_directory_entry page_directory[PAGE_DIR_COUNT] __attribute__((aligned(PAGE_
 page_table_entry page_table[PAGE_TABLE_COUNT] __attribute__((aligned(PAGE_SIZE)));
 void __attribute((cdecl)) reload_segments();
 void vmm_memory_status();
+#endif

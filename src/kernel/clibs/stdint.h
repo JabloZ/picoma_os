@@ -1,3 +1,5 @@
+#ifndef STDINT_H
+#define STDINT_H
 #define NULL 0
 
 typedef signed char int8_t;
@@ -14,3 +16,4 @@ typedef unsigned long long int uint64_t;
 
 #define VIRTUAL_BASE 0xC0000000
 void* P2V(void* physical_address);
+#endif

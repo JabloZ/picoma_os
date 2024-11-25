@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ISR_H
+#define ISR_H
 #include "../../clibs/stdint.h"
 #include "../../memory_params.h"
 #include "../../clibs/stdbool.h"
@@ -67,3 +68,4 @@ void enable_gate(uint8_t interrupt);
 void disable_gate(uint8_t interrupt);
 void exception_handler(registers* frame);
 __attribute__((aligned(64))) isr_handler isr_h[256];
+#endif

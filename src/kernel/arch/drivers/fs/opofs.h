@@ -1,5 +1,6 @@
 
-#pragma once
+#ifndef OPOFS_H
+#define OPOFS_H
 #include "../../disk.h"
 #include "../fdc.h"
 #include "../../../clibs/stdint.h"
@@ -43,3 +44,4 @@ int getbit(uint8_t* bits, int bit);
 int setbit(uint8_t* bits, int bit, int val);
 int allocate_sectors(int lba_start, int sectors);
 int delete_file_or_dir(file_entry* file_to_delete, int parent_lba);
+#endif

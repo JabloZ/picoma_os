@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PIC_H
+#define PIC_H
 
 #include "../../clibs/x86.h"
 #define PIC1		0x20		
@@ -11,3 +12,4 @@
 
 void remap_pic(int offset1, int offset2);
 void pic_send_eoi(uint8_t irq);
+#endif

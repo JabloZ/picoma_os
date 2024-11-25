@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MBR_H
+#define MBR_H
 #include "../../clibs/stdint.h"
 typedef struct{
     uint8_t boot;
@@ -23,3 +24,4 @@ typedef struct{
     uint32_t partition_offset;
     uint32_t partition_size;
 } partition;
+#endif

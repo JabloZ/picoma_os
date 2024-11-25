@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FDC_H
+#define FDC_H
 
 #include "../../clibs/x86.h"
 #include "../../clibs/stdint.h"
@@ -40,3 +41,4 @@ unsigned char floppy_read_data();
 #define floppy_dma_len 0x200
 uint8_t fdc_dma_buffer[floppy_dma_len];
 static uint8_t fdc_sector_buffer[0x200];
+#endif
