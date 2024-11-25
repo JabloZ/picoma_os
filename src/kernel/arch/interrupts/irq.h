@@ -11,6 +11,6 @@ typedef void (*irq_handler)(registers* regs);
 void init_irq();
 void irq_handler_f(registers* regs);
 void irq_wait(int irq_num);
-irq_handler g_irq_handler[16];
+__attribute__((aligned(64))) irq_handler g_irq_handler[16];
 int capslock_pressed;
 int shift_pressed;

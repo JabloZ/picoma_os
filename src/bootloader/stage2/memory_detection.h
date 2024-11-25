@@ -1,5 +1,5 @@
 #pragma once
-#include "../../glibs/memory_params.h"
+#include "memory_params.h"
 #include "x86.h"
 #include "stdio.h"
 #include "stdint.h"

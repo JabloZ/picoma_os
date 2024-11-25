@@ -8,14 +8,15 @@
 #include "arch/drivers/fs/opofs.h"
 #include "arch/drivers/fdc.h"
 #include "arch/drivers/fs/fat.h"
-#include "../glibs/memory_params.h"
+#include "memory_params.h"
 #include "memory/page.h"
 #include "memory/kalloc.h"
 #include "memory/pmm.h"
-void __attribute__((section(".entry"))) _start(uint16_t boot_drive)
+void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_info* g_memory_regs_info_boot)
 {
    //__asm__ volatile("hlt;");
     clear_screen();
+    g_memory_regs_info=g_memory_regs_info_boot;
     //print_regions();
     init_vals();
     services_init();

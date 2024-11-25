@@ -1,13 +1,5 @@
 # nasm and qemu
-wget http://www.nasm.us/pub/nasm/releasebuilds/2.14.02/nasm-2.14.02.tar.bz2
-tar xfj nasm-2.14.02.tar.bz2
-cd nasm-2.14.02/
-./autogen.sh
-./configure --prefix=/usr/local/ 
-make 
-sudo make install
-hash -d nasm
-
+sudo apt-get install nasm
 sudo apt-get install qemu
 sudo apt-get install qemu-kvm
 

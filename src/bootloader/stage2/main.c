@@ -10,17 +10,17 @@
 #include "elf.h"
 #include "jmp.h"
 #include "opofs.h"
+
 uint8_t* kernel_mem=(uint8_t*)MEMORY_LOAD_KERNEL;
 uint8_t* kernel=(uint8_t*)KERNEL_ADDR_PHYS;
 
-typedef void (*KernelStart)(uint16_t boot_drive);
+typedef void (*KernelStart)(uint16_t boot_drive, global_mem_info* g_memory_regs_info);
 
 void __attribute__((cdecl)) _start(uint16_t boot_drive) {
    
-   printf("Aaa");
-   printf("bbb");
+   
    clear_screen();
-   printf("in stage2");
+   g_memory_regs_info=NULL;
    DISK disk;
    if (!disk_initialize(&disk, boot_drive)){
       printf("error initializing disk");
@@ -80,7 +80,7 @@ void __attribute__((cdecl)) _start(uint16_t boot_drive) {
       
       KernelStart kernels= (KernelStart)0xc0000000+KERNEL_ADDR_PHYS;
       //__asm__ volatile("hlt;");
-      kernels(boot_drive);
+      kernels(boot_drive, g_memory_regs_info);
     
     
   

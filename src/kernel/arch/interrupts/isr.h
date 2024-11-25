@@ -1,6 +1,6 @@
 #pragma once
 #include "../../clibs/stdint.h"
-#include "../../../glibs/memory_params.h"
+#include "../../memory_params.h"
 #include "idt.h"
 typedef struct{
       uint32_t ds;                                            
@@ -65,4 +65,4 @@ void init_isr();
 void enable_gate(uint8_t interrupt);
 void disable_gate(uint8_t interrupt);
 void exception_handler(registers* frame);
-isr_handler isr_h[256];
+__attribute__((aligned(64))) isr_handler isr_h[256];

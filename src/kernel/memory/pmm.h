@@ -1,7 +1,7 @@
 #pragma once
 #include "../clibs/stdbool.h"
 #include "../clibs/stdint.h"
-#include "../../glibs/memory_params.h"
+#include "../memory_params.h"
 
 #define PAGE_SIZE 4096
 

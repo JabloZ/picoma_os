@@ -10,6 +10,7 @@ SOURCES_C=$(shell find . -type f -name  "*.c")
 HEADERS_C=$(shell find . -type f -name  "*.h")
 SOURCES_ASM=$(shell find . -type f -name  "*.asm")
 SOURCES_ASM=$(shell find . -type f -name  "*.asm")
+
 OBJECTS_C=$(patsubst %.c, $(BUILD_DIR)/stage2/c/%.o, $(SOURCES_C))
 OBJECTS_ASM=$(patsubst %.asm, $(BUILD_DIR)/stage2/asm/%.o, $(SOURCES_ASM))
 
@@ -18,13 +19,15 @@ all: stage2
 stage2: $(BUILD_DIR)/stage2.bin
 
 $(BUILD_DIR)/stage2.bin: $(OBJECTS_ASM) $(OBJECTS_C)
-	$(LINK) $(LINKFLAGS) -o $@ $^
+	$(LINK) $(LINKFLAGS) -Map=$(BUILD_DIR)/stage2.map -o $@ $^
 	
 $(BUILD_DIR)/stage2/c/%.o: %.c always
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/stage2/asm/%.o: %.asm always
 	$(ASM) $(ASMFLAGS) -o $@ $<
+
+
 
 always:
 	

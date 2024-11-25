@@ -1,7 +1,7 @@
 #pragma once
 #include "stdint.h"
 #include "stdbool.h"
-#include "../../glibs/memory_params.h"
+#include "memory_params.h"
 void outb(uint16_t port, uint8_t data);
 
 bool x86_reset_disk(uint8_t drive);

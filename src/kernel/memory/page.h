@@ -2,7 +2,7 @@
 #include "../clibs/stdint.h"
 #include "../clibs/memory.h"
 #include "../clibs/stdio.h"
-#include "../../glibs/memory_params.h"
+#include "../memory_params.h"
 #include "kalloc.h"
 #include "pmm.h"
 #include "../../kernel/arch/gdt/gdt.h"

@@ -1,5 +1,4 @@
 #include "pmm.h"
-#include "stdio.h"
 
 void init_pmm(){
     last_alloc=0;

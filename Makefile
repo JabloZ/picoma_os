@@ -3,15 +3,14 @@ export BUILD_DIR=build
 export SRC_DIR=src
 CC_DIR = /usr/local/i386elfgcc/bin
 export PATH := $(CC_DIR):$(PATH)
-exportCC=/usr/local/i386elfgcc/bin/i386-elf-gcc
 
-.PHONY: all floppy_image kernel bootloader clean always
+.PHONY: all floppy_image glibs kernel bootloader clean always
 
 all: floppy_image
 #	mkfs.fat -F 12 -n "PICOOS" $(BUILD_DIR)/main_disk.img
 floppy_image: $(BUILD_DIR)/main_disk.img
 
-$(BUILD_DIR)/main_disk.img: bootloader kernel
+$(BUILD_DIR)/main_disk.img: glibs bootloader kernel
 	dd if=/dev/zero of=$(BUILD_DIR)/main_disk.img bs=512 count=2880
 	dd if=$(BUILD_DIR)/stage1.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc count=1 seek=0
 	dd if=$(BUILD_DIR)/stage2.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=18
@@ -22,7 +21,7 @@ $(BUILD_DIR)/main_disk.img: bootloader kernel
 #	dd if=test_bins/file_entry3.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=1003
 #	dd if=test_bins/file_entry4.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=1002
 #	dd if=test_bins/file_entry3.bin of=$(BUILD_DIR)/main_disk.img conv=notrunc seek=990
- 
+
 bootloader: stage1 stage2
 
 stage1: $(BUILD_DIR)/stage1.bin

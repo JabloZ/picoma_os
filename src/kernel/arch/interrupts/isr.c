@@ -2,7 +2,7 @@
 #include "stdbool.h"
 #include "idt.h"
 #include "isr.h"
-#include "stdio.h"
+
 
 
 char *exceptionMessages[] = {
