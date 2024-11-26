@@ -7,7 +7,7 @@ export PATH := $(CC_DIR):$(PATH)
 .PHONY: all floppy_image glibs kernel bootloader clean always
 
 all: floppy_image
-#	mkfs.fat -F 12 -n "PICOOS" $(BUILD_DIR)/main_disk.img
+#	mkfs.fat -F 12 -n "PICOOS" $(BUILD_DIR)/main_disk.img test
 floppy_image: $(BUILD_DIR)/main_disk.img
 
 $(BUILD_DIR)/main_disk.img: glibs bootloader kernel
