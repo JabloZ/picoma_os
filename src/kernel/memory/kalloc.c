@@ -22,6 +22,7 @@ allocator_block* create_block(const allocator_block* b_parent, uint32_t mem_size
     block->size=(b_parent->size)/2;
     block->level=lvl-1;
     block->block_nr=save_numbers[block->level];
+    block->block_adr=NULL;
     save_numbers[block->level]++;
     if (block->level>0){
         block->buddy1=create_block(block, block->size, block->level);
@@ -134,6 +135,10 @@ void* mem_allocate(uint32_t size){
      found_block->memory_ptr=memory_pool_ptr+(found_block->block_nr*found_block->size);
    
     found_block->used=1;
+    found_block->block_adr=pmm_alloc();
+    for (int i=4096; i<found_block->size; i+=4096){
+        pmm_alloc();
+    }
     mark_lower_used_blocks(found_block,1);
     mark_higher_used_blocks(found_block,1);
    
@@ -163,7 +168,11 @@ void memory_free(void* mem){
             block=blocks[i];
         }
     }
-    
+    uint32_t start_block=block->block_adr;
+    for (int i=block->size; i>=0; i-=4096){
+        pmm_free(start_block);
+        start_block+=0x1000;
+    }
     mark_lower_used_blocks(block, 0);
     block->used=0;
     block->memory_ptr=NULL;
