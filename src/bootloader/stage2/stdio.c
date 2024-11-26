@@ -1,5 +1,4 @@
-#include "stdint.h"
-#include "x86.h"
+
 #include "stdio.h"
 
 const uint32_t SCREEN_WIDTH=80;

@@ -1,7 +1,4 @@
-#include "x86.h"
 #include "disk.h"
-#include "stdio.h"
-#include "string.h"
 /*
     uint8_t id;
     uint16_t cylinders;

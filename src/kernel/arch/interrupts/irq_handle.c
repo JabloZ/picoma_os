@@ -114,6 +114,9 @@ int return_command_num(char* str_cmd){
     if (strcmp(str_cmd,"rmv",3)==1){
         return 7;
     }
+    if (strcmp(str_cmd,"help",4)==1){
+        return 8;
+    }
 }
 void handler_irq_1(){
     uint8_t scancode = inb(0x60);
@@ -1238,6 +1241,14 @@ int execute_or_recognize_command(){
                 delete_file_or_dir(&file_e,lba);
                 break;
             }
+            case 8:
+                printf("\n\nHOME DIRECTORY: [.]");
+                printf("\n-la [dir] - shows directories and files in path\n-pf [path to file] - prints out file\n-pte [path_to_file] - opens simple text editor\n -click ESCAPE to switch between insert and command mode in pte\n -qs: quit and save, q: don't save\n");
+                printf("-cd [dir] - change directory, .. to go back one directory\n");
+                printf("-mkf [path] [filename] - create file\n");
+                printf("-mkd [path] [directory name] - create directory\n");
+                printf("-rmv [path] - delete file/directory\n");
+                break;
             default:
                 printf("\nCommand unrecognised!\n");
                 break;

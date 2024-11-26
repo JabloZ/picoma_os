@@ -1,5 +1,7 @@
 #ifndef STDIO_H
 #define STDIO_H
+
+#include "x86.h"
 #include "stdint.h"
 void clear_screen();
 void putc(char c);

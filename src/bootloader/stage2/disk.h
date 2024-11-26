@@ -1,7 +1,9 @@
 #ifndef DISK_H
 #define DISK_H
-#include "stdint.h"
-#include "stdbool.h"
+#include "x86.h"
+#include "disk.h"
+#include "stdio.h"
+
 #define HEAD 2
 #define SECTOR 18
 #define CYLINDER 80

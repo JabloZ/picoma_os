@@ -18,7 +18,7 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
     //print_pmm();
     //vmm_unmap_page_4kb(0xC0805000);
     //print_pmm();
-    vmm_memory_status();
+    //vmm_memory_status();
     init_fdc();
     init_opofs(0);
 

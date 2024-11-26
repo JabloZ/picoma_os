@@ -5,6 +5,6 @@
 #include "stdio.h"
 #include "stdint.h"
 
-memory_region g_mem_regs[256];
+extern memory_region g_mem_regs[256];
 void detect_mem();
 #endif

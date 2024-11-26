@@ -25,6 +25,7 @@ all: kernel
 kernel: $(BUILD_DIR)/kernel.bin
 
 $(BUILD_DIR)/kernel.bin: $(OBJECTS_ASM) $(OBJECTS_C)
+	@mkdir -p $(dir $@)
 	$(LINK) $(LINKFLAGS) -Map=$(BUILD_DIR)/kernel.map -o $@ $^
 
 $(BUILD_DIR)/kernel/c/%.o: %.c $(HEADERS_C)

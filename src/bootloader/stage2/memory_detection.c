@@ -2,6 +2,8 @@
 
 void detect_mem(){
     
+    memory_region g_mem_regs[256];
+
     memory_region mem_r;
     uint32_t next_id=0;
     int next_ret;

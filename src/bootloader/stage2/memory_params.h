@@ -2,6 +2,7 @@
 #define MEMORY_PARAMS_H
 
 #include "stdint.h"
+void init_g_mem_regs();
 typedef struct{
     uint32_t base_low;
     uint32_t base_high;

@@ -496,9 +496,7 @@ int delete_file_or_dir(file_entry* file_to_delete, int parent_lba){
     
     uint8_t temp_buf[512];
     fdc_read_sector(0,1,temp_buf,0,sector_read);
-    for (int i=0; i<512; i++){
-        printf("%d ",temp_buf[i]);
-    }
+   
     //printf("Deleted: %s\n", file_to_delete->filename);
     return 1;
     

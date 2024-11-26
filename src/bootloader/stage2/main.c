@@ -10,6 +10,7 @@
 #include "elf.h"
 #include "jmp.h"
 #include "opofs.h"
+#include "memory_params.h"
 
 uint8_t* kernel_mem=(uint8_t*)MEMORY_LOAD_KERNEL;
 uint8_t* kernel=(uint8_t*)KERNEL_ADDR_PHYS;
