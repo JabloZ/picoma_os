@@ -34,6 +34,7 @@ COMMANDS:
   <li><strong>cd [path]</strong> - change directory, [..] to go back </li>
   <li><strong>mkf [path] [filename]</strong> - creates file </strong></li>
   <li><strong>mkd [path] [directory name]</strong> - creates directory </strong></li>
+  <li><strong>rmv [path]</strong> - deletes directory/file </strong></li>
 </ul>
 
 ![image](https://github.com/user-attachments/assets/8634f9dd-a97a-4e51-892d-2a5a69da4a49)
