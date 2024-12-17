@@ -21,6 +21,12 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
     //vmm_memory_status();
     init_fdc();
     init_opofs(0);
+    
+    uint8_t* temp=mem_allocate(500000);
+    //uint8_t* temp2=mem_allocate(1000);
+    //memory_free(temp);
+    //memory_free(temp2);
+    
 
     uint8_t temp_buf[512];
     fdc_read_sector(0,1,temp_buf,0,sector_read);

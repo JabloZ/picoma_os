@@ -1,6 +1,0 @@
-28.10:
-command to create file/directory at path
-command to remove file/directory at path
-simple vi like text editor - to edit files or create them, commands on ctrl+something
-add options to switch between absolute and relative path when reaching files
-add path commands

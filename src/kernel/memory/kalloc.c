@@ -1,9 +1,9 @@
 //NOTE: SHOULD RENAME THIS, THIS IS JUST BUDDY ALLOCATOR
 #include "kalloc.h"
 
-#define MAX_LEVELS 9
+#define MAX_LEVELS 8
 #define MEMORY_SIZE 1*1024*1024
-static uint8_t memory_pool[1*1024*1024];
+allocator_block memory_pool[1024];
 
 uint32_t blocks_iter=0;
 uint8_t* memory_pool_ptr;
@@ -60,7 +60,7 @@ void init_kalloc(){
     g_allocator.parent=NULL;
     g_allocator.buddy1=NULL;
     g_allocator.buddy2=NULL;
-    g_allocator.level=BS_9;
+    g_allocator.level=BS_8;
     g_allocator.size=MEMORY_SIZE;
 
     
@@ -90,7 +90,7 @@ void mark_lower_used_blocks(allocator_block* block, uint32_t int_used){
 }
 
 void mark_higher_used_blocks(allocator_block* block, uint32_t int_used){
-        if (block->level==9){
+        if (block->level==8){
             return;
         }
        
