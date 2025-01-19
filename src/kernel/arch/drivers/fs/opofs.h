@@ -44,4 +44,18 @@ int getbit(uint8_t* bits, int bit);
 int setbit(uint8_t* bits, int bit, int val);
 int allocate_sectors(int lba_start, int sectors);
 int delete_file_or_dir(file_entry* file_to_delete, int parent_lba);
+
+int execute_or_recognize_command();
+int move_line_down();
+int recognize_command(char* command);
+int return_file_entry_with_name(char* name, file_entry* save_f, file_entry* file_e);
+int return_file_entry(int i, file_entry* save_f, file_entry* file_e);
+void left_arrow_func();
+void right_arrow_func();
+void down_arrow();
+void up_arrow();
+int move_to_left(int cur);
+int only_null_until_end_of_file(int x, int y);
+int only_null_until_end(int x, int y);
+void quit_pte_func();
 #endif

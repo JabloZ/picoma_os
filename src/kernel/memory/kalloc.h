@@ -16,7 +16,8 @@ typedef enum{ //*4096
     BS_6,
     BS_7,
     BS_8,//1mb
-    
+    BS_9,
+    BS_10
     
 } buddy_sizes;
 
@@ -33,8 +34,8 @@ typedef struct allocator_block {
     uint32_t block_adr;
 } allocator_block;
 
-uint32_t save_numbers[BS_8+1];
-allocator_block* blocks[(1<<BS_8+1)-1];
+uint32_t save_numbers[BS_10+1];
+allocator_block* blocks[(1<<BS_10+1)];
 void* mem_allocate(uint32_t size);
 allocator_block* create_block(const allocator_block* b_parent, uint32_t mem_size, uint32_t lvl);
 void init_kalloc();

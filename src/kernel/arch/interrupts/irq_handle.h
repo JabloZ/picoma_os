@@ -29,8 +29,7 @@ char pte_data[23][80];
 int lba_of_filedir;
 int return_command_num(char* str);
 
-void left_arrow_func();
-void right_arrow_func();
+
 uint8_t* pte_saved_data;
 uint32_t global_cursor;
 uint32_t top_cursor;

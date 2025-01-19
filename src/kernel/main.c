@@ -22,7 +22,10 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
     init_fdc();
     init_opofs(0);
     
-    uint8_t* temp=mem_allocate(500000);
+    uint8_t* temp=mem_allocate(2000);
+    memory_free(temp);
+
+    print_pmm();
     //uint8_t* temp2=mem_allocate(1000);
     //memory_free(temp);
     //memory_free(temp2);

@@ -1,9 +1,9 @@
 //NOTE: SHOULD RENAME THIS, THIS IS JUST BUDDY ALLOCATOR
 #include "kalloc.h"
 
-#define MAX_LEVELS 8
+#define MAX_LEVELS 10
 #define MEMORY_SIZE 1*1024*1024
-allocator_block memory_pool[1024];
+allocator_block memory_pool[(1<<BS_10+1)];
 
 uint32_t blocks_iter=0;
 uint8_t* memory_pool_ptr;
@@ -60,7 +60,7 @@ void init_kalloc(){
     g_allocator.parent=NULL;
     g_allocator.buddy1=NULL;
     g_allocator.buddy2=NULL;
-    g_allocator.level=BS_8;
+    g_allocator.level=BS_10;
     g_allocator.size=MEMORY_SIZE;
 
     
@@ -163,11 +163,12 @@ void change_higher_blocks(allocator_block* block){
 }
 void memory_free(void* mem){
     allocator_block* block;
-    for (int i=0; i<((1<<MAX_LEVELS)+1);i++){
+    for (int i=0; i<((1<<MAX_LEVELS+1));i++){
         if (mem==blocks[i]->memory_ptr){
             block=blocks[i];
         }
     }
+    //block=mem;
     uint32_t start_block=block->block_adr;
     for (int i=block->size; i>=0; i-=4096){
         pmm_free(start_block);
