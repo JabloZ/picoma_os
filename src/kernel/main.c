@@ -1,12 +1,17 @@
 #include "main.h"
 void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_info* g_memory_regs_info_boot)
 {
+    
    //__asm__ volatile("hlt;");
     clear_screen();
+    
     g_memory_regs_info=g_memory_regs_info_boot;
     //print_regions();
+
     init_vals();
+    
     services_init();
+    
     printf("________________________________________________________________________________");
     printf("|                            X86 PICOMA OS: v0.0.2                             |");
     printf("________________________________________________________________________________\n");
@@ -22,17 +27,19 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
     init_fdc();
     init_opofs(0);
     
-    uint8_t* temp=mem_allocate(2000);
-    memory_free(temp);
+    file_entry save_f;
+    file_entry file_e;
+    
+
+   
     //test
     print_pmm();
-    //uint8_t* temp2=mem_allocate(1000);
+   
     //memory_free(temp);
     //memory_free(temp2);
     
 
-    uint8_t temp_buf[512];
-    fdc_read_sector(0,1,temp_buf,0,sector_read);
+    
     //print_regions();
     //init_fat();
     //open_fat(0,"test.txt");
@@ -47,6 +54,9 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
     
     //fdc_write_sector(0,991,&buf,0,sector_write);
     setup_global_file_info_table();
+    //read_elf("kernel.bin");
+    //uint8_t buf[50000];
+    
     printf("~/>");
     
     //printf("filetest    txt");

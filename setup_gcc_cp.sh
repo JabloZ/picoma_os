@@ -32,7 +32,7 @@ curl -O https://ftp.gnu.org/gnu/gcc/gcc-12.2.0/gcc-12.2.0.tar.gz
 tar xf gcc-12.2.0.tar.gz
 mkdir gcc-build
 cd gcc-build
-../gcc-12.2.0/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --disable-libssp --enable-language=c,c++ --without-headers
+../gcc-12.2.0/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --disable-libssp --enable-language=c --without-headers
 
 sudo make all-gcc
 sudo make all-target-libgcc

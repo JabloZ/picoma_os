@@ -12,6 +12,6 @@ uint32_t last_alloc;
 void init_pmm();
 void* pmm_alloc();
 void pmm_free();
-void pmm_alloc_addr();
+uint32_t pmm_alloc_addr();
 void print_pmm();
 #endif

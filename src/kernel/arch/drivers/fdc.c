@@ -221,7 +221,7 @@ int fdc_read_sector(int drive, int lba, uint8_t* data_out, int how_many_until, u
    
     if (floppy_seek(cyl, 0)){ return -1;};
     if (floppy_seek(cyl, 1)){ return -1;};
-    //printf("%d %d %d", cyl,head,sector);
+   
     //printf("%p",&fdc_dma_buffer);
     fdc_control_motor(motor_on);
     //sleep(1000);

@@ -1,6 +1,7 @@
 #include "pmm.h"
 
 void init_pmm(){
+    
     last_alloc=0;
     for (int i=0; i<total_pages; i++){
         physical_mem[i]=0;
@@ -26,7 +27,7 @@ void init_pmm(){
     //print_pmm();
 
 }
-void pmm_alloc_addr(uint32_t phys_addr){
+uint32_t pmm_alloc_addr(uint32_t phys_addr){
     uint32_t ind= phys_addr/PAGE_SIZE;
     physical_mem[ind]=1;
     return phys_addr;
@@ -43,8 +44,18 @@ void* pmm_alloc(){
     
 }
 
+void* pmm_find_adr(){
+    for (int i=0; i<total_pages; i++){
+        if (physical_mem[i]==0){
+            return i*0x1000;
+        }
+    }
+    
+}
+
 void pmm_free(uint32_t phys_addr){
     uint32_t ind=phys_addr/PAGE_SIZE;
+    
     physical_mem[ind]=0;
 }
 void print_pmm(){
@@ -56,7 +67,8 @@ void print_pmm(){
        }
        else{
         if (i>=2048 && i<4000){
-        printf("number not free: %d\n",i);}
+        //printf("number not free: %d\n",i);
+        }
         not_free++;
        }
         

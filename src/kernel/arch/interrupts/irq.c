@@ -4,7 +4,10 @@
 #define REMAP_OFFSET 0x20
 volatile int irq_received = 0; 
 void enable_interrupts(){
+    
     __asm__ volatile ("sti; hlt");
+    
+    
 }
 
 void disable_interrupts(){
@@ -20,6 +23,7 @@ void init_filesystem_vars(){
 }
 
 void init_irq(){
+    
     capslock_pressed=0;
     shift_pressed=0;
     pte_mode=0;
@@ -33,7 +37,9 @@ void init_irq(){
         isr_h[REMAP_OFFSET+i]=irq_handler_f;
         enable_gate(REMAP_OFFSET+i);
     }
+    
     enable_interrupts();
+    
     
 }
 void irq_handler_f(registers* frame){

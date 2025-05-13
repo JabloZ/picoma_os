@@ -4,7 +4,7 @@
 #include "../clibs/stdint.h"
 #include "../clibs/memory.h"
 #include "../clibs/stdio.h"
-
+#include "page.h"
 #include "../memory_params.h"
 typedef enum{ //*4096
     BS_0=0, //4KB
@@ -35,10 +35,11 @@ typedef struct allocator_block {
 } allocator_block;
 
 uint32_t save_numbers[BS_10+1];
-allocator_block* blocks[(1<<BS_10+1)];
+allocator_block* blocks[(1<<(BS_10))];
 void* mem_allocate(uint32_t size);
 allocator_block* create_block(const allocator_block* b_parent, uint32_t mem_size, uint32_t lvl);
 void init_kalloc();
+
 allocator_block* find_block(uint32_t size, const allocator_block* block);
 void mark_higher_used_blocks(allocator_block* block, uint32_t int_used);
 void mark_lower_used_blocks(allocator_block* block, uint32_t int_used);

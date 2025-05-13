@@ -14,4 +14,5 @@
 #include "memory/page.h"
 #include "memory/kalloc.h"
 #include "memory/pmm.h"
+#include "elf.h"
 #endif

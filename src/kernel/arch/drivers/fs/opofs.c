@@ -144,13 +144,14 @@ int read_file_opo(uint32_t disk, file_entry* fe, uint8_t* buf){
     }
 
     int max_b=512;
-    //printf("sectors to read: %d lba_first: %d  ",sectors_to_read,fe->lba_first);
+    printf("sectors to read: %d lba_first: %d  ",sectors_to_read,fe->lba_first);
     int cpy=fe->lba_first;
+    
     for (int i=0; i<sectors_to_read; i++){
         
-
+        printf("%d ",i);
         fdc_read_sector(disk,cpy+i,&temp_buf,0,sector_read);
-        
+        printf("%d|",i);
         if (copy_mod!=0){
             if (i+1==sectors_to_read){
                     max_b=copy_mod;
@@ -164,6 +165,7 @@ int read_file_opo(uint32_t disk, file_entry* fe, uint8_t* buf){
             buf[(i*SECTOR_SIZE)+n]=temp_buf[n];
             //printf("%d ",buf[i*SECTOR_SIZE+n]);
         }
+        
     }
     
     return 1;
@@ -689,17 +691,12 @@ void up_arrow(){
 void down_arrow(){
     if ((pte_mode==1 && pte_cmd_mode==0 )|| (pte_mode==0 && pte_cmd_mode==0)){
                         int count=count_file_lines();
-                        
-                          if (count-22-top_cursor-1<0){
-                                
+                        if (count-22-top_cursor-1<0){
                                 return;
-                            }
-                        if(video_y==24){
-                            
-                          
+                        }
+                        if(video_y==24){      
                             top_cursor++;
                             refresh_based_on_pte_global(top_cursor);
-                            
                             return;
                         }
                         int save_vid_x=video_x;
@@ -718,16 +715,18 @@ void down_arrow(){
                                     
                                 }
                         }
-                        if (pte_data[video_y-2][video_x]==0){
-                        while (video_x!=0){
-                            if (pte_data[video_y-2][video_x]!=0){
+                        if (pte_data[video_y-2][video_x]==0 && pte_mode==1){
+                            while (video_x!=0){
+                                if (pte_data[video_y-2][video_x]!=0){
+                                    video_x--;
+                                    
+                                    update_cursor(video_x,video_y);
+                                    break;
+                                }
                                 video_x--;
-                                
-                                update_cursor(video_x,video_y);
-                                break;
                             }
-                            video_x--;
-                        }}
+                        }
+
                         //right_arrow_func();
                         
                     }
@@ -1104,6 +1103,7 @@ int execute_or_recognize_command(){
                 strcpy(save_path_for_pte,g_cmd_str[i]);
                 memset(&file_e, 0, sizeof(file_e));
                 memset(&save_f, 0, sizeof(save_f));
+                
                 strcpy(g_cmd_str[i],"");
                 strcpy(g_cmd_str[i-1],"");
                 //save_video_memory();

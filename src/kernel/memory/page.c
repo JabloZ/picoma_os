@@ -3,95 +3,81 @@
 #define PAGE_4KB_SIZE 4*1024
 #define KERNEL_SPACE 0xC0000000
 
-page_table_entry kernel_first[PAGE_TABLE_COUNT] __attribute__((aligned(PAGE_SIZE)));
-page_table_entry kernel_second[PAGE_TABLE_COUNT] __attribute__((aligned(PAGE_SIZE)));
-page_table_entry kernel_third[PAGE_TABLE_COUNT] __attribute__((aligned(PAGE_SIZE)));
-
 
 #define VIRT_TO_PHYS(addr) ((uint32_t)(addr) - KERNEL_SPACE)
 void deinitialize(uint32_t virt_addr){
     __asm__ volatile ("invlpg (%0)" : : "r" (virt_addr) : "memory");
 }
 
-void set_current_page_directory(page_directory_entry page_directory)
-{
-    __asm__ volatile("movl %0, %%eax\n"
-                 "movl %%eax, %%cr3":: "r" (page_directory):"eax", "memory");
-}
 
 void enable_paging(page_directory_entry *pg){
    
    __asm__ volatile("mov %0, %%cr3":: "r"(pg));
    
 }
-
-
-void init_page(){
-    
-    page_directory[0].present = 1;
-    page_directory[0].read_write = 1;
-    page_directory[0].user = 0;
-    page_directory[0].frame_addr = ((uint32_t)VIRT_TO_PHYS(kernel_first)) >> 12;
-    
-    for (int i = 0; i < PAGE_TABLE_COUNT; i++) {
-        kernel_first[i].present = 1;
-        kernel_first[i].read_write = 1;
-        kernel_first[i].user = 0;
-        kernel_first[i].frame_addr = i;
-    }
-    
-    uint32_t pd_index = KERNEL_SPACE >> 22;
-    page_directory[pd_index].present = 1;
-    page_directory[pd_index].read_write = 1;
-    page_directory[pd_index].user = 0;
-    page_directory[pd_index].frame_addr = ((uint32_t)VIRT_TO_PHYS(kernel_second))>>12;
-
-     for (int j = 0; j < PAGE_TABLE_COUNT; j++) {
-        kernel_second[j].present = 1;
-        kernel_second[j].read_write = 1;
-        kernel_second[j].user = 0;
-        kernel_second[j].frame_addr = j;
-        //pmm_alloc_addr(j*0x1000);
-    }
-    pd_index = (KERNEL_SPACE >> 22)+1;
-    page_directory[pd_index].present = 1;
-    page_directory[pd_index].read_write = 1;
-    page_directory[pd_index].user = 0;
-    page_directory[pd_index].frame_addr = ((uint32_t)VIRT_TO_PHYS(kernel_third))>>12;
-
-     for (int j = 0; j < PAGE_TABLE_COUNT; j++) {
-        kernel_third[j].present = 1;
-        kernel_third[j].read_write = 1;
-        kernel_third[j].user = 0;
-        kernel_third[j].frame_addr = j+0x400;
-        //pmm_alloc_addr(j*0x1000+0x400000);
-    }
-
-    /*
-    uint32_t t = KERNEL_SPACE+0x000000;
-    uint32_t t2 = 0x000000;
-   
-    while (t2 <= 0x3FF000) {
-        vmm_map_page_4kb(t, t2);
-        t2 += 0x1000;
-        t += 0x1000;
-        pmm_alloc_addr(t2);
-    }
-    while (t2 <= 0x7FF000) {
-        vmm_map_page_4kb(t, t2);
-        t2 += 0x1000;
-        t += 0x1000;
-        pmm_alloc_addr(t2);
-        
-    }*/
-    //
-    enable_paging(VIRT_TO_PHYS(&page_directory));
-    
-    
-    //page_directory[0].present=0; //if unlimited low memory errors happen, just delete this line
+void flush_tlb_single(uint32_t addr) {
+   __asm__ volatile("invlpg (%0)" ::"r" (addr) : "memory");
 }
 
 
+void init_page(){
+
+    uint32_t page_dir;
+    //printf("%p|",page_dir);
+    memset(page_directory, 0, sizeof(page_directory));
+    
+    page_dir=(( ((uint32_t)VIRT_TO_PHYS(kernel_zero)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE);
+    page_directory[0]=page_dir;
+    uint32_t adr=0x0;
+    for (int i = 0; i < PAGE_TABLE_COUNT; i++) {
+        uint32_t entry=0;
+        //uint32_t phys_addr=pmm_alloc();
+        pmm_alloc_addr(adr);
+        entry=(adr & PAGE_FRAME_ADDR)|PAGE_PRESENT|PAGE_WRITABLE;
+        kernel_zero[i]= entry;
+        adr+=0x1000;
+    }
+    
+    //printf("%p",kernel_zero[1023]);
+    
+    page_dir=(( ((uint32_t)VIRT_TO_PHYS(kernel_first)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE);
+    page_directory[768]=page_dir;
+    adr=0x0;
+    for (int i = 0; i < PAGE_TABLE_COUNT; i++) {
+        uint32_t entry;
+        //uint32_t phys_addr=pmm_alloc();
+        pmm_alloc_addr(adr);
+        entry=(adr & PAGE_FRAME_ADDR)|PAGE_PRESENT|PAGE_WRITABLE;
+        kernel_first[i]= entry;
+        adr+=0x1000;
+    }
+    uint32_t pd_index = (KERNEL_SPACE >> 22)+1;
+    page_dir=(( ((uint32_t)VIRT_TO_PHYS(kernel_second)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE);
+    page_directory[769]=page_dir;
+    adr=0x400000;
+    for (int j = 0; j < PAGE_TABLE_COUNT; j++) {
+        uint32_t entry;
+        //uint32_t phys_addr=pmm_alloc();
+        pmm_alloc_addr(adr);
+        entry=(adr & PAGE_FRAME_ADDR)|PAGE_PRESENT|PAGE_WRITABLE;
+        kernel_second[j]= entry;
+        adr+=0x1000;
+        //pmm_alloc_addr(j*0x1000);
+    }
+    
+    //
+    //switch_current_dir((uint32_t)VIRT_TO_PHYS(&page_directory));
+    enable_paging_flag();
+    switch_current_dir((uint32_t)VIRT_TO_PHYS(&page_directory[0]));
+
+   //set_stack_top_4mb();
+  
+    //page_directory[0].present=0; //if unlimited low memory errors happen, just delete this line
+}
+/*
+void* vmm_find_free_page(){
+
+}
 void *vmm_alloc_page_4kb(void *virtual_address) {
     
     uint32_t physical_address = pmm_alloc();
@@ -154,6 +140,7 @@ void vmm_map_page_4kb(uint32_t virtual_address, uint32_t physical_address) { //t
     //page_directory[0].present=0;
     //pmm_alloc_addr(physical_address);
 }
+
 void vmm_unmap_page_4kb(void *virtual_address) {
     //page_directory[0].present=1;
     uint32_t pd_index = ((uint32_t)virtual_address >> 22);
@@ -225,4 +212,4 @@ void unpage_first_4mb(){
 }
 void page_first_4mb(){
     page_directory[0].present=1;
-}
+}*/

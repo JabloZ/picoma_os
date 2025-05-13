@@ -1,8 +1,9 @@
 //NOTE: SHOULD RENAME THIS, THIS IS JUST BUDDY ALLOCATOR
 #include "kalloc.h"
-
+#define HEAP_START  0xC0800000
+#define HEAP_END    0xC0B00000
 #define MAX_LEVELS 10
-#define MEMORY_SIZE 1*1024*1024
+#define MEMORY_SIZE 4*1024*1024
 allocator_block memory_pool[(1<<BS_10+1)];
 
 uint32_t blocks_iter=0;
@@ -67,6 +68,7 @@ void init_kalloc(){
     g_allocator.buddy1=create_block(&g_allocator, g_allocator.size, g_allocator.level);
     g_allocator.buddy2=create_block(&g_allocator, g_allocator.size, g_allocator.level);
     
+   
     
     //printf("g_alloc_size: %d\n",g_allocator->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->block_nr);
    
@@ -90,7 +92,7 @@ void mark_lower_used_blocks(allocator_block* block, uint32_t int_used){
 }
 
 void mark_higher_used_blocks(allocator_block* block, uint32_t int_used){
-        if (block->level==8){
+        if (block->level==9){
             return;
         }
        
@@ -132,18 +134,25 @@ void* mem_allocate(uint32_t size){
         printf("couldnt find any block to allocate\n");
         return;
     }
-     found_block->memory_ptr=memory_pool_ptr+(found_block->block_nr*found_block->size);
    
+     
+   
+    
     found_block->used=1;
     found_block->block_adr=pmm_alloc();
+    
+    found_block->memory_ptr=(found_block->block_adr);
+    
     for (int i=4096; i<found_block->size; i+=4096){
-        pmm_alloc();
+        
+        int* ptr=pmm_alloc();
+       
     }
     mark_lower_used_blocks(found_block,1);
     mark_higher_used_blocks(found_block,1);
    
     //map_page(found_block->memory_ptr, found_block->memory_ptr);
-    blocks[found_block->block_nr + (1 << MAX_LEVELS)] = found_block;
+    blocks[found_block->block_nr] = found_block;
     //printf("memory_ptr_allocated: %p",found_block->memory_ptr);
     //blocks[found_block->block_nr+(1<<MAX_LEVELS)]=found_block;
     
@@ -163,14 +172,26 @@ void change_higher_blocks(allocator_block* block){
 }
 void memory_free(void* mem){
     allocator_block* block;
-    for (int i=0; i<((1<<MAX_LEVELS+1));i++){
+    printf("%p",mem);
+    int count=0;
+    for (int i=0; i<((1<<(MAX_LEVELS)));i++){
         if (mem==blocks[i]->memory_ptr){
+            count++;
+
             block=blocks[i];
+            break;
         }
     }
+    if(count==0){
+        printf("\nsomething went wrong - no memory freed\n");
+        return;
+    }
+    
     //block=mem;
-    uint32_t start_block=block->block_adr;
+    uint32_t start_block=block->memory_ptr;
+    
     for (int i=block->size; i>=0; i-=4096){
+        printf("%p",start_block);
         pmm_free(start_block);
         start_block+=0x1000;
     }
@@ -178,5 +199,5 @@ void memory_free(void* mem){
     block->used=0;
     block->memory_ptr=NULL;
     change_higher_blocks(block->parent);
-
+    
 }
