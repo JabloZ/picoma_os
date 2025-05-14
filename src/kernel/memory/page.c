@@ -1,10 +1,10 @@
 #include "page.h"
 #define PAGE_4MB_SIZE 4*1024*1024
 #define PAGE_4KB_SIZE 4*1024
-#define KERNEL_SPACE 0xC0000000
 
 
-#define VIRT_TO_PHYS(addr) ((uint32_t)(addr) - KERNEL_SPACE)
+
+
 void deinitialize(uint32_t virt_addr){
     __asm__ volatile ("invlpg (%0)" : : "r" (virt_addr) : "memory");
 }
@@ -64,15 +64,43 @@ void init_page(){
         adr+=0x1000;
         //pmm_alloc_addr(j*0x1000);
     }
-    
+
+    //page_dir=((uint32_t)VIRT_TO_PHYS(kernel_kalloc))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE;
+    //page_directory[770]=page_dir;
     //
     //switch_current_dir((uint32_t)VIRT_TO_PHYS(&page_directory));
     enable_paging_flag();
     switch_current_dir((uint32_t)VIRT_TO_PHYS(&page_directory[0]));
-
+    //reset_stack();
+    
+    //__asm__ volatile("hlt;");
    //set_stack_top_4mb();
   
     //page_directory[0].present=0; //if unlimited low memory errors happen, just delete this line
+}
+void* vmm_alloc_page_4kb(page_table_entry* page_tab ,uint32_t virtual_adr, uint32_t phys_adr){
+    //uint32_t pd_index=virtual_adr>>22;
+    uint32_t pt_index=(virtual_adr>>12)&0x3FF;
+    page_tab[pt_index]= (phys_adr&PAGE_FRAME_ADDR)|PAGE_PRESENT|PAGE_WRITABLE;
+    flush_tlb_single(virtual_adr);
+}
+void vmm_alloc_page_4mb(page_table_entry* page_tab,uint32_t virtual_adr, uint32_t phys_adr){
+    
+    uint32_t pd_index=virtual_adr>>22;
+    page_directory[pd_index]=((uint32_t)phys_adr)|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE;
+    flush_tlb_single(virtual_adr);
+    //enable_paging_flag();
+    //printf("%p",page_alloc);
+    return virtual_adr;
+}
+void vmm_unmap_page_4kb(page_table_entry* page_tab, uint32_t virtual_adr){
+    uint32_t pt_index=(virtual_adr>>12)&0x3FF;
+    uint32_t offset=virtual_adr | PAGE_FRAME_ADDR;
+    uint32_t phys_adr=page_tab[pt_index] & PAGE_FRAME_ADDR;
+    page_tab[pt_index]= 0;
+    pmm_free(phys_adr);
+    flush_tlb_single(virtual_adr);
+
 }
 /*
 void* vmm_find_free_page(){

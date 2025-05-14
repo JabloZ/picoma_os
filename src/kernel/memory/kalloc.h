@@ -32,6 +32,7 @@ typedef struct allocator_block {
     uint8_t* memory_ptr;
     uint32_t block_nr;
     uint32_t block_adr;
+    uint32_t page_first;
 } allocator_block;
 
 uint32_t save_numbers[BS_10+1];
@@ -44,5 +45,6 @@ allocator_block* find_block(uint32_t size, const allocator_block* block);
 void mark_higher_used_blocks(allocator_block* block, uint32_t int_used);
 void mark_lower_used_blocks(allocator_block* block, uint32_t int_used);
 void memory_free(void* mem);
-
+page_table_entry kalloc_memory[PAGE_TABLE_COUNT] __attribute__((aligned(PAGE_SIZE)));
+uint32_t taken_blocks;
 #endif

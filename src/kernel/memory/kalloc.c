@@ -1,7 +1,6 @@
 //NOTE: SHOULD RENAME THIS, THIS IS JUST BUDDY ALLOCATOR
 #include "kalloc.h"
-#define HEAP_START  0xC0800000
-#define HEAP_END    0xC0B00000
+
 #define MAX_LEVELS 10
 #define MEMORY_SIZE 4*1024*1024
 allocator_block memory_pool[(1<<BS_10+1)];
@@ -24,6 +23,7 @@ allocator_block* create_block(const allocator_block* b_parent, uint32_t mem_size
     block->level=lvl-1;
     block->block_nr=save_numbers[block->level];
     block->block_adr=NULL;
+    block->page_first=0;
     save_numbers[block->level]++;
     if (block->level>0){
         block->buddy1=create_block(block, block->size, block->level);
@@ -53,7 +53,7 @@ void test_mem(void* ptr, uint32_t size) {
 }
 void init_kalloc(){
     
-    
+    taken_blocks=0;
     memory_pool_ptr = memory_pool;
     memory_pool_ptr+=sizeof(allocator_block);
     
@@ -67,7 +67,7 @@ void init_kalloc(){
     
     g_allocator.buddy1=create_block(&g_allocator, g_allocator.size, g_allocator.level);
     g_allocator.buddy2=create_block(&g_allocator, g_allocator.size, g_allocator.level);
-    
+    vmm_alloc_page_4mb(kalloc_memory, 0xC0800000, VIRT_TO_PHYS(kalloc_memory));
    
     
     //printf("g_alloc_size: %d\n",g_allocator->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->buddy2->block_nr);
@@ -139,14 +139,16 @@ void* mem_allocate(uint32_t size){
    
     
     found_block->used=1;
-    found_block->block_adr=pmm_alloc();
     
-    found_block->memory_ptr=(found_block->block_adr);
-    
-    for (int i=4096; i<found_block->size; i+=4096){
+    found_block->page_first=taken_blocks;
+    found_block->block_adr=0xC0800000+taken_blocks*0x1000;
+    for (int i=0; i<found_block->size; i+=4096){
         
-        int* ptr=pmm_alloc();
-       
+        int* ptr=pmm_alloc(4096);
+        vmm_alloc_page_4kb(kalloc_memory,0xC0800000+taken_blocks*0x1000,ptr);
+        
+        flush_tlb_single(0xC0800000+taken_blocks*0x1000);
+        taken_blocks+=1;
     }
     mark_lower_used_blocks(found_block,1);
     mark_higher_used_blocks(found_block,1);
@@ -172,7 +174,7 @@ void change_higher_blocks(allocator_block* block){
 }
 void memory_free(void* mem){
     allocator_block* block;
-    printf("%p",mem);
+    
     int count=0;
     for (int i=0; i<((1<<(MAX_LEVELS)));i++){
         if (mem==blocks[i]->memory_ptr){
@@ -190,9 +192,10 @@ void memory_free(void* mem){
     //block=mem;
     uint32_t start_block=block->memory_ptr;
     
-    for (int i=block->size; i>=0; i-=4096){
-        printf("%p",start_block);
-        pmm_free(start_block);
+    for (int i=block->size; i>0; i-=4096){
+        //printf("%p",start_block);
+        //pmm_free(start_block);
+        vmm_unmap_page_4kb(kalloc_memory, start_block);
         start_block+=0x1000;
     }
     mark_lower_used_blocks(block, 0);

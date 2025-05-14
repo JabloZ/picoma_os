@@ -3,9 +3,14 @@ global reload_segments
 global switch_current_dir
 global enable_paging_flag
 global set_stack_top_4mb
+global reset_stack
 
-
-
+reset_stack:
+   mov ax, 0x10
+   mov ss, ax
+   mov esp, 0xFFFF
+   sti
+   ret
 reload_segments:
    
    JMP   0x08:.reload_CS 
