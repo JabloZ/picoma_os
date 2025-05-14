@@ -38,8 +38,8 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
     //memory_free(temp);
     //memory_free(temp2);
     print_pmm();
-    uint8_t* buf=mem_allocate(40950);
-    //memory_free(buf);
+    
+    
     print_pmm();
     
     //print_regions();

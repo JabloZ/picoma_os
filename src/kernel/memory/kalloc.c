@@ -197,6 +197,7 @@ void memory_free(void* mem){
         //pmm_free(start_block);
         vmm_unmap_page_4kb(kalloc_memory, start_block);
         start_block+=0x1000;
+        taken_blocks-=1;
     }
     mark_lower_used_blocks(block, 0);
     block->used=0;
