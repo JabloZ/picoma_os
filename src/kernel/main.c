@@ -24,6 +24,7 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
     //vmm_unmap_page_4kb(0xC0805000);
     //print_pmm();
     //vmm_memory_status();
+    
     init_fdc();
     init_opofs(0);
     
@@ -37,8 +38,16 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
    
     //memory_free(temp);
     //memory_free(temp2);
-    print_pmm();
-    
+    //print_pmm();
+    /*
+    uint8_t* buf=mem_allocate(40950);
+    memory_free(buf);
+    uint8_t* buf2=mem_allocate(20550);
+    memory_free(buf2);
+    uint8_t* buf3=mem_allocate(45110);
+    memory_free(buf3);
+    uint8_t* buf4=mem_allocate(2);
+    memory_free(buf4);*/
     
     print_pmm();
     
@@ -56,14 +65,21 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
     
     //fdc_write_sector(0,991,&buf,0,sector_write);
     setup_global_file_info_table();
+    
     //read_elf("kernel.bin");
+
+    
+    
    
+    //handler_irq_1();
+    
     printf("~/>");
+    //execute_or_recognize_command();
+    
+  
     
     //printf("filetest    txt");
-   //create_file_opofs(&root_dir, 3, "filetest.txt", 900,0,0);
-    
-    
+   //creat_file_opofs(&root_dir, 3, "filetest.txt", 900,0,0);
 end:
     while(1);
 }

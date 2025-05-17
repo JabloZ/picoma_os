@@ -8,6 +8,11 @@ allocator_block memory_pool[(1<<BS_10+1)];
 uint32_t blocks_iter=0;
 uint8_t* memory_pool_ptr;
 allocator_block g_allocator;
+void test(){
+    uint8_t buf[512];
+    fdc_read_sector(0,3,&buf,0,1);
+    for (int i=0; i<512; i++){printf("%c",buf[i]);}
+}
 
 
 allocator_block* create_block(const allocator_block* b_parent, uint32_t mem_size, uint32_t lvl){
@@ -142,6 +147,7 @@ void* mem_allocate(uint32_t size){
     
     found_block->page_first=taken_blocks;
     found_block->block_adr=0xC0800000+taken_blocks*0x1000;
+    found_block->memory_ptr=0xC0800000+taken_blocks*0x1000;
     for (int i=0; i<found_block->size; i+=4096){
         
         int* ptr=pmm_alloc(4096);

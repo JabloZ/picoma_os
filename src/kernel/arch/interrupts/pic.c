@@ -20,6 +20,7 @@ void pic_send_eoi(uint8_t irq){
     if(irq>=8){ // if slave pic
         outb(PIC2_COMMAND,PIC_EOI);
     }
+    //printf("|%d|",irq);
     outb(PIC1_COMMAND,PIC_EOI);
 }
 void remap_pic(int offset1, int offset2){

@@ -6,6 +6,8 @@
 #include "../clibs/stdio.h"
 #include "page.h"
 #include "../memory_params.h"
+#include "../../kernel/arch/drivers/fs/opofs.h"
+void test();
 typedef enum{ //*4096
     BS_0=0, //4KB
     BS_1,

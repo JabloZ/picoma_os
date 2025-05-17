@@ -1,8 +1,9 @@
 #ifndef ISR_H
 #define ISR_H
 #include "../../clibs/stdint.h"
+#include "../../clibs/stdint.h"
 #include "../../memory_params.h"
-#include "../../clibs/stdbool.h"
+//#include "../drivers/fdc.h"
 #include "idt.h"
 typedef struct{
       uint32_t ds;                                            
@@ -62,7 +63,7 @@ extern void isr_45();
 extern void isr_46();
 extern void isr_47();
 extern void isr_48();
-
+extern void isr6();
 void init_isr();
 void enable_gate(uint8_t interrupt);
 void disable_gate(uint8_t interrupt);

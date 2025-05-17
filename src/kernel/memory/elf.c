@@ -8,11 +8,18 @@ void read_elf(char* filename_to_read){
     file_entry f2;
     file_entry save_f;
     file_entry file_e;
-    uint8_t buf[50000];
-    return_file_entry_with_name("stage2.bin",&save_f,&file_e);
-    printf("%s",file_e.filename);
-    read_file_opo(0,&file_e,&buf);
-    printf("%d %d %d %d",buf[0],buf[1],buf[2],buf[3]);
+    
+    return_file_entry_with_name("kernel.bin",&save_f,&file_e);
+    uint8_t* buf=mem_allocate(file_e.size);
+    //memset(buf,0,file_e.size);
+    
+    //printf("%s",file_e.filename);
+    read_file_opo(0,&file_e,buf);
+        for (int i=0; i<file_e.size; i++){
+        printf("%c",buf[i]);
+        printf("%d",i);
+    }
+
     memory_free(buf);
-    printf("no err");
+    
 }

@@ -119,7 +119,9 @@ int return_command_num(char* str_cmd){
     }
 }
 void handler_irq_1(){
+    
     uint8_t scancode = inb(0x60);
+    
     char* pressed=get_key_name(scancode);
     if (scancode>0x80){
 		
@@ -129,6 +131,7 @@ void handler_irq_1(){
 			shift_pressed=0;
 			break;
 		}
+        pic_send_eoi(1);
         return;
     }
 
@@ -326,6 +329,7 @@ void handler_irq_1(){
                     if (pte_mode==1 && pte_cmd_mode==1){
                        
                         if (global_command[0]=='q'){
+                            pic_send_eoi(1);
                            quit_pte_func();
                            break;
                         }
@@ -364,8 +368,10 @@ void handler_irq_1(){
                        
                         
                     }
-                   
+                  
                     recognize_command(global_command);
+                    pic_send_eoi(1);
+                    
                     execute_or_recognize_command();
                     memset(g_cmd_str, 0, 1000);
                     memset(global_command, 0, 1024);
@@ -526,6 +532,7 @@ void handler_irq_1(){
             }
         }
     }
+    
     pic_send_eoi(1);
 
 }

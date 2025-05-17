@@ -5,13 +5,13 @@
 volatile int irq_received = 0; 
 void enable_interrupts(){
     
-    __asm__ volatile ("sti; hlt");
+    __asm__ volatile ("sti;");
     
     
 }
 
 void disable_interrupts(){
-    __asm__ volatile ("cli; hlt");
+    __asm__ volatile ("cli;");
 }
 void handler_irq_0(){
     ;

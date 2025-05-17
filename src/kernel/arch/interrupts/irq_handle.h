@@ -7,6 +7,7 @@
 #include "../../clibs/string.h"
 #include "../../clibs/memory.h"
 #include "../drivers/pte.h"
+#include "pic.h"
 #include "irq.h"
 
 void handler_irq_1();

@@ -49,11 +49,13 @@ void init_opofs(uint32_t disk){
 bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* file_test, file_entry* end_file, int* lba_of_filedir){
     //WARNING: FOR NOW '/' AT BEGINNING OF PATH IS NOT SUPPORTED, AND PATH IS ONLY ABSOLUTE (ALWAYS FROM ROOT_DIR)
     //FORMAT PATH OPERATIONS: EXTRACT CURRENT FILE/FOLDER AND CHANGE 'folder/file1' to 'file1' for searching next files
+    //printf("%s, %d, %d ",path,file_e->lba_first, &lba_of_filedir);
     bool can_change_filedir=true;
     if (strlen(path)<15){
         return false;
     } 
-    uint8_t buf[512];
+    
+    uint8_t* buf=mem_allocate(512);
     uint8_t file_searched[16];
     for (int num=0; num<15; num++){
         file_searched[num]=path[num];
@@ -82,12 +84,15 @@ bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* fi
         max_j=file_e->size/SECTOR_SIZE;}
     else{
         max_j=file_e->size/SECTOR_SIZE+1;}
-    //printf("SZUKANY PLIK: %s SCIEZKA_BEZ_AKTUALNEGO_PLIKU: %s",file_searched, path_without_file);
+    
     //READ DISK SECTOR, SAVE TO BUFFER, TEST IF FILE_TEST FILENAME IS EQUAL TO FILE_SEARCHED
+    
     for (int j=1; j<max_j+1;j++){
+
+        //fdc_read_sector(disk,3,buf,0,sector_read);
         
-        fdc_read_sector(disk,file_e->lba_first-1+j,&buf,0,sector_read);
-        
+        fdc_read_sector(disk,file_e->lba_first-1+j,buf,0,sector_read);
+       
         for (int i=0; i<16; i++){//
             
             for (int k=0; k<15; k++){
@@ -144,14 +149,13 @@ int read_file_opo(uint32_t disk, file_entry* fe, uint8_t* buf){
     }
 
     int max_b=512;
-    printf("sectors to read: %d lba_first: %d  ",sectors_to_read,fe->lba_first);
+    //printf("sectors to read: %d lba_first: %d  ",sectors_to_read,fe->lba_first);
     int cpy=fe->lba_first;
     
     for (int i=0; i<sectors_to_read; i++){
         
-        printf("%d ",i);
         fdc_read_sector(disk,cpy+i,&temp_buf,0,sector_read);
-        printf("%d|",i);
+        
         if (copy_mod!=0){
             if (i+1==sectors_to_read){
                     max_b=copy_mod;
@@ -229,7 +233,7 @@ int change_file_entry_opo(file_entry* file_e, int new_size, int new_lba){
         
 }
 int create_file_opofs(file_entry* og_dir, int lba_where_to_create, char* new_filename, int new_lba, int new_size, uint8_t* new_file_data, int dir){
-    //printf("filen: %s",new_filename);
+
     int sectors_to_read=0;
     int size_mod=og_dir->size%512;
     uint8_t directory_data[512];
@@ -351,9 +355,7 @@ void opo_path_formatter(char* og_path, char* new_path, int count_elements){
    
 }
 //opofs_move_file_and_create_space_for_size() TODO
-opofs_remove_file_and_contents(){
 
-}
 
 int setup_global_file_info_table(){
     uint8_t global_filesystem_data[512];
@@ -375,6 +377,7 @@ int setup_global_file_info_table(){
         }
     }
     //global_filesystem_data[1]=170;
+   
     fdc_write_sector(0,1,global_filesystem_data,0,sector_write);
     return 1;
 }
@@ -762,7 +765,7 @@ int return_file_entry(int i, file_entry* save_f, file_entry* file_e){
                     opo_path_formatter(path_c, path, count_elements);
                     
                     int count=0;
-                    
+                    //printf("%s, %d, %d, %d ",path,root_dir.lba_first,file_e->lba_first, &lba_of_filedir);
                     find_file_opo(0,path,&root_dir,save_f,file_e,&lba_of_filedir);
                      if (strcmp(path,".",1)==1 || strchr(path,'/')==NULL){
                         lba_of_filedir=root_dir.lba_first;
@@ -790,7 +793,9 @@ int return_file_entry(int i, file_entry* save_f, file_entry* file_e){
                     
                     opo_path_formatter(g_cmd_str[i], path, count_elements);
                     int count=0;
+                    
                     find_file_opo(0,path,&root_dir,save_f,file_e,&lba_of_filedir);
+                    
                     count=lba_of_filedir;
                     if (strcmp(path,".",1)==1 || strchr(path,'/')==NULL){
                         lba_of_filedir=root_dir.lba_first;
@@ -901,10 +906,13 @@ int move_line_down(){
 int execute_or_recognize_command(){
     
     for (int i=1; i<10; i++){
+        //printf("%s",g_cmd_str[i-1]);
         switch(return_command_num(g_cmd_str[i-1])){
             case 0:
+                
                 break;
             case 1: {//la 'dir' - list all from dir
+                
                 //STRING FORMATTING : ONLY FOR DIRECTORIES FOR NOW 
                 if (strlen_not_space(g_cmd_str[i])==0){
                     printf("\nToo few arguments.\n");
@@ -914,6 +922,7 @@ int execute_or_recognize_command(){
                 if (strlen(g_cmd_str[i])==0){
                     break;
                 }
+                
                 file_entry file_e;
                 file_entry save_f;
                 
@@ -937,11 +946,11 @@ int execute_or_recognize_command(){
                 else{
                     max_j=(file_e.size/512)+1;
                 }
-               
-                uint8_t* buf=mem_allocate(max_j*512);
+                uint8_t buf[512*max_j];
+                //uint8_t* buf=mem_allocate(max_j*512);
                 char name[16];
                 for (int j=0; j<max_j; j++){
-                  
+                    
                     fdc_read_sector(0,file_e.lba_first+j, buf,0,sector_read);
                     for (int x=0; x<16; x++){
                         for (int z=0; z<15; z++){
@@ -959,7 +968,7 @@ int execute_or_recognize_command(){
                     }
                 }
                 
-                memory_free(buf);
+                //memory_free(buf);
                 
                 memset(name,0,16);
                 //memset(&file_e, 0, sizeof(file_e));
@@ -987,12 +996,14 @@ int execute_or_recognize_command(){
 
                 return_file_entry(i, &save_f, &file_e);
 
-                char buf[file_e.size];
-                read_file_opo(0,&file_e,&buf);
+                //char buf[file_e.size];
+                uint8_t* buf=mem_allocate(file_e.size);
+                read_file_opo(0,&file_e,buf);
                 for (int c=0; c<file_e.size; c++){
                     
                     printf("%c",buf[c]);
                 }
+                memory_free(buf);
                 //printf("pte: %d\n",pte_mode);
 
                 break;}
@@ -1177,6 +1188,9 @@ int execute_or_recognize_command(){
             default:
                 printf("\nCommand unrecognised!\n");
                 break;
+        }
+        for (int k=0; k<10; k++){
+            memset(g_cmd_str[k],0,100);
         }
     }
 }

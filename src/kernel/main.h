@@ -3,6 +3,7 @@
 #include "clibs/stdint.h"
 #include "clibs/stdio.h"
 #include "clibs/memory.h"
+#include "clibs/x86.h"
 #include "arch/init_services.h"
 #include "arch/interrupts/irq.h"
 #include "arch/interrupts/idt.h"

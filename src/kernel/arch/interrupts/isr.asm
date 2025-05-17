@@ -99,3 +99,12 @@ global panic
 panic:
     cli
     hlt
+global isr6
+extern fdc_irq_handle
+isr6:
+    cli
+    pusha
+    call fdc_irq_handle
+    popa
+    sti
+    iretd

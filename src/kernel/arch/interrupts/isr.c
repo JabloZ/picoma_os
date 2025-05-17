@@ -100,7 +100,7 @@ void init_isr(){
     set_gate(47, (uint32_t)&isr_47, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
     set_gate(48, (uint32_t)&isr_48, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
 
-    for(uint8_t i=0; i<32; i++){
+    for(uint8_t i=0; i<48; i++){
         enable_gate(i);
     }
     
