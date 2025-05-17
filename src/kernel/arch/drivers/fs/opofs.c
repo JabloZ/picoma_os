@@ -304,7 +304,7 @@ int create_file_opofs(file_entry* og_dir, int lba_where_to_create, char* new_fil
     return 0;
 }
 
-void opo_path_formatter(char* og_path, char* new_path, int count_elements){
+void  opo_path_formatter(char* og_path, char* new_path, int count_elements){
    
     int add_spaces=0;
     int iter=0;
@@ -1123,7 +1123,7 @@ int execute_or_recognize_command(){
                 break;
             }
             case 5:{ //mkf
-                if (strlen_not_space(g_cmd_str[i])==0){
+                if (strlen_not_space(g_cmd_str[i+1])==0 || ((g_cmd_str[i+1])==0 && strlen_not_space(g_cmd_str[i+2])==0)){
                     printf("\nToo few arguments.\n");
                     break;
                 }
@@ -1143,7 +1143,7 @@ int execute_or_recognize_command(){
                 break;
             }
             case 6:{ //mkd
-                if (strlen_not_space(g_cmd_str[i])==0){
+                if (strlen_not_space(g_cmd_str[i+1])==0 || ((g_cmd_str[i+1])==0 && strlen_not_space(g_cmd_str[i+2])==0)){
                     printf("\nToo few arguments.\n");
                     break;
                 }
@@ -1162,7 +1162,7 @@ int execute_or_recognize_command(){
                 create_file_opofs(&file_e,file_e.lba_first,path_new,find_free_sectors_in_disk(512),512,0,1);
                 break;
             }
-            case 7:{
+            case 7:{ //remove
                 if (strlen_not_space(g_cmd_str[i])==0){
                     printf("\nToo few arguments.\n");
                     break;
