@@ -39,12 +39,21 @@ int main() {
         .lba_first = 40,
         .reserved = {0}
     };
+    file_entry entry_test_elf={
+        .filename = "testelf     bin",
+        .is_dir = 0,
+        .size = 5532,
+        .lba_first = 200,
+        .reserved = {0}
+    };
+
     FILE* file = fopen("file_entry.bin", "wb");
     if (file != NULL) {
         fwrite(&entry, sizeof(file_entry), 1, file);
         fwrite(&entry2, sizeof(file_entry), 1, file);
         fwrite(&entry_stage2, sizeof(file_entry), 1, file);
         fwrite(&entry_kernel, sizeof(file_entry), 1, file);
+        fwrite(&entry_test_elf, sizeof(file_entry), 1, file);
         fclose(file);
         return 0;
     } else {

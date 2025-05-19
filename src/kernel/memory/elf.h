@@ -5,7 +5,42 @@
 #include "../clibs/stdbool.h"
 #include "../arch/drivers/fs/opofs.h"
 #include "kalloc.h"
-void read_elf(char* filename);
+void read_elf(uint8_t* filename);
+#define ELF_32 1
+#define ELF_64 2
+
+#define LITTLE_ENDIAN 1
+#define BIG_ENDIAN 2
+
+#define TYPE_RELOCATABLE 1
+#define TYPE_EXECUTABLE 2
+#define TYPE_SHARED 3
+#define TYPE_CORE 4
+
+#define IGNORE_ENTRY 0
+#define LOAD_ENTRY 1
+#define DYNAMIC_ENTRY 2
+#define INTERP_ENTRY 3
+#define NOTE_SECTION 4
+
+typedef enum{
+    NO_SPECIFIC=0,
+    SPARC=0x02,
+    X86=0x03,
+    MIPS=0x08,
+    POWERPC=0x14,
+    ARM=0x28,
+    SUPERH=0x2A,
+    IA_64=0x32,
+    X86_X64=0x3E,
+    AARCH64=0xB7,
+    RISC_V=0xF3
+} architecture;
+enum elf_flags{
+    elf_exe=0x01,
+    elf_writabel=0x02,
+    elf_readable=0x04,
+};
 typedef struct{
     uint8_t magic[4];
     uint8_t bits;

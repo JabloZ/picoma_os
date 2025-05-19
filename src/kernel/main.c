@@ -66,7 +66,7 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
     //fdc_write_sector(0,991,&buf,0,sector_write);
     setup_global_file_info_table();
     
-    //read_elf("kernel.bin");
+    read_elf("testelf.bin");
 
     
     

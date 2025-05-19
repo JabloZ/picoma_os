@@ -58,7 +58,6 @@ start:
         mov cl, 0
     .end:
 
-    
         ;add bx, 512
         add cl, 1
          
@@ -75,13 +74,9 @@ start:
         mov ax, stage2_load_segment
         mov ds, ax
         mov es, ax
-        
-        ;cli
-        ;hlt;7c74
+    
         jmp stage2_load_segment:stage2_load_offset
-        ;mov ah, 0x0e
-        ;mov al, bl
-        ;int 0x10
+      
         cli
         hlt
 

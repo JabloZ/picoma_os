@@ -149,6 +149,7 @@ int read_file_opo(uint32_t disk, file_entry* fe, uint8_t* buf){
     }
 
     int max_b=512;
+    uint32_t bytes_read=0;
     //printf("sectors to read: %d lba_first: %d  ",sectors_to_read,fe->lba_first);
     int cpy=fe->lba_first;
     
