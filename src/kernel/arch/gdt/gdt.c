@@ -33,14 +33,7 @@ typedef enum{
     GDT_FLAG_16_BIT = 0x00
 } GDT_FLAG;
 
-#define GDT_ENTRY(base,limit,access,flags){\  
-    (limit & 0xFFFF), \
-    (base & 0xFFFF), \
-    ((base >> 16) & 0XFF), \
-    access, \
-    (((limit >> 16) & 0xF) | (flags & 0xF0)), \
-    ((base >> 24) & 0xFF) \
-}
+
 
 void __attribute__((cdecl)) load_gdt(gdt_desc* descriptor, uint16_t code_seg, uint16_t data_seg);
 
@@ -48,12 +41,15 @@ void init_gdt(){
    __attribute__((aligned(2048))) gdt_entry g_gdt_entries[]={
     GDT_ENTRY(0,0,0,0),
     GDT_ENTRY(0x0000000,0xFFFFFFFF,GDT_A_PRESENT | GDT_A_RING_0 | GDT_A_CODE_SEGMENT | GDT_A_CODE_READABLE, GDT_FLAG_32_BIT | GDT_FLAG_GRANULARITY_4KB),
-    GDT_ENTRY(0x0000000,0xFFFFFFFF,GDT_A_PRESENT | GDT_A_RING_0 | GDT_A_DATA_SEGMENT | GDT_A_DATA_WRITEABLE, GDT_FLAG_32_BIT | GDT_FLAG_GRANULARITY_4KB)};
-    
+    GDT_ENTRY(0x0000000,0xFFFFFFFF,GDT_A_PRESENT | GDT_A_RING_0 | GDT_A_DATA_SEGMENT | GDT_A_DATA_WRITEABLE, GDT_FLAG_32_BIT | GDT_FLAG_GRANULARITY_4KB),
+    GDT_ENTRY(0x0000000,0xFFFFFFFF,GDT_A_PRESENT | GDT_A_RING_3 | GDT_A_CODE_SEGMENT | GDT_A_CODE_READABLE, GDT_FLAG_32_BIT | GDT_FLAG_GRANULARITY_4KB),
+    GDT_ENTRY(0x0000000,0xFFFFFFFF,GDT_A_PRESENT | GDT_A_RING_3 | GDT_A_DATA_SEGMENT | GDT_A_DATA_WRITEABLE, GDT_FLAG_32_BIT | GDT_FLAG_GRANULARITY_4KB)};
     
 
+    
+    
     g_gdt_desc.limit=sizeof(g_gdt_entries)-1;
-    g_gdt_desc.gdt_ptr=(uint32_t)&g_gdt_entries;
+    g_gdt_desc.gdt_ptr=(uint32_t)&g_gdt_entries+0xc0000000;
     
     load_gdt(&g_gdt_desc, GDT_CODE_SEGMENT, GDT_DATA_SEGMENT);
     

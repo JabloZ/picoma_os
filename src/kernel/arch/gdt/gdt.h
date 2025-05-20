@@ -1,6 +1,7 @@
 #ifndef GDT_H
 #define GDT_H
 #include "../../clibs/stdint.h"
+
 #define GDT_CODE_SEGMENT 0x08
 #define GDT_DATA_SEGMENT 0x10
 
@@ -20,6 +21,14 @@ typedef struct{
     uint32_t gdt_ptr;
 } __attribute__((packed)) gdt_desc;
 
+#define GDT_ENTRY(base,limit,access,flags){\  
+    (limit & 0xFFFF), \
+    (base & 0xFFFF), \
+    ((base >> 16) & 0XFF), \
+    access, \
+    (((limit >> 16) & 0xF) | (flags & 0xF0)), \
+    ((base >> 24) & 0xFF) \
+}
 gdt_desc g_gdt_desc;
 int baba;
 __attribute__((aligned(2048))) gdt_entry g_gdt_entries[2048];

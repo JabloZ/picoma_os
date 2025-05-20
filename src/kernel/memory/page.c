@@ -26,40 +26,40 @@ void init_page(){
     //printf("%p|",page_dir);
     memset(page_directory, 0, sizeof(page_directory));
     
-    page_dir=(( ((uint32_t)VIRT_TO_PHYS(kernel_zero)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE);
+    page_dir=(( ((uint32_t)VIRT_TO_PHYS(kernel_zero)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE|PAGE_DIR_USER);
     page_directory[0]=page_dir;
     uint32_t adr=0x0;
     for (int i = 0; i < PAGE_TABLE_COUNT; i++) {
         uint32_t entry=0;
         //uint32_t phys_addr=pmm_alloc();
         pmm_alloc_addr(adr);
-        entry=(adr & PAGE_FRAME_ADDR)|PAGE_PRESENT|PAGE_WRITABLE;
+        entry=(adr & PAGE_FRAME_ADDR)|PAGE_PRESENT|PAGE_WRITABLE|PAGE_USER;
         kernel_zero[i]= entry;
         adr+=0x1000;
     }
     
     //printf("%p",kernel_zero[1023]);
     
-    page_dir=(( ((uint32_t)VIRT_TO_PHYS(kernel_first)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE);
+    page_dir=(( ((uint32_t)VIRT_TO_PHYS(kernel_first)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE|PAGE_DIR_USER);
     page_directory[768]=page_dir;
     adr=0x0;
     for (int i = 0; i < PAGE_TABLE_COUNT; i++) {
         uint32_t entry;
         //uint32_t phys_addr=pmm_alloc();
         pmm_alloc_addr(adr);
-        entry=(adr & PAGE_FRAME_ADDR)|PAGE_PRESENT|PAGE_WRITABLE;
+        entry=(adr & PAGE_FRAME_ADDR)|PAGE_PRESENT|PAGE_WRITABLE|PAGE_USER;
         kernel_first[i]= entry;
         adr+=0x1000;
     }
     uint32_t pd_index = (KERNEL_SPACE >> 22)+1;
-    page_dir=(( ((uint32_t)VIRT_TO_PHYS(kernel_second)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE);
+    page_dir=(( ((uint32_t)VIRT_TO_PHYS(kernel_second)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE|PAGE_DIR_USER);
     page_directory[769]=page_dir;
     adr=0x400000;
     for (int j = 0; j < PAGE_TABLE_COUNT; j++) {
         uint32_t entry;
         //uint32_t phys_addr=pmm_alloc();
-        pmm_alloc_addr(adr);
-        entry=(adr & PAGE_FRAME_ADDR)|PAGE_PRESENT|PAGE_WRITABLE;
+        //pmm_alloc_addr(adr);
+        entry=(adr & PAGE_FRAME_ADDR)|PAGE_PRESENT|PAGE_WRITABLE|PAGE_USER;
         kernel_second[j]= entry;
         adr+=0x1000;
         //pmm_alloc_addr(j*0x1000);
@@ -75,7 +75,7 @@ void init_page(){
     
     //__asm__ volatile("hlt;");
    //set_stack_top_4mb();
-  
+   
     //page_directory[0].present=0; //if unlimited low memory errors happen, just delete this line
 }
 void* vmm_alloc_page_4kb(page_table_entry* page_tab ,uint32_t virtual_adr, uint32_t phys_adr){

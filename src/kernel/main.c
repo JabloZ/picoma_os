@@ -1,6 +1,10 @@
 #include "main.h"
+
+
 void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_info* g_memory_regs_info_boot)
 {
+    
+  
     
    //__asm__ volatile("hlt;");
     clear_screen();
@@ -17,6 +21,14 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
     printf("________________________________________________________________________________\n");
     printf(">");
     print_pmm();
+     void* kernel_stack_top=(void*)0xC03FFFFF;
+    
+    __asm__ volatile (
+    "mov %0, %%esp\n"
+    "mov %0, %%ebp\n"
+    :
+    : "r" (kernel_stack_top)
+    );
     
     //vmm_alloc_page_4kb(0xC0805000);
     //vmm_alloc_page_4kb(0xC0806000);
@@ -66,14 +78,14 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
     //fdc_write_sector(0,991,&buf,0,sector_write);
     setup_global_file_info_table();
     
-    read_elf("testelf.bin");
+    //read_elf("testelf.bin");
 
-    
+    //usermode();
     
    
     //handler_irq_1();
-    
-    printf("~/>");
+    write_tss(&g_gdt_entries[5]);
+    //printf("~/>");
     //execute_or_recognize_command();
     
   

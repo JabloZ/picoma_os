@@ -46,6 +46,7 @@ void read_elf(uint8_t* filename_to_read){
     uint32_t program_entries_count=elf_h->program_entries_count;
     program_header* elf_program_headers=(program_header*)(elf_h+program_header_offset);
     
+    
     for (int i=0; i<program_entries_count; i++){
         program_header* ph=(program_header*)(buf+program_header_offset+i*program_header_size);
         void* mem=(void*)ph->p_vaddr;

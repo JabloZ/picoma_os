@@ -1,7 +1,7 @@
 #include "pmm.h"
 
 void init_pmm(){
-    
+
     last_alloc=0;
     for (int i=0; i<total_pages; i++){
         physical_mem[i]=0;
