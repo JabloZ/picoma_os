@@ -1,5 +1,5 @@
 #include "irq_handle.h"
-
+elf_header* saved_elf = NULL;
 const char* get_key_name(int scancode) {
     switch (scancode) {
         case 1: return "ESC";
@@ -825,12 +825,21 @@ int execute_or_recognize_command(){
                 printf("-mkd [path] [directory name] - create directory\n");
                 printf("-rmv [path] - delete file/directory\n");
                 break;}
-            case 9:{
+            case 9:{ //execute
                 if (strlen_not_space(g_cmd_str[i])==0){
                     printf("\nToo few arguments.\n");
                     break;
                 }
-                read_elf(g_cmd_str[1]);
+                print_pmm();
+                save_context(&&after_program);
+                elf_header* elf_h=read_elf(g_cmd_str[1]);
+                saved_elf=elf_h;
+                jump_elf(elf_h);
+                
+                
+after_program:
+                    
+                remove_elf(saved_elf);
                 break;}
             case 10:{
                 if (strlen_not_space(g_cmd_str[i])==0){

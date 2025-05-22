@@ -1,6 +1,6 @@
 #include "elf.h"
 saved_context glob_context;
-extern void after_program(void);
+
 void* read_elf(uint8_t* filename_to_read){
     
     
@@ -61,7 +61,7 @@ void* read_elf(uint8_t* filename_to_read){
     }
     
     //return elf_h->entry_offset;
-    return elf_h;
+    return (elf_header*)elf_h;
     
     
 }
@@ -75,6 +75,7 @@ void save_context(uint32_t adr){
         : "memory"
     );
     glob_context.eip = adr;
+    
 }
 void jump_elf(elf_header* elf_h){
     
@@ -84,20 +85,24 @@ void jump_elf(elf_header* elf_h){
     entry(); 
     return;
 }
-void* remove_elf(elf_header* elf_h){
-    uint32_t program_header_offset=elf_h->program_header_offset;
-    uint32_t program_header_size=elf_h->program_entry_size*elf_h->program_entries_count;
-    uint32_t program_entry_size=elf_h->program_entry_size;
-    uint32_t program_entries_count=elf_h->program_entries_count;
-    program_header* elf_program_headers=(program_header*)(elf_h+program_header_offset);
-
+void remove_elf(elf_header* elf_h){
+    elf_header* hdr = (elf_header*)elf_h;
+    
+    uint32_t program_header_offset=hdr->program_header_offset;
+    uint32_t program_header_size=hdr->program_entry_size*hdr->program_entries_count;
+    uint32_t program_entry_size=hdr->program_entry_size;
+    uint32_t program_entries_count=hdr->program_entries_count;
+    program_header* elf_program_headers=(program_header*)(hdr+program_header_offset);
+    
     for (int i=0; i<program_entries_count; i++){
         
-        program_header* ph=(program_header*)((uint8_t*)elf_h + program_header_offset + i * program_entry_size);
+        program_header* ph = (program_header*)((uint8_t*)hdr + program_header_offset + i * program_entry_size);
+
         void* mem=(void*)ph->p_vaddr;
         
         vmm_unmap_page_4kb(kernel_second,mem);
     }
     
-    memory_free(elf_h);
+    memory_free(hdr);
+    print_pmm();
 }

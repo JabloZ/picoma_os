@@ -77,7 +77,7 @@ typedef struct{
 
 void* read_elf(uint8_t* filename);
 void jump_elf(elf_header* elf_h);
-void* remove_elf(elf_header* elf_h);
+void remove_elf(elf_header* elf_h);
 void save_context(uint32_t adr);
 extern void after_program(void);
 #endif

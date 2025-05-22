@@ -10,6 +10,8 @@
 #include "../drivers/pte.h"
 #include "pic.h"
 #include "irq.h"
+#include "isr.h"
+#include "../../memory/elf.h"
 int execute_or_recognize_command();
 void handler_irq_1();
 char g_cmd_str[10][100];
