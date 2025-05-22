@@ -108,3 +108,39 @@ isr6:
     popa
     sti
     iretd
+global isr80
+extern syscall_handler
+isr80:
+    cli
+    
+    push ds
+   
+
+    push esi
+    push edi
+    push ebp
+    push dword 0
+    push ebx
+    push edx
+    push ecx
+    push eax
+
+    
+    mov eax, esp
+    push eax
+    call syscall_handler
+    add esp, 4
+   
+    pop eax
+    pop ecx
+    pop edx
+    pop ebx
+    add esp, 4
+    pop ebp
+    pop esi
+    pop edi
+
+    pop ds
+    
+    sti
+    iretd

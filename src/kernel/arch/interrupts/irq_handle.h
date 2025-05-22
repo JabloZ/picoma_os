@@ -6,10 +6,11 @@
 #include "../../clibs/stdbool.h"
 #include "../../clibs/string.h"
 #include "../../clibs/memory.h"
+#include "../../proc/proc.h"
 #include "../drivers/pte.h"
 #include "pic.h"
 #include "irq.h"
-
+int execute_or_recognize_command();
 void handler_irq_1();
 char g_cmd_str[10][100];
 int recognize_command();

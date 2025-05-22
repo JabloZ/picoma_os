@@ -16,6 +16,6 @@
 #include "memory/kalloc.h"
 #include "memory/pmm.h"
 #include "elf.h"
-#include "proc/tss.h"
+#include "proc/user.h"
 
 #endif

@@ -1,24 +1,9 @@
 #ifndef PROC_H
 #define PROC_H
-#include "stdint.h"
+#include "../clibs/stdint.h"
 #include "../memory/page.h"
-typedef struct process{
-    uint32_t id;
-    uint32_t priority;
-    page_directory_entry* page_directory;
-    uint32_t state;
-    thread threads[5];
-}process;
-typedef struct thread{
-    process* parent;
-    void* initial_stack;
-    void* stack_limit;
-    void* kernel_stack;
-    uint32_t priority;
-    uint32_t state;
-    trap_frame frame;
-}thread;
-typedef struct trap_frame{
+#include "../memory/elf.h"
+typedef struct{
     uint32_t esp;
     uint32_t ebp;
     uint32_t eip;
@@ -30,4 +15,26 @@ typedef struct trap_frame{
     uint32_t edx;
     uint32_t flags;
 }trap_frame;
+typedef struct{
+    //process* parent;
+    void* initial_stack;
+    void* stack_limit;
+    void* kernel_stack;
+    uint32_t priority;
+    uint32_t state;
+    trap_frame frame;
+}thread;
+
+typedef struct{
+    uint32_t id;
+    uint32_t priority;
+    page_directory_entry* page_directory;
+    uint32_t state;
+    uint32_t thread_count;
+    thread threads[5];
+}process;
+
+uint32_t create_process(char* process_path);
+void jump_to_process(uint32_t adr, uint32_t adr2);
+uint32_t* proc_list[64];
 #endif

@@ -99,10 +99,11 @@ void init_isr(){
     set_gate(46, (uint32_t)&isr_46, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
     set_gate(47, (uint32_t)&isr_47, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
     set_gate(48, (uint32_t)&isr_48, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
-
+    set_gate(0x80, (uint32_t)&isr80, 0x08, IDT_RING_0 | BIT_32_INTERRUPT);
     for(uint8_t i=0; i<48; i++){
         enable_gate(i);
     }
+    enable_gate(0x80);
     
     load_idt(&g_idt_desc);
     
@@ -118,4 +119,11 @@ void  __attribute__((cdecl)) exception_handler(registers* frame){
         panic();}
 
     //return;
+}
+void syscall_handler(registers* reg){
+    printf("syscall %p|%p|%p|%p|%p|%p|%p",reg->ds,reg->eax, reg->ebx,reg->edi, reg->esi, reg->edx, reg->ecx);
+    switch(reg->eax){
+        case 0:
+            printf("syscall write");
+    }
 }

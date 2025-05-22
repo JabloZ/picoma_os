@@ -21,7 +21,7 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
     printf("________________________________________________________________________________\n");
     printf(">");
     print_pmm();
-     void* kernel_stack_top=(void*)0xC03FFFFF;
+     void* kernel_stack_top=(void*)0xC07FFFFF;
     
     __asm__ volatile (
     "mov %0, %%esp\n"
@@ -81,15 +81,27 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
     //read_elf("testelf.bin");
 
     //usermode();
-    
    
     //handler_irq_1();
-    write_tss(&g_gdt_entries[5]);
+    //write_tss(&g_gdt_entries[5]);
+    
     //printf("~/>");
     //execute_or_recognize_command();
-    
-  
-    
+    //test_user_function();
+    char *str="hello";
+   printf("%p s",str);
+    __asm__ volatile (
+        "mov $1, %%eax\n"      // syscall number 0 = write
+        "mov %0, %%ebx\n"      // arg1: pointer to string
+        "int $0x80\n"
+        :
+        : "r"(str)
+        : "eax", "ebx"
+    );
+     //6000 - edi
+   //400000 - esi
+    create_process("testelf.bin");
+    //printf("nigdy");
     //printf("filetest    txt");
    //creat_file_opofs(&root_dir, 3, "filetest.txt", 900,0,0);
 end:

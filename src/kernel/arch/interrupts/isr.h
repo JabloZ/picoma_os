@@ -6,8 +6,9 @@
 //#include "../drivers/fdc.h"
 #include "idt.h"
 typedef struct{
-      uint32_t ds;                                            
-    uint32_t edi, esi, ebp, useless, ebx, edx, ecx, eax;  
+    uint32_t ds;                                            
+    uint32_t esi, edi, ebp, useless;
+    uint32_t ebx, edx, ecx, eax;  
     uint32_t interrupt, error;                            
     uint32_t eip, cs, eflags, esp, ss;
 } __attribute__((packed)) registers;
@@ -63,8 +64,10 @@ extern void isr_45();
 extern void isr_46();
 extern void isr_47();
 extern void isr_48();
+extern void isr80();
 extern void isr6();
 void init_isr();
+void syscall_handler(registers* reg);
 void enable_gate(uint8_t interrupt);
 void disable_gate(uint8_t interrupt);
 void exception_handler(registers* frame);

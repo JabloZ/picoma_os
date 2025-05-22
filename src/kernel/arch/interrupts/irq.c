@@ -21,7 +21,9 @@ void init_filesystem_vars(){
     memset(global_cmd_prefix,0,1024);
     elements_in_prefix=0;
 }
-
+void handler_syscall(){
+    printf("no");
+}
 void init_irq(){
     
     capslock_pressed=0;
@@ -30,7 +32,7 @@ void init_irq(){
     pte_cmd_mode=0;
     g_irq_handler[0]=handler_irq_0;
     g_irq_handler[1]=handler_irq_1;
-    
+   
     remap_pic(REMAP_OFFSET, REMAP_OFFSET+8);
     
     for (uint8_t i=0; i<16; i++){

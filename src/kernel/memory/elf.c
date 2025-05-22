@@ -1,5 +1,5 @@
 #include "elf.h"
-void read_elf(uint8_t* filename_to_read){
+void* read_elf(uint8_t* filename_to_read){
     
     
     //bool find_file_opo(uint32_t disk, char* path, file_entry* file_e, file_entry* file_test, file_entry *end_file, int* lba_of_filedir);
@@ -39,7 +39,6 @@ void read_elf(uint8_t* filename_to_read){
         return;
     }*/
     
-    void* program_load_adr=mem_allocate(4096);
     uint32_t program_header_offset=elf_h->program_header_offset;
     uint32_t program_header_size=elf_h->program_entry_size*elf_h->program_entries_count;
     uint32_t program_entry_size=elf_h->program_entry_size;
@@ -53,9 +52,9 @@ void read_elf(uint8_t* filename_to_read){
         vmm_alloc_page_4kb(kernel_second,mem,ph->p_memsz);
         memset(mem,0,ph->p_memsz);
         memcpy(mem,buf+ph->p_offset,ph->p_filesz);
-        
-        
     }
+    return elf_h->entry_offset;
+    /*
     typedef void (*entry_point_t)(void);
     entry_point_t entry = (entry_point_t)elf_h->entry_offset;
     entry(); 
@@ -65,6 +64,6 @@ void read_elf(uint8_t* filename_to_read){
         vmm_unmap_page_4kb(kernel_second,mem);
     }
     
-    memory_free(buf);
+    memory_free(buf);*/
     
 }

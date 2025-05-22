@@ -62,5 +62,5 @@ void switch_current_dir(uint32_t phys_addr);
 void enable_paging_flag(void);
 void set_stack_top_4mb(void);
 #define KERNEL_STACK_SIZE 0xFFFF
-#define KERNEL_STACK_TOP 0xC03FFFFF
+#define KERNEL_STACK_TOP 0xC07FFFFF
 #endif

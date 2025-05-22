@@ -117,6 +117,12 @@ int return_command_num(char* str_cmd){
     if (strcmp(str_cmd,"help",4)==1){
         return 8;
     }
+    if (strcmp(str_cmd,"execute",7)==1){
+        return 9;
+    }
+    if (strcmp(str_cmd,"proc",4)==1){
+        return 10;
+    }
 }
 void handler_irq_1(){
     
@@ -535,4 +541,311 @@ void handler_irq_1(){
     
     pic_send_eoi(1);
 
+}
+
+int execute_or_recognize_command(){
+    
+    for (int i=1; i<10; i++){
+        //printf("%s",g_cmd_str[i-1]);
+        switch(return_command_num(g_cmd_str[i-1])){
+            case 0:
+                
+                break;
+            case 1: {//la 'dir' - list all from dir
+                
+                //STRING FORMATTING : ONLY FOR DIRECTORIES FOR NOW 
+                if (strlen_not_space(g_cmd_str[i])==0){
+                    printf("\nToo few arguments.\n");
+                    break;
+                }
+                printf("\n\n");
+                if (strlen(g_cmd_str[i])==0){
+                    break;
+                }
+                
+                file_entry file_e;
+                file_entry save_f;
+                
+                return_file_entry(i, &save_f, &file_e);
+                
+                if (strcmp(g_cmd_str[i],".",1)==1){
+                    file_e=root_dir;
+                }
+                else{
+                   
+                    if (file_e.is_dir==0){
+                        printf("[%s] is not a directory",g_cmd_str[i]);
+                        break;
+                    }
+                } 
+             
+                int max_j=0;
+                if (file_e.size%512==0){
+                    max_j=file_e.size/512;
+                }
+                else{
+                    max_j=(file_e.size/512)+1;
+                }
+                uint8_t buf[512*max_j];
+                //uint8_t* buf=mem_allocate(max_j*512);
+                char name[16];
+                for (int j=0; j<max_j; j++){
+                    
+                    fdc_read_sector(0,file_e.lba_first+j, buf,0,sector_read);
+                    for (int x=0; x<16; x++){
+                        for (int z=0; z<15; z++){
+                            name[z]=(char)buf[(x*32)+z];
+                        }
+                        name[15]='\0';
+                        
+                        if (name[0]!=0){
+                            uint32_t size=(int)buf[(x*32)+1+15]<<0 | (int)buf[(x*32)+2+15]<<8 | (int)buf[(x*32)+3+15]<<16 | (int)buf[(x*32)+4+15]<<24;
+                            uint32_t lba=(int)buf[(x*32)+5+15]<<0 | (int)buf[(x*32)+6+15]<<8 | (int)buf[(x*32)+7+15]<<16 | (int)buf[(x*32)+8+15]<<24;
+                            //printf("size1: %d size2: %d size3: %d size4: %d",buf[i*32+1+15]<<0,buf[i*32+2+15],buf[i*32+3+15]<<16,buf[i*32+4+15]<<24);
+                            printf("%s | lba: %d | size: %d \n",name,lba,size);
+                        }
+                        memset(name, 0, 16);
+                    }
+                }
+                
+                //memory_free(buf);
+                
+                memset(name,0,16);
+                //memset(&file_e, 0, sizeof(file_e));
+                //memset(&save_f, 0, sizeof(save_f));
+                break;} 
+            case 2:{ //pf
+                 if (strlen_not_space(g_cmd_str[i])==0){
+                    printf("\nToo few arguments.\n");
+                    break;
+                }
+
+        
+                printf("\n");
+                int count_elements=0;
+                for (int j=0; j<strlen(g_cmd_str[i])-1;j++){
+                    if (g_cmd_str[i][j]=='/'){
+                    count_elements++;
+                    }
+                }
+                char path[(15*(count_elements+1))+(count_elements+1)];
+                memset(path,' ',(15*(count_elements+1))+(count_elements+1));
+                
+                file_entry file_e;
+                file_entry save_f;
+
+                return_file_entry(i, &save_f, &file_e);
+
+                //char buf[file_e.size];
+                uint8_t* buf=mem_allocate(file_e.size);
+                read_file_opo(0,&file_e,buf);
+                for (int c=0; c<file_e.size; c++){
+                    
+                    printf("%c",buf[c]);
+                }
+                memory_free(buf);
+                //printf("pte: %d\n",pte_mode);
+
+                break;}
+            case 3:{//cd
+                if (strlen_not_space(g_cmd_str[i])==0){
+                    printf("\nToo few arguments.\n");
+                    break;
+                }
+                if (g_cmd_str[i][0]=='.' && '.'==g_cmd_str[i][1]){
+                    for (int n=strlen(global_cmd_prefix)-1;n>=0; n--){
+                        if (global_cmd_prefix[n]=='/'){
+                            global_cmd_prefix[n]='\0';
+                            break;
+                        }
+                        global_cmd_prefix[n]='\0';
+                    }
+                    elements_in_prefix--;
+                    break;
+                }
+                
+                int iter_for_path=0;
+                int first_strlen_path=strlen(global_cmd_prefix);
+                if (elements_in_prefix!=0){
+                    global_cmd_prefix[first_strlen_path]='/';
+                    first_strlen_path++;
+                }
+                
+                for (int j=0; j<strlen(g_cmd_str[i]); j++){
+                    global_cmd_prefix[first_strlen_path]=g_cmd_str[i][j];
+                    first_strlen_path++;
+                }
+               
+                elements_in_prefix++;
+                break;
+            }
+            case 4:{ //pte (text editor)
+                 if (strlen_not_space(g_cmd_str[i])==0){
+                    printf("Too few arguments.\n");
+                    break;
+                }
+               
+               top_cursor=0;
+                global_cursor=0;
+               int lba;
+                file_entry save_f;
+                file_entry file_e;
+                lba=return_file_entry(i,&save_f, &file_e);
+                if (strcmp(g_cmd_str[i],".",1)==1){
+                    file_e=root_dir;
+                }
+                char path[16];
+                char path_new[16];
+                strcpy(path,g_cmd_str[i+1]);
+                opo_path_formatter(path, path_new,1);
+                //printf("git");
+                //printf("file_e size: %d",file_e.size);
+
+                //printf("file e: %s",file_e.filename);
+                if (file_e.is_dir==1 || strlen(file_e.filename)!=15){
+                    printf("Error: not a file.");
+                    break;
+                };
+                *file_opened=file_e;
+                
+                pte_mode=1;
+                save_cursor_x=video_x;
+                save_cursor_y=video_y;
+                setup_pte(&file_e);
+                
+                char_count=file_e.size-1;
+                
+                unsigned char pte_buf[file_e.size];
+              
+                read_file_opo(0,&file_e,pte_buf);
+                int y_pte=0;
+                int x_pte=0;
+                //memset(pte_data,0,1840);
+                for (int x=0; x<23; x++){
+                    for (int y=0; y<80; y++){
+                        pte_data[x][y]=0;
+                    }
+                }
+                if (file_e.size<4096){
+                    pte_saved_data=mem_allocate(4096);
+                    size_of_file=4096;
+                }else{
+                    pte_saved_data=mem_allocate(file_e.size);
+                    size_of_file=((file_e.size/4096)+1)*4096;
+                }
+
+                if (file_e.size!=0){
+
+                    for (int c=0; c<file_e.size; c++){
+                        pte_saved_data[c]=pte_buf[c];
+                        global_cursor++;
+
+                 //remove_char(video_x, video_y);
+                    }
+                    refresh_based_on_pte_global(0);
+                }
+                else{
+                    video_x=0;
+                    video_y=2;
+                    update_cursor(video_x,video_y);
+
+                }
+                //memory_free(pte_saved_data);
+                strcpy(save_path_for_pte,g_cmd_str[i]);
+                memset(&file_e, 0, sizeof(file_e));
+                memset(&save_f, 0, sizeof(save_f));
+                
+                strcpy(g_cmd_str[i],"");
+                strcpy(g_cmd_str[i-1],"");
+                //save_video_memory();
+                //clear_screen();
+                
+                break;
+            }
+            case 5:{ //mkf
+                if (strlen_not_space(g_cmd_str[i+1])==0 || ((g_cmd_str[i+1])==0 && strlen_not_space(g_cmd_str[i+2])==0)){
+                    printf("\nToo few arguments.\n");
+                    break;
+                }
+                int lba;
+                file_entry save_f;
+                file_entry file_e;
+                lba=return_file_entry(i,&save_f, &file_e);
+                if (strcmp(g_cmd_str[i],".",1)==1){
+                    file_e=root_dir;
+                }
+                char path[16];
+                char path_new[16];
+                strcpy(path,g_cmd_str[i+1]);
+                opo_path_formatter(path, path_new,1);
+                
+                create_file_opofs(&file_e,file_e.lba_first,path_new,find_free_sectors_in_disk(0),0,0,0);
+                break;
+            }
+            case 6:{ //mkd
+                if (strlen_not_space(g_cmd_str[i+1])==0 || ((g_cmd_str[i+1])==0 && strlen_not_space(g_cmd_str[i+2])==0)){
+                    printf("\nToo few arguments.\n");
+                    break;
+                }
+                int lba;
+                file_entry save_f;
+                file_entry file_e;
+                lba=return_file_entry(i,&save_f, &file_e);
+                if (strcmp(g_cmd_str[i],".",1)==1){
+                    file_e=root_dir;
+                }
+                char path[16];
+                char path_new[16];
+                strcpy(path,g_cmd_str[i+1]);
+                opo_path_formatter(path, path_new,1);
+                
+                create_file_opofs(&file_e,file_e.lba_first,path_new,find_free_sectors_in_disk(512),512,0,1);
+                break;
+            }
+            case 7:{ //remove
+                if (strlen_not_space(g_cmd_str[i])==0){
+                    printf("\nToo few arguments.\n");
+                    break;
+                }
+                file_entry save_f;
+                file_entry file_e;
+                int lba=return_file_entry(i,&save_f, &file_e);
+                if (strcmp(g_cmd_str[i],".",1)==1){
+                    file_e=root_dir;
+                }
+               
+                delete_file_or_dir(&file_e,lba);
+                break;
+            }
+            case 8:{
+                printf("\n\nHOME DIRECTORY: [.]");
+                printf("\n-la [dir] - shows directories and files in path\n-pf [path to file] - prints out file\n-pte [path_to_file] - opens simple text editor\n -click ESCAPE to switch between insert and command mode in pte\n -qs: quit and save, q: don't save\n");
+                printf("-cd [dir] - change directory, .. to go back one directory\n");
+                printf("-mkf [path] [filename] - create file\n");
+                printf("-mkd [path] [directory name] - create directory\n");
+                printf("-rmv [path] - delete file/directory\n");
+                break;}
+            case 9:{
+                if (strlen_not_space(g_cmd_str[i])==0){
+                    printf("\nToo few arguments.\n");
+                    break;
+                }
+                read_elf(g_cmd_str[1]);
+                break;}
+            case 10:{
+                if (strlen_not_space(g_cmd_str[i])==0){
+                    printf("\nToo few arguments.\n");
+                    break;
+                }
+                create_process(g_cmd_str[1]);
+                break;}
+            default:{
+                printf("\nCommand unrecognised!\n");
+                break;
+            }
+        }
+        for (int k=0; k<10; k++){
+            memset(g_cmd_str[k],0,100);
+        }
+    }
 }

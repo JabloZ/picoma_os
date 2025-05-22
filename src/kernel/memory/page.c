@@ -81,7 +81,7 @@ void init_page(){
 void* vmm_alloc_page_4kb(page_table_entry* page_tab ,uint32_t virtual_adr, uint32_t phys_adr){
     //uint32_t pd_index=virtual_adr>>22;
     uint32_t pt_index=(virtual_adr>>12)&0x3FF;
-    page_tab[pt_index]= (phys_adr&PAGE_FRAME_ADDR)|PAGE_PRESENT|PAGE_WRITABLE;
+    page_tab[pt_index]= (phys_adr&PAGE_FRAME_ADDR)|PAGE_PRESENT|PAGE_WRITABLE|PAGE_USER;
     flush_tlb_single(virtual_adr);
 }
 void vmm_alloc_page_4mb(page_table_entry* page_tab,uint32_t virtual_adr, uint32_t phys_adr){

@@ -47,7 +47,7 @@ int setbit(uint8_t* bits, int bit, int val);
 int allocate_sectors(int lba_start, int sectors);
 int delete_file_or_dir(file_entry* file_to_delete, int parent_lba);
 
-int execute_or_recognize_command();
+
 int move_line_down();
 int recognize_command(char* command);
 int return_file_entry_with_name(char* name, file_entry* save_f, file_entry* file_e);

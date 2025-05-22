@@ -5,7 +5,7 @@
 #include "../clibs/stdbool.h"
 #include "../arch/drivers/fs/opofs.h"
 #include "kalloc.h"
-void read_elf(uint8_t* filename);
+void* read_elf(uint8_t* filename);
 #define ELF_32 1
 #define ELF_64 2
 
