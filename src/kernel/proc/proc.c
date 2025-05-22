@@ -17,22 +17,16 @@ uint32_t create_process(char* process_name){
     main_thread->state=1;
     main_thread->initial_stack=0;
     main_thread->stack_limit=(void*) ((uint32_t) main_thread->initial_stack + 4096);
+    void* user_stack = (void*)0xBFFFE000;
+
     void* stack_phys=pmm_alloc();
-    void* stack=vmm_alloc_page_4kb(kernel_second,entry+0x1000,stack_phys);
-    main_thread->initial_stack=stack;
+    void* stack=vmm_alloc_page_4kb(kernel_second,user_stack,stack_phys);
+    main_thread->initial_stack=user_stack;
     main_thread->frame.esp=main_thread->initial_stack;
     main_thread->frame.ebp=main_thread->frame.esp;
     main_thread->frame.eip=entry;
-    
+    switch_current_dir((uint32_t)VIRT_TO_PHYS(&page_directory[767]));
     jump_to_process(main_thread->frame.eip,main_thread->frame.esp);
-    char* msg="afasf";
-    __asm__ volatile (
-        "mov $0, %%eax\n"     // syscall number: 0 = write
-        "mov %0, %%ebx\n"     // arg1 = pointer to string
-        "int $0x80\n"
-        :
-        : "r"(msg)
-        : "eax", "ebx"
-    );
+    
     //entry(); 
 }

@@ -1,6 +1,5 @@
 #include "main.h"
 
-
 void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_info* g_memory_regs_info_boot)
 {
     
@@ -17,7 +16,7 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
     services_init();
     
     printf("________________________________________________________________________________");
-    printf("|                            X86 PICOMA OS: v0.0.2                             |");
+    printf("|                            X86 PICOMA OS: v0.0.3                             |");
     printf("________________________________________________________________________________\n");
     printf(">");
     print_pmm();
@@ -88,19 +87,27 @@ void __attribute__((section(".entry"))) _start(uint16_t boot_drive, global_mem_i
     //printf("~/>");
     //execute_or_recognize_command();
     //test_user_function();
-    char *str="hello";
-   printf("%p s",str);
-    __asm__ volatile (
-        "mov $1, %%eax\n"      // syscall number 0 = write
-        "mov %0, %%ebx\n"      // arg1: pointer to string
-        "int $0x80\n"
-        :
-        : "r"(str)
-        : "eax", "ebx"
-    );
+
+    
+  
+    
      //6000 - edi
    //400000 - esi
-    create_process("testelf.bin");
+   /*
+   print_pmm();
+   save_context(&&after_program);
+   elf_header* prog=read_elf("testelf.bin");
+   jump_elf(prog);
+
+after_program:
+   
+   remove_elf(prog);
+   print_pmm();*/
+    //ABOVE IS EXAMPLE OF RUNNING EXECUTABLES WITH TURNING BACK 
+
+
+   //printf("never went back");
+    //create_process("testelf.bin");
     //printf("nigdy");
     //printf("filetest    txt");
    //creat_file_opofs(&root_dir, 3, "filetest.txt", 900,0,0);

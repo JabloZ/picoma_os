@@ -46,7 +46,7 @@ enum page_dir_flags{
 page_table_entry kernel_zero[PAGE_TABLE_COUNT] __attribute__((aligned(PAGE_SIZE)));
 page_table_entry kernel_first[PAGE_TABLE_COUNT] __attribute__((aligned(PAGE_SIZE)));
 page_table_entry kernel_second[PAGE_TABLE_COUNT] __attribute__((aligned(PAGE_SIZE)));
-
+page_table_entry userspace_first[PAGE_TABLE_COUNT] __attribute__((aligned(PAGE_SIZE)));
 void reset_stack();
 void flush_tlb_single(uint32_t addr); 
 void init_page();

@@ -4,8 +4,9 @@
 #include "../clibs/stdio.h"
 #include "../clibs/stdbool.h"
 #include "../arch/drivers/fs/opofs.h"
+#include "../arch/interrupts/isr.h"
 #include "kalloc.h"
-void* read_elf(uint8_t* filename);
+
 #define ELF_32 1
 #define ELF_64 2
 
@@ -74,4 +75,9 @@ typedef struct{
     uint32_t alignment;
 } program_header;
 
+void* read_elf(uint8_t* filename);
+void jump_elf(elf_header* elf_h);
+void* remove_elf(elf_header* elf_h);
+void save_context(uint32_t adr);
+extern void after_program(void);
 #endif

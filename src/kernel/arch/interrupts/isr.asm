@@ -111,36 +111,27 @@ isr6:
 global isr80
 extern syscall_handler
 isr80:
-    cli
-    
-    push ds
-   
-
-    push esi
-    push edi
-    push ebp
-    push dword 0
-    push ebx
-    push edx
-    push ecx
+    pusha               
+    xor eax, eax        
+    mov ax, ds
     push eax
 
+    mov ax, 0x10        
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
     
-    mov eax, esp
-    push eax
+    push esp
     call syscall_handler
     add esp, 4
-   
-    pop eax
-    pop ecx
-    pop edx
-    pop ebx
-    add esp, 4
-    pop ebp
-    pop esi
-    pop edi
 
-    pop ds
-    
-    sti
+    pop eax             
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    popa                
+        
     iretd

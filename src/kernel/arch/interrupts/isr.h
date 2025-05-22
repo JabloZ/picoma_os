@@ -3,6 +3,7 @@
 #include "../../clibs/stdint.h"
 #include "../../clibs/stdint.h"
 #include "../../memory_params.h"
+
 //#include "../drivers/fdc.h"
 #include "idt.h"
 typedef struct{
@@ -72,4 +73,10 @@ void enable_gate(uint8_t interrupt);
 void disable_gate(uint8_t interrupt);
 void exception_handler(registers* frame);
 __attribute__((aligned(64))) isr_handler isr_h[256];
+typedef struct {
+    uint32_t eip;
+    uint32_t ebp;
+    uint32_t esp;
+}saved_context;
+extern saved_context glob_context;
 #endif

@@ -26,7 +26,7 @@ void init_page(){
     //printf("%p|",page_dir);
     memset(page_directory, 0, sizeof(page_directory));
     
-    page_dir=(( ((uint32_t)VIRT_TO_PHYS(kernel_zero)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE|PAGE_DIR_USER);
+    page_dir=(( ((uint32_t)VIRT_TO_PHYS(kernel_zero)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE)|PAGE_USER;
     page_directory[0]=page_dir;
     uint32_t adr=0x0;
     for (int i = 0; i < PAGE_TABLE_COUNT; i++) {
@@ -40,7 +40,7 @@ void init_page(){
     
     //printf("%p",kernel_zero[1023]);
     
-    page_dir=(( ((uint32_t)VIRT_TO_PHYS(kernel_first)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE|PAGE_DIR_USER);
+    page_dir=(( ((uint32_t)VIRT_TO_PHYS(kernel_first)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE|PAGE_USER);
     page_directory[768]=page_dir;
     adr=0x0;
     for (int i = 0; i < PAGE_TABLE_COUNT; i++) {
@@ -52,16 +52,29 @@ void init_page(){
         adr+=0x1000;
     }
     uint32_t pd_index = (KERNEL_SPACE >> 22)+1;
-    page_dir=(( ((uint32_t)VIRT_TO_PHYS(kernel_second)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE|PAGE_DIR_USER);
+    page_dir=(( ((uint32_t)VIRT_TO_PHYS(kernel_second)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE);
     page_directory[769]=page_dir;
     adr=0x400000;
     for (int j = 0; j < PAGE_TABLE_COUNT; j++) {
         uint32_t entry;
         //uint32_t phys_addr=pmm_alloc();
         //pmm_alloc_addr(adr);
-        entry=(adr & PAGE_FRAME_ADDR)|PAGE_PRESENT|PAGE_WRITABLE|PAGE_USER;
+        entry=(adr & PAGE_FRAME_ADDR)|PAGE_PRESENT|PAGE_WRITABLE;
         kernel_second[j]= entry;
         adr+=0x1000;
+        //pmm_alloc_addr(j*0x1000);
+    }
+ 
+    page_dir=(( ((uint32_t)VIRT_TO_PHYS(userspace_first)))|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE|PAGE_DIR_USER);
+    page_directory[767]=page_dir;
+    adr=0x800000;
+    for (int j = 0; j < PAGE_TABLE_COUNT; j++) {
+        uint32_t entry;
+        //uint32_t phys_addr=pmm_alloc();
+        //pmm_alloc_addr(adr);
+        entry=(adr & PAGE_FRAME_ADDR)|PAGE_PRESENT|PAGE_WRITABLE|PAGE_USER;
+        kernel_second[j]= entry;
+        
         //pmm_alloc_addr(j*0x1000);
     }
 
@@ -87,7 +100,7 @@ void* vmm_alloc_page_4kb(page_table_entry* page_tab ,uint32_t virtual_adr, uint3
 void vmm_alloc_page_4mb(page_table_entry* page_tab,uint32_t virtual_adr, uint32_t phys_adr){
     
     uint32_t pd_index=virtual_adr>>22;
-    page_directory[pd_index]=((uint32_t)phys_adr)|PAGE_DIR_PRESENT|PAGE_DIR_WRITABLE;
+    page_directory[pd_index]=((uint32_t)phys_adr)|PAGE_DIR_PRESENT;
     flush_tlb_single(virtual_adr);
     //enable_paging_flag();
     //printf("%p",page_alloc);
@@ -98,6 +111,7 @@ void vmm_unmap_page_4kb(page_table_entry* page_tab, uint32_t virtual_adr){
     uint32_t offset=virtual_adr | PAGE_FRAME_ADDR;
     uint32_t phys_adr=page_tab[pt_index] & PAGE_FRAME_ADDR;
     page_tab[pt_index]= 0;
+  
     pmm_free(phys_adr);
     flush_tlb_single(virtual_adr);
 

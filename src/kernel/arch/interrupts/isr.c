@@ -121,9 +121,25 @@ void  __attribute__((cdecl)) exception_handler(registers* frame){
     //return;
 }
 void syscall_handler(registers* reg){
-    printf("syscall %p|%p|%p|%p|%p|%p|%p",reg->ds,reg->eax, reg->ebx,reg->edi, reg->esi, reg->edx, reg->ecx);
+    //printf("syscall %p|%p|%p|%p|%p|%p|%p",reg->ds,reg->eax, reg->ebx,reg->edi, reg->esi, reg->edx, reg->ecx);
     switch(reg->eax){
         case 0:
-            printf("syscall write");
+            printf("%s",reg->ebx);
+            break;
+        case 1:
+            
+               __asm__ volatile (
+                    "mov %0, %%esp\n\t"
+                    "mov %1, %%ebp\n\t"
+                    "jmp *%2\n\t"   // skok do zapisanej wartości EIP
+                    :
+                    : "r"(glob_context.esp), "r"(glob_context.ebp), "r"(glob_context.eip)
+                    : "memory"
+                );
+            return;
+            break;
+        default:
+            printf("different syscall");
+            break;
     }
 }
